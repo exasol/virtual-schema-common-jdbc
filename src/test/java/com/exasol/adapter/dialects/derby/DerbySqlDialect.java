@@ -88,7 +88,7 @@ public class DerbySqlDialect extends AbstractSqlDialect {
 
     @Override
     public boolean requiresSchemaQualifiedTableNames(final SqlGenerationContext context) {
-        return false;
+        return true;
     }
 
     /**
