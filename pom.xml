@@ -15,8 +15,29 @@
     <junit.version>5.4.2</junit.version>
     <junit.platform.version>1.4.2</junit.platform.version>
     <maven.surefire.version>2.22.1</maven.surefire.version>
-    <vscommon.version>7.3.0</vscommon.version>
+    <vscommon.version>7.4.0</vscommon.version>
+    <gpg.skip>true</gpg.skip>
   </properties>
+  <licenses>
+    <license>
+      <name>MIT</name>
+      <url>https://opensource.org/licenses/MIT</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <developers>
+    <developer>
+      <name>Exasol</name>
+      <email>opensource@exasol.com</email>
+      <organization>Exasol AG</organization>
+      <organizationUrl>https://www.exasol.com/</organizationUrl>
+    </developer>
+  </developers>
+  <scm>
+    <connection>scm:git:https://github.com/exasol/virtual-schema-common-jdbc.git</connection>
+    <developerConnection>scm:git:https://github.com/exasol/virtual-schema-common-jdbc.git</developerConnection>
+    <url>https://github.com/exasol/virtual-schema-common-jdbc/tree/master</url>
+  </scm>
   <distributionManagement>
     <repository>
       <id>maven.exasol.com</id>
@@ -148,6 +169,53 @@
           <source>${java.version}</source>
           <target>${java.version}</target>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>3.0.1</version>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>3.0.1</version>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <charset>UTF-8</charset>
+          <doclint />
+          <serialwarn>true</serialwarn>
+          <failOnError>true</failOnError>
+          <failOnWarnings>true</failOnWarnings>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-gpg-plugin</artifactId>
+        <version>1.6</version>
+        <executions>
+          <execution>
+            <id>sign-artifacts</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>sign</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>

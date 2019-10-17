@@ -1,0 +1,13 @@
+language: java
+
+jdk:
+  - openjdk9
+
+addons:
+  sonarcloud:
+    organization: exasol
+    token:
+      secure: //TODO add token
+
+script:
+  - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar
