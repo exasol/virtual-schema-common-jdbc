@@ -56,8 +56,7 @@ import com.exasol.adapter.sql.SqlTable;
  * <p>
  * If this class is not sufficiently customizable for your use case, you can extend this class and override the required
  * methods. You also have to return your custom visitor class then in the method
- * {@link SqlDialect#getSqlGenerationVisitor(SqlGenerationContext)}. See
- * {@link com.exasol.adapter.dialects.oracle.OracleSqlGenerationVisitor} for an example.
+ * {@link SqlDialect#getSqlGenerationVisitor(SqlGenerationContext)}.
  * </p>
  *
  * Note on operator associativity and parenthesis generation: Currently we use parenthesis almost always. Without
