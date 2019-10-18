@@ -1,10 +1,13 @@
 package com.exasol.adapter.dialects;
 
-import static com.exasol.adapter.AdapterProperties.*;
-import static com.exasol.adapter.dialects.exasol.ExasolProperties.EXASOL_CONNECTION_STRING_PROPERTY;
-import static com.exasol.adapter.dialects.exasol.ExasolProperties.EXASOL_IMPORT_PROPERTY;
-import static com.exasol.adapter.dialects.oracle.OracleProperties.*;
-import static com.exasol.adapter.dialects.postgresql.PostgreSQLSqlDialect.POSTGRESQL_IDENTIFIER_MAPPING_PROPERTY;
+import static com.exasol.adapter.AdapterProperties.CONNECTION_NAME_PROPERTY;
+import static com.exasol.adapter.AdapterProperties.CONNECTION_STRING_PROPERTY;
+import static com.exasol.adapter.AdapterProperties.DEBUG_ADDRESS_PROPERTY;
+import static com.exasol.adapter.AdapterProperties.EXCEPTION_HANDLING_PROPERTY;
+import static com.exasol.adapter.AdapterProperties.PASSWORD_PROPERTY;
+import static com.exasol.adapter.AdapterProperties.SCHEMA_NAME_PROPERTY;
+import static com.exasol.adapter.AdapterProperties.SQL_DIALECT_PROPERTY;
+import static com.exasol.adapter.AdapterProperties.USERNAME_PROPERTY;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -14,7 +17,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -154,78 +159,6 @@ class AbstractSqlDialectTest {
                 sqlDialect::validateProperties);
         assertThat(exception.getMessage(), containsString(
                 "Invalid value 'IGNORE_ALL' for property EXCEPTION_HANDLING. Choose one of: IGNORE_INVALID_VIEWS, NONE"));
-    }
-
-    @Test
-    void testExasolSpecificPropertyImport() {
-        getMinimumMandatory();
-        this.rawProperties.put(EXASOL_IMPORT_PROPERTY, "EXASOL_IMPORT_PROPERTY");
-        final AdapterProperties adapterProperties = new AdapterProperties(this.rawProperties);
-        final SqlDialect sqlDialect = new DummySqlDialect(null, adapterProperties);
-        final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
-                sqlDialect::validateProperties);
-        assertThat(exception.getMessage(),
-                containsString("The dialect GENERIC does not support IMPORT_FROM_EXA property."));
-    }
-
-    @Test
-    void testExasolSpecificPropertyConnectionString() {
-        getMinimumMandatory();
-        this.rawProperties.put(EXASOL_CONNECTION_STRING_PROPERTY, "EXASOL_CONNECTION_STRING_PROPERTY");
-        final AdapterProperties adapterProperties = new AdapterProperties(this.rawProperties);
-        final SqlDialect sqlDialect = new DummySqlDialect(null, adapterProperties);
-        final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
-                sqlDialect::validateProperties);
-        assertThat(exception.getMessage(),
-                containsString("The dialect GENERIC does not support EXA_CONNECTION_STRING property."));
-    }
-
-    @Test
-    void testOracleSpecificPropertyImport() {
-        getMinimumMandatory();
-        this.rawProperties.put(ORACLE_IMPORT_PROPERTY, "ORACLE_IMPORT_PROPERTY");
-        final AdapterProperties adapterProperties = new AdapterProperties(this.rawProperties);
-        final SqlDialect sqlDialect = new DummySqlDialect(null, adapterProperties);
-        final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
-                sqlDialect::validateProperties);
-        assertThat(exception.getMessage(),
-                containsString("The dialect GENERIC does not support IMPORT_FROM_ORA property."));
-    }
-
-    @Test
-    void testOracleSpecificPropertyConnectionString() {
-        getMinimumMandatory();
-        this.rawProperties.put(ORACLE_CONNECTION_NAME_PROPERTY, "ORACLE_CONNECTION_NAME_PROPERTY");
-        final AdapterProperties adapterProperties = new AdapterProperties(this.rawProperties);
-        final SqlDialect sqlDialect = new DummySqlDialect(null, adapterProperties);
-        final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
-                sqlDialect::validateProperties);
-        assertThat(exception.getMessage(),
-                containsString("The dialect GENERIC does not support ORA_CONNECTION_NAME property."));
-    }
-
-    @Test
-    void testOracleSpecificPropertyCastNumberToDecimal() {
-        getMinimumMandatory();
-        this.rawProperties.put(ORACLE_CAST_NUMBER_TO_DECIMAL_PROPERTY, "ORACLE_CAST_NUMBER_TO_DECIMAL_PROPERTY");
-        final AdapterProperties adapterProperties = new AdapterProperties(this.rawProperties);
-        final SqlDialect sqlDialect = new DummySqlDialect(null, adapterProperties);
-        final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
-                sqlDialect::validateProperties);
-        assertThat(exception.getMessage(), containsString(
-                "The dialect GENERIC does not support ORACLE_CAST_NUMBER_TO_DECIMAL_WITH_PRECISION_AND_SCALE property."));
-    }
-
-    @Test
-    void testPostgreSqlSpecificPropertyCastNumberToDecimal() {
-        getMinimumMandatory();
-        this.rawProperties.put(POSTGRESQL_IDENTIFIER_MAPPING_PROPERTY, "ORACLE_CAST_NUMBER_TO_DECIMAL_PROPERTY");
-        final AdapterProperties adapterProperties = new AdapterProperties(this.rawProperties);
-        final SqlDialect sqlDialect = new DummySqlDialect(null, adapterProperties);
-        final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
-                sqlDialect::validateProperties);
-        assertThat(exception.getMessage(),
-                containsString("The dialect GENERIC does not support POSTGRESQL_IDENTIFIER_MAPPING property."));
     }
 
     @ValueSource(strings = { "ab:\'ab\'", "a'b:'a''b'", "a''b:'a''''b'", "'ab':'''ab'''" })

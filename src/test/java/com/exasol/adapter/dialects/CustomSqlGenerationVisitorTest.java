@@ -9,9 +9,17 @@ import org.junit.jupiter.api.Test;
 
 import com.exasol.adapter.AdapterException;
 import com.exasol.adapter.AdapterProperties;
-import com.exasol.adapter.dialects.exasol.ExasolSqlDialect;
-import com.exasol.adapter.metadata.*;
-import com.exasol.adapter.sql.*;
+import com.exasol.adapter.dialects.derby.DerbySqlDialect;
+import com.exasol.adapter.metadata.ColumnMetadata;
+import com.exasol.adapter.metadata.DataType;
+import com.exasol.adapter.metadata.TableMetadata;
+import com.exasol.adapter.sql.SqlColumn;
+import com.exasol.adapter.sql.SqlNode;
+import com.exasol.adapter.sql.SqlNodeVisitor;
+import com.exasol.adapter.sql.SqlPredicateNot;
+import com.exasol.adapter.sql.SqlSelectList;
+import com.exasol.adapter.sql.SqlStatementSelect;
+import com.exasol.adapter.sql.SqlTable;
 import com.exasol.sql.SqlNormalizer;
 
 class CustomSqlGenerationVisitorTest {
@@ -28,7 +36,7 @@ class CustomSqlGenerationVisitorTest {
         final String expectedSql = "SELECT NOT_CUSTOM (NOT_CUSTOM (\"C1\")) FROM \"" + schemaName + "\".\"TEST\"";
         final SqlGenerationContext context = new SqlGenerationContext("", schemaName, false);
         final SqlNodeVisitor<String> generator = new TestSqlGenerationVisitor(
-                new ExasolSqlDialect(null, AdapterProperties.emptyProperties()), context);
+                new DerbySqlDialect(null, AdapterProperties.emptyProperties()), context);
         final String actualSql = node.accept(generator);
         assertEquals(SqlNormalizer.normalizeSql(expectedSql), SqlNormalizer.normalizeSql(actualSql));
     }
@@ -36,8 +44,8 @@ class CustomSqlGenerationVisitorTest {
     private SqlNode getTestSqlNode() {
         final TableMetadata clicksMeta = getTestTableMetadata();
         final SqlTable fromClause = new SqlTable("TEST", clicksMeta);
-        final SqlSelectList selectList = SqlSelectList.createRegularSelectList(List.of(
-                new SqlPredicateNot(new SqlPredicateNot(new SqlColumn(1, clicksMeta.getColumns().get(0))))));
+        final SqlSelectList selectList = SqlSelectList.createRegularSelectList(
+                List.of(new SqlPredicateNot(new SqlPredicateNot(new SqlColumn(1, clicksMeta.getColumns().get(0))))));
         return new SqlStatementSelect(fromClause, selectList, null, null, null, null, null);
     }
 

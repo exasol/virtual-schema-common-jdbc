@@ -18,9 +18,8 @@ public class JdbcAdapterFactory implements AdapterFactory {
 
     @Override
     public Set<String> getSupportedAdapterNames() {
-        return Set.of("DERBY");
-//        return Set.of("ATHENA", "BIGQUERY", "DB2", "DERBY", "EXASOL", "GENERIC", "HIVE", "IMPALA", "MYSQL", "ORACLE",
-//                "POSTGRESQL", "REDSHIFT", "SAPHANA", "SQLSERVER", "SYBASE", "TERADATA");
+        return Set.of("ATHENA", "BIGQUERY", "DB2", "DERBY", "EXASOL", "GENERIC", "HIVE", "IMPALA", "MYSQL", "ORACLE",
+                "POSTGRESQL", "REDSHIFT", "SAPHANA", "SQLSERVER", "SYBASE", "TERADATA");
     }
 
     @Override

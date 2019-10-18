@@ -1,15 +1,19 @@
 package com.exasol.adapter.dialects;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import com.exasol.adapter.dialects.derby.DerbySqlDialectFactory;
 import com.exasol.adapter.dialects.dummy.DummySqlDialect;
 import com.exasol.adapter.dialects.dummy.DummySqlDialectFactory;
-import com.exasol.adapter.dialects.exasol.ExasolSqlDialectFactory;
 
 class SqlDialectRegistryTest {
     final SqlDialectRegistry registry = SqlDialectRegistry.getInstance();
@@ -33,7 +37,7 @@ class SqlDialectRegistryTest {
     @Test
     void testLoadSqlDialectFactories() {
         this.registry.loadSqlDialectFactories();
-        assertThat(this.registry.getRegisteredAdapterFactories(), hasItem(instanceOf(DummySqlDialectFactory.class)));
+        assertThat(this.registry.getRegisteredAdapterFactories(), hasItem(instanceOf(DerbySqlDialectFactory.class)));
     }
 
     @Test
@@ -56,10 +60,10 @@ class SqlDialectRegistryTest {
 
     @Test
     void testListRegisteredDialects() {
-        this.registry.registerSqlDialectFactory(new ExasolSqlDialectFactory());
+        this.registry.registerSqlDialectFactory(new DerbySqlDialectFactory());
         this.registry.registerSqlDialectFactory(new DummySqlDialectFactory());
         final String dialectNames = this.registry.listRegisteredSqlDialectNames();
-        assertThat(dialectNames, equalTo("\"DUMMYDIALECT\", \"EXASOL\""));
+        assertThat(dialectNames, equalTo("\"DERBY\", \"DUMMYDIALECT\""));
     }
 
     @Test
