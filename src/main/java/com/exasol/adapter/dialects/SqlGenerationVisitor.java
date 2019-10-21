@@ -5,48 +5,7 @@ import java.util.List;
 
 import com.exasol.adapter.AdapterException;
 import com.exasol.adapter.metadata.DataType;
-import com.exasol.adapter.sql.AggregateFunction;
-import com.exasol.adapter.sql.ScalarFunction;
-import com.exasol.adapter.sql.SqlColumn;
-import com.exasol.adapter.sql.SqlConstants;
-import com.exasol.adapter.sql.SqlFunctionAggregate;
-import com.exasol.adapter.sql.SqlFunctionAggregateGroupConcat;
-import com.exasol.adapter.sql.SqlFunctionScalar;
-import com.exasol.adapter.sql.SqlFunctionScalarCase;
-import com.exasol.adapter.sql.SqlFunctionScalarCast;
-import com.exasol.adapter.sql.SqlFunctionScalarExtract;
-import com.exasol.adapter.sql.SqlGroupBy;
-import com.exasol.adapter.sql.SqlJoin;
-import com.exasol.adapter.sql.SqlLimit;
-import com.exasol.adapter.sql.SqlLiteralBool;
-import com.exasol.adapter.sql.SqlLiteralDate;
-import com.exasol.adapter.sql.SqlLiteralDouble;
-import com.exasol.adapter.sql.SqlLiteralExactnumeric;
-import com.exasol.adapter.sql.SqlLiteralInterval;
-import com.exasol.adapter.sql.SqlLiteralNull;
-import com.exasol.adapter.sql.SqlLiteralString;
-import com.exasol.adapter.sql.SqlLiteralTimestamp;
-import com.exasol.adapter.sql.SqlLiteralTimestampUtc;
-import com.exasol.adapter.sql.SqlNode;
-import com.exasol.adapter.sql.SqlNodeType;
-import com.exasol.adapter.sql.SqlNodeVisitor;
-import com.exasol.adapter.sql.SqlOrderBy;
-import com.exasol.adapter.sql.SqlPredicateAnd;
-import com.exasol.adapter.sql.SqlPredicateBetween;
-import com.exasol.adapter.sql.SqlPredicateEqual;
-import com.exasol.adapter.sql.SqlPredicateInConstList;
-import com.exasol.adapter.sql.SqlPredicateIsNotNull;
-import com.exasol.adapter.sql.SqlPredicateIsNull;
-import com.exasol.adapter.sql.SqlPredicateLess;
-import com.exasol.adapter.sql.SqlPredicateLessEqual;
-import com.exasol.adapter.sql.SqlPredicateLike;
-import com.exasol.adapter.sql.SqlPredicateLikeRegexp;
-import com.exasol.adapter.sql.SqlPredicateNot;
-import com.exasol.adapter.sql.SqlPredicateNotEqual;
-import com.exasol.adapter.sql.SqlPredicateOr;
-import com.exasol.adapter.sql.SqlSelectList;
-import com.exasol.adapter.sql.SqlStatementSelect;
-import com.exasol.adapter.sql.SqlTable;
+import com.exasol.adapter.sql.*;
 
 /**
  * This class has the logic to generate SQL queries based on a graph of {@link SqlNode} elements. It uses the visitor
@@ -173,8 +132,9 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
      *
      * @param selectList list of columns (or expressions) in the <code>SELECT</code> part
      * @return always <code>"true"</code>
+     * @throws AdapterException in case select list cannot be resolved.
      */
-    protected String representAsteriskInSelectList(final SqlSelectList selectList) {
+    protected String representAsteriskInSelectList(final SqlSelectList selectList) throws AdapterException {
         return SqlConstants.ASTERISK;
     }
 

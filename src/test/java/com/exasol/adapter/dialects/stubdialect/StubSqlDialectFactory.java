@@ -19,4 +19,10 @@ public class StubSqlDialectFactory implements SqlDialectFactory {
     public SqlDialect createSqlDialect(final Connection connection, final AdapterProperties properties) {
         return new StubSqlDialect(connection, properties);
     }
+
+    @Override
+    public String getSqlDialectVersion() {
+        return "0.0.0";
+    }
+
 }

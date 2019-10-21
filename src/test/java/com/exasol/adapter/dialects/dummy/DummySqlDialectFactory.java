@@ -16,4 +16,9 @@ public class DummySqlDialectFactory implements SqlDialectFactory {
     public SqlDialect createSqlDialect(final Connection connection, final AdapterProperties properties) {
         return new DummySqlDialect(connection, properties);
     }
+
+    @Override
+    public String getSqlDialectVersion() {
+        return "0.0.0";
+    }
 }

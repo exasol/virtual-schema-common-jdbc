@@ -10,16 +10,8 @@ import org.junit.jupiter.api.Test;
 import com.exasol.adapter.AdapterException;
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.dialects.derby.DerbySqlDialect;
-import com.exasol.adapter.metadata.ColumnMetadata;
-import com.exasol.adapter.metadata.DataType;
-import com.exasol.adapter.metadata.TableMetadata;
-import com.exasol.adapter.sql.SqlColumn;
-import com.exasol.adapter.sql.SqlNode;
-import com.exasol.adapter.sql.SqlNodeVisitor;
-import com.exasol.adapter.sql.SqlPredicateNot;
-import com.exasol.adapter.sql.SqlSelectList;
-import com.exasol.adapter.sql.SqlStatementSelect;
-import com.exasol.adapter.sql.SqlTable;
+import com.exasol.adapter.metadata.*;
+import com.exasol.adapter.sql.*;
 import com.exasol.sql.SqlNormalizer;
 
 class CustomSqlGenerationVisitorTest {

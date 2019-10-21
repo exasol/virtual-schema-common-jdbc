@@ -23,4 +23,11 @@ public interface SqlDialectFactory {
      * @return SQL dialect name
      */
     public String getSqlDialectName();
+
+    /**
+     * Get the version of the SQL dialect.
+     *
+     * @return SQL dialect version
+     */
+    public String getSqlDialectVersion();
 }

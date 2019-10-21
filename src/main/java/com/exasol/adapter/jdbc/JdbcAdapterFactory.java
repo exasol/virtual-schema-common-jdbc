@@ -30,7 +30,7 @@ public class JdbcAdapterFactory implements AdapterFactory {
     @Override
     public String getAdapterVersion() {
         final VersionCollector versionCollector = new VersionCollector(
-                "META-INF/maven/com.exasol/virtualschema-jdbc-adapter/pom.properties");
+                "META-INF/maven/com.exasol/virtual-schema-common-jdbc/pom.properties");
         return versionCollector.getVersionNumber();
     }
 

@@ -5,13 +5,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.exasol.adapter.adapternotes.SchemaAdapterNotes;
-import com.exasol.adapter.jdbc.ColumnMetadataReader;
-import com.exasol.adapter.jdbc.RemoteMetadataReader;
-import com.exasol.adapter.jdbc.TableMetadataReader;
-import com.exasol.adapter.metadata.ColumnMetadata;
-import com.exasol.adapter.metadata.DataType;
-import com.exasol.adapter.metadata.SchemaMetadata;
-import com.exasol.adapter.metadata.TableMetadata;
+import com.exasol.adapter.jdbc.*;
+import com.exasol.adapter.metadata.*;
 
 public class StubMetadataReader implements RemoteMetadataReader {
     private final List<TableMetadata> allTables = createDummyTableList();

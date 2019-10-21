@@ -67,7 +67,8 @@ public final class SqlDialectRegistry {
             final AdapterProperties properties) {
         if (hasDialectWithName(name)) {
             final SqlDialectFactory factory = this.registeredFactories.get(name);
-            LOGGER.config(() -> "Loading SQL dialect: " + factory.getSqlDialectName());
+            LOGGER.config(() -> "Loading SQL dialect: " + factory.getSqlDialectName() + " dialect adapter "
+                    + factory.getSqlDialectVersion());
             return factory.createSqlDialect(connection, properties);
         } else {
             throw new IllegalArgumentException("Unknown SQL dialect \"" + name + "\" requested. " + describe());

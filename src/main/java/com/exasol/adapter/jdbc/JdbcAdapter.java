@@ -71,8 +71,9 @@ public class JdbcAdapter implements VirtualSchemaAdapter {
         }
     }
 
-    protected SchemaMetadata readMetadata(final AdapterProperties properties, final List<String> whiteListedRemoteTables,
-            final ExaMetadata exasolMetadata) throws SQLException, PropertyValidationException {
+    protected SchemaMetadata readMetadata(final AdapterProperties properties,
+            final List<String> whiteListedRemoteTables, final ExaMetadata exasolMetadata)
+            throws SQLException, PropertyValidationException {
         try (final Connection connection = this.connectionFactory.createConnection(exasolMetadata, properties)) {
             final SqlDialect dialect = createDialect(connection, properties);
             dialect.validateProperties();
@@ -154,7 +155,7 @@ public class JdbcAdapter implements VirtualSchemaAdapter {
 
     private List<String> getTableFilter(final Map<String, String> properties) {
         final String tableNames = properties.get(TABLES_PROPERTY);
-        if (tableNames != null && !tableNames.isEmpty()) {
+        if ((tableNames != null) && !tableNames.isEmpty()) {
             final List<String> tables = Arrays.asList(tableNames.split(","));
             for (int i = 0; i < tables.size(); ++i) {
                 tables.set(i, tables.get(i).trim());
