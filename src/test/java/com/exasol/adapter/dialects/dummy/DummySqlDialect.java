@@ -1,16 +1,6 @@
 package com.exasol.adapter.dialects.dummy;
 
-import static com.exasol.adapter.AdapterProperties.CONNECTION_NAME_PROPERTY;
-import static com.exasol.adapter.AdapterProperties.CONNECTION_STRING_PROPERTY;
-import static com.exasol.adapter.AdapterProperties.DEBUG_ADDRESS_PROPERTY;
-import static com.exasol.adapter.AdapterProperties.EXCEPTION_HANDLING_PROPERTY;
-import static com.exasol.adapter.AdapterProperties.EXCLUDED_CAPABILITIES_PROPERTY;
-import static com.exasol.adapter.AdapterProperties.LOG_LEVEL_PROPERTY;
-import static com.exasol.adapter.AdapterProperties.PASSWORD_PROPERTY;
-import static com.exasol.adapter.AdapterProperties.SCHEMA_NAME_PROPERTY;
-import static com.exasol.adapter.AdapterProperties.SQL_DIALECT_PROPERTY;
-import static com.exasol.adapter.AdapterProperties.TABLE_FILTER_PROPERTY;
-import static com.exasol.adapter.AdapterProperties.USERNAME_PROPERTY;
+import static com.exasol.adapter.AdapterProperties.*;
 
 import java.sql.Connection;
 import java.util.Arrays;
@@ -18,10 +8,7 @@ import java.util.List;
 
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.capabilities.Capabilities;
-import com.exasol.adapter.dialects.AbstractSqlDialect;
-import com.exasol.adapter.dialects.BaseQueryRewriter;
-import com.exasol.adapter.dialects.QueryRewriter;
-import com.exasol.adapter.dialects.SqlGenerationContext;
+import com.exasol.adapter.dialects.*;
 import com.exasol.adapter.jdbc.BaseRemoteMetadataReader;
 import com.exasol.adapter.jdbc.RemoteMetadataReader;
 

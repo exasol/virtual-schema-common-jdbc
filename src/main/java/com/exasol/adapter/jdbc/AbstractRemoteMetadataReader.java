@@ -2,13 +2,8 @@ package com.exasol.adapter.jdbc;
 
 import static com.exasol.adapter.jdbc.RemoteMetadataReaderConstants.ANY_TABLE;
 
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.sql.*;
+import java.util.*;
 import java.util.logging.Logger;
 
 import com.exasol.adapter.AdapterProperties;
