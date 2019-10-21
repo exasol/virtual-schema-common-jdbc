@@ -10,13 +10,18 @@ import static com.exasol.adapter.AdapterProperties.SQL_DIALECT_PROPERTY;
 import static com.exasol.adapter.AdapterProperties.USERNAME_PROPERTY;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.sql.SQLException;
+import java.util.*;
 import java.util.logging.Logger;
 
+import com.exasol.adapter.metadata.SchemaMetadata;
+import com.exasol.adapter.sql.ScalarFunction;
+import org.hamcrest.Matchers;
+import org.junit.Assert;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,6 +31,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.dialects.dummy.DummySqlDialect;
 import com.exasol.logging.CapturingLogHandler;
+import org.mockito.Mockito;
 
 class AbstractSqlDialectTest {
     private Map<String, String> rawProperties;
@@ -49,11 +55,11 @@ class AbstractSqlDialectTest {
         this.rawProperties.put(SCHEMA_NAME_PROPERTY, "MY_SCHEMA");
         final AdapterProperties adapterProperties = new AdapterProperties(this.rawProperties);
         final SqlDialect sqlDialect = new DummySqlDialect(null, adapterProperties);
-        final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
-                sqlDialect::validateProperties);
+        final PropertyValidationException exception =
+              assertThrows(PropertyValidationException.class, sqlDialect::validateProperties);
         assertThat(exception.getMessage(), containsString(
-                "You did not specify a connection using the property CONNECTION_NAME and therefore have to specify the property "
-                        + "CONNECTION_STRING"));
+              "You did not specify a connection using the property CONNECTION_NAME and therefore have to specify the "
+                    + "property " + "CONNECTION_STRING"));
     }
 
     @Test
@@ -75,10 +81,10 @@ class AbstractSqlDialectTest {
         this.rawProperties.put(USERNAME_PROPERTY, "MY_USER");
         final AdapterProperties adapterProperties = new AdapterProperties(this.rawProperties);
         final SqlDialect sqlDialect = new DummySqlDialect(null, adapterProperties);
-        final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
-                sqlDialect::validateProperties);
+        final PropertyValidationException exception =
+              assertThrows(PropertyValidationException.class, sqlDialect::validateProperties);
         assertThat(exception.getMessage(), containsString(
-                "You specified a connection using the property CONNECTION_NAME and therefore should not specify"));
+              "You specified a connection using the property CONNECTION_NAME and therefore should not specify"));
     }
 
     @Test
@@ -87,10 +93,10 @@ class AbstractSqlDialectTest {
         this.rawProperties.put(PASSWORD_PROPERTY, "MY_PASSWORD");
         final AdapterProperties adapterProperties = new AdapterProperties(this.rawProperties);
         final SqlDialect sqlDialect = new DummySqlDialect(null, adapterProperties);
-        final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
-                sqlDialect::validateProperties);
+        final PropertyValidationException exception =
+              assertThrows(PropertyValidationException.class, sqlDialect::validateProperties);
         assertThat(exception.getMessage(), containsString(
-                "You specified a connection using the property CONNECTION_NAME and therefore should not specify"));
+              "You specified a connection using the property CONNECTION_NAME and therefore should not specify"));
     }
 
     @Test
@@ -99,10 +105,10 @@ class AbstractSqlDialectTest {
         this.rawProperties.put(CONNECTION_STRING_PROPERTY, "MY_CONN");
         final AdapterProperties adapterProperties = new AdapterProperties(this.rawProperties);
         final SqlDialect sqlDialect = new DummySqlDialect(null, adapterProperties);
-        final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
-                sqlDialect::validateProperties);
+        final PropertyValidationException exception =
+              assertThrows(PropertyValidationException.class, sqlDialect::validateProperties);
         assertThat(exception.getMessage(), containsString(
-                "You specified a connection using the property CONNECTION_NAME and therefore should not specify"));
+              "You specified a connection using the property CONNECTION_NAME and therefore should not specify"));
     }
 
     @Test
@@ -155,13 +161,13 @@ class AbstractSqlDialectTest {
         this.rawProperties.put(EXCEPTION_HANDLING_PROPERTY, "IGNORE_ALL");
         final AdapterProperties adapterProperties = new AdapterProperties(this.rawProperties);
         final SqlDialect sqlDialect = new DummySqlDialect(null, adapterProperties);
-        final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
-                sqlDialect::validateProperties);
+        final PropertyValidationException exception =
+              assertThrows(PropertyValidationException.class, sqlDialect::validateProperties);
         assertThat(exception.getMessage(), containsString(
-                "Invalid value 'IGNORE_ALL' for property EXCEPTION_HANDLING. Choose one of: IGNORE_INVALID_VIEWS, NONE"));
+              "Invalid value 'IGNORE_ALL' for property EXCEPTION_HANDLING. Choose one of: IGNORE_INVALID_VIEWS, NONE"));
     }
 
-    @ValueSource(strings = { "ab:\'ab\'", "a'b:'a''b'", "a''b:'a''''b'", "'ab':'''ab'''" })
+    @ValueSource(strings = {"ab:\'ab\'", "a'b:'a''b'", "a''b:'a''''b'", "'ab':'''ab'''"})
     @ParameterizedTest
     void testGetLiteralString(final String definition) {
         final int colonPosition = definition.indexOf(':');
@@ -176,5 +182,51 @@ class AbstractSqlDialectTest {
     void testGetStringLiteralWithNull() {
         final SqlDialect sqlDialect = new DummySqlDialect(null, AdapterProperties.emptyProperties());
         assertThat(sqlDialect.getStringLiteral(null), equalTo("NULL"));
+    }
+
+    @Test
+    void testOmitParenthesesFalse() {
+        final SqlDialect sqlDialect = new DummySqlDialect(null, AdapterProperties.emptyProperties());
+        assertThat(sqlDialect.omitParentheses(ScalarFunction.ADD_DAYS), equalTo(false));
+    }
+
+    @Test
+    void testGetTableCatalogAndSchemaSeparator() {
+        final SqlDialect sqlDialect = new DummySqlDialect(null, AdapterProperties.emptyProperties());
+        assertThat(sqlDialect.getTableCatalogAndSchemaSeparator(), equalTo("."));
+    }
+
+    @Test
+    void testGetSqlGenerationVisitor() {
+        final SqlDialect sqlDialect = new DummySqlDialect(null, AdapterProperties.emptyProperties());
+        SqlGenerationContext context = new SqlGenerationContext("catalogName", "schemaName", false);
+        assertThat(sqlDialect.getSqlGenerationVisitor(context), instanceOf(SqlGenerationVisitor.class));
+    }
+
+    @Test
+    void testGetScalarFunctionAliases() {
+        final SqlDialect sqlDialect = new DummySqlDialect(null, AdapterProperties.emptyProperties());
+        assertThat(sqlDialect.getScalarFunctionAliases(), equalTo(new EnumMap<>(ScalarFunction.class)));
+    }
+
+    @Test
+    void testGetBinaryInfixFunctionAliases() {
+        final SqlDialect sqlDialect = new DummySqlDialect(null, AdapterProperties.emptyProperties());
+        assertAll(() -> Assert
+                    .assertThat(sqlDialect.getBinaryInfixFunctionAliases().get(ScalarFunction.ADD), Matchers.equalTo(
+                          "+")), //
+              () -> Assert.assertThat(sqlDialect.getBinaryInfixFunctionAliases().get(ScalarFunction.SUB),
+                    Matchers.equalTo("-")), //
+              () -> Assert.assertThat(sqlDialect.getBinaryInfixFunctionAliases().get(ScalarFunction.MULT),
+                    Matchers.equalTo("*")), //
+              () -> Assert.assertThat(sqlDialect.getBinaryInfixFunctionAliases().get(ScalarFunction.FLOAT_DIV),
+                    Matchers.equalTo("/")));
+    }
+
+    @Test
+    void testGetPrefixFunctionAliases() {
+        final SqlDialect sqlDialect = new DummySqlDialect(null, AdapterProperties.emptyProperties());
+        assertAll(() -> Assert
+              .assertThat(sqlDialect.getPrefixFunctionAliases().get(ScalarFunction.NEG), Matchers.equalTo("-")));
     }
 }

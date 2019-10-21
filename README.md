@@ -1,6 +1,6 @@
 # Virtual Schema Common Module for JDBC-based Data Access
 
-[![Build Status](https://travis-ci.org/exasol/virtual-schemas.svg?branch=master)](https://travis-ci.org/exasol/virtual-schemas)
+[![Build Status](https://travis-ci.com/exasol/virtual-schema-common-jdbc.svg?branch=master)](https://travis-ci.com/exasol/virtual-schema-common-jdbc)
 
 SonarCloud results:
 
@@ -53,6 +53,5 @@ Running the Virtual Schema requires a Java Runtime version 9 or later.
 | [Java Hamcrest](http://hamcrest.org/JavaHamcrest/)                                  | Checking for conditions in code via matchers           | BSD License                   |
 | [JSONassert](http://jsonassert.skyscreamer.org/)                                    | Compare JSON documents for semantic equality           | Apache License 2.0            |
 | [JUnit](https://junit.org/junit5)                                                   | Unit testing framework                                 | Eclipse Public License 1.0    |
-| [J5SE](https://github.com/itsallcode/junit5-system-extensions)                      | JUnit5 extensions to test Java System.x functions      | Eclipse Public License 2.0    |
 | [Mockito](http://site.mockito.org/)                                                 | Mocking framework                                      | MIT License                   |
 | [SnakeYaml](https://bitbucket.org/asomov/snakeyaml/src/default/)                    | YAML parsing                                           | Apache License 2.0            |
