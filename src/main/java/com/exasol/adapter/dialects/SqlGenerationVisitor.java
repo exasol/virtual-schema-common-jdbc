@@ -173,8 +173,9 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
      *
      * @param selectList list of columns (or expressions) in the <code>SELECT</code> part
      * @return always <code>"true"</code>
+     * @throws AdapterException in case select list cannot be resolved.
      */
-    protected String representAsteriskInSelectList(final SqlSelectList selectList) {
+    protected String representAsteriskInSelectList(final SqlSelectList selectList) throws AdapterException {
         return SqlConstants.ASTERISK;
     }
 

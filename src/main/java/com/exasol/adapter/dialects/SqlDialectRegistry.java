@@ -1,7 +1,12 @@
 package com.exasol.adapter.dialects;
 
 import java.sql.Connection;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -67,7 +72,8 @@ public final class SqlDialectRegistry {
             final AdapterProperties properties) {
         if (hasDialectWithName(name)) {
             final SqlDialectFactory factory = this.registeredFactories.get(name);
-            LOGGER.config(() -> "Loading SQL dialect: " + factory.getSqlDialectName());
+            LOGGER.config(
+                    () -> "Loading SQL dialect: " + factory.getSqlDialectName() + " " + factory.getSqlDialectVersion());
             return factory.createSqlDialect(connection, properties);
         } else {
             throw new IllegalArgumentException("Unknown SQL dialect \"" + name + "\" requested. " + describe());

@@ -1,10 +1,22 @@
 package com.exasol.adapter.dialects;
 
-import static com.exasol.adapter.AdapterProperties.*;
+import static com.exasol.adapter.AdapterProperties.CATALOG_NAME_PROPERTY;
+import static com.exasol.adapter.AdapterProperties.CONNECTION_NAME_PROPERTY;
+import static com.exasol.adapter.AdapterProperties.CONNECTION_STRING_PROPERTY;
+import static com.exasol.adapter.AdapterProperties.DEBUG_ADDRESS_PROPERTY;
+import static com.exasol.adapter.AdapterProperties.EXCEPTION_HANDLING_PROPERTY;
+import static com.exasol.adapter.AdapterProperties.PASSWORD_PROPERTY;
+import static com.exasol.adapter.AdapterProperties.SCHEMA_NAME_PROPERTY;
+import static com.exasol.adapter.AdapterProperties.USERNAME_PROPERTY;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -14,7 +26,10 @@ import com.exasol.adapter.AdapterException;
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.jdbc.RemoteMetadataReader;
 import com.exasol.adapter.metadata.SchemaMetadata;
-import com.exasol.adapter.sql.*;
+import com.exasol.adapter.sql.AggregateFunction;
+import com.exasol.adapter.sql.ScalarFunction;
+import com.exasol.adapter.sql.SqlNodeVisitor;
+import com.exasol.adapter.sql.SqlStatement;
 
 /**
  * Abstract implementation of a dialect. We recommend that every dialect should extend this abstract class.
