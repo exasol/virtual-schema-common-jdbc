@@ -17,7 +17,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.exasol.adapter.AdapterProperties;
-import com.exasol.adapter.capabilities.Capabilities;
+import com.exasol.adapter.capabilities.*;
 import com.exasol.adapter.dialects.AbstractSqlDialect;
 import com.exasol.adapter.dialects.BaseQueryRewriter;
 import com.exasol.adapter.dialects.QueryRewriter;
@@ -39,7 +39,10 @@ public class DerbySqlDialect extends AbstractSqlDialect {
             DEBUG_ADDRESS_PROPERTY, LOG_LEVEL_PROPERTY);
 
     private static Capabilities createCapabilityList() {
-        return Capabilities.builder().build();
+        return Capabilities.builder().addMain(MainCapability.ORDER_BY_EXPRESSION)
+              .addScalarFunction(ScalarFunctionCapability.ADD)
+              .addAggregateFunction(AggregateFunctionCapability.COUNT_STAR).addLiteral(LiteralCapability.NULL)
+              .addPredicate(PredicateCapability.AND).build();
     }
 
     /**

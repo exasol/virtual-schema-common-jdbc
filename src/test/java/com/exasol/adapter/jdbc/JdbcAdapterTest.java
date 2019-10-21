@@ -1,48 +1,29 @@
 package com.exasol.adapter.jdbc;
 
-import static com.exasol.adapter.AdapterProperties.CONNECTION_STRING_PROPERTY;
-import static com.exasol.adapter.AdapterProperties.PASSWORD_PROPERTY;
-import static com.exasol.adapter.AdapterProperties.SCHEMA_NAME_PROPERTY;
-import static com.exasol.adapter.AdapterProperties.SQL_DIALECT_PROPERTY;
-import static com.exasol.adapter.AdapterProperties.TABLE_FILTER_PROPERTY;
-import static com.exasol.adapter.AdapterProperties.USERNAME_PROPERTY;
-import static org.hamcrest.Matchers.emptyCollectionOf;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.notNullValue;
+import com.exasol.ExaMetadata;
+import com.exasol.adapter.AdapterException;
+import com.exasol.adapter.AdapterProperties;
+import com.exasol.adapter.capabilities.*;
+import com.exasol.adapter.metadata.*;
+import com.exasol.adapter.request.*;
+import com.exasol.adapter.response.*;
+import com.exasol.adapter.sql.SqlStatement;
+import com.exasol.adapter.sql.TestSqlStatementFactory;
+import org.hamcrest.collection.IsEmptyCollection;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.sql.SQLException;
+import java.util.*;
+
+import static com.exasol.adapter.AdapterProperties.*;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import com.exasol.ExaMetadata;
-import com.exasol.adapter.AdapterException;
-import com.exasol.adapter.AdapterProperties;
-import com.exasol.adapter.capabilities.MainCapability;
-import com.exasol.adapter.metadata.SchemaMetadata;
-import com.exasol.adapter.metadata.SchemaMetadataInfo;
-import com.exasol.adapter.metadata.TableMetadata;
-import com.exasol.adapter.request.DropVirtualSchemaRequest;
-import com.exasol.adapter.request.GetCapabilitiesRequest;
-import com.exasol.adapter.request.PushDownRequest;
-import com.exasol.adapter.request.SetPropertiesRequest;
-import com.exasol.adapter.response.DropVirtualSchemaResponse;
-import com.exasol.adapter.response.GetCapabilitiesResponse;
-import com.exasol.adapter.response.PushDownResponse;
-import com.exasol.adapter.response.SetPropertiesResponse;
-import com.exasol.adapter.sql.SqlStatement;
-import com.exasol.adapter.sql.TestSqlStatementFactory;
 
 class JdbcAdapterTest {
     private static final String SCHEMA_NAME = "THE_SCHEMA";
@@ -104,11 +85,27 @@ class JdbcAdapterTest {
                 createSchemaMetadataInfo());
         final ExaMetadata exaMetadataMock = mock(ExaMetadata.class);
         final GetCapabilitiesResponse response = this.adapter.getCapabilities(exaMetadataMock, request);
-        assertThat(response.getCapabilities().getMainCapabilities(), emptyCollectionOf(MainCapability.class));
+        assertThat(response.getCapabilities().getMainCapabilities(), contains(MainCapability.ORDER_BY_EXPRESSION));
     }
 
     @Test
-    void testDropVirtualSchemaMustSucceedEvenIfDebugAddressIsInvalid() throws AdapterException {
+    void testGetCapabilitiesWithExcludedCapabilitiesList() throws AdapterException {
+        setGenericSqlDialectProperty();
+        setDerbyConnectionProperties();
+        this.rawProperties.put(SCHEMA_NAME_PROPERTY, "SYSIBM");
+        this.rawProperties.put(EXCLUDED_CAPABILITIES_PROPERTY,
+              "ORDER_BY_EXPRESSION, LITERAL_NULL, FN_AGG_COUNT_STAR, FN_PRED_AND, FN_ADD");
+        final GetCapabilitiesRequest request =
+              new GetCapabilitiesRequest(TEST_DIALECT_NAME, createSchemaMetadataInfo());
+        final ExaMetadata exaMetadataMock = mock(ExaMetadata.class);
+        final GetCapabilitiesResponse response = this.adapter.getCapabilities(exaMetadataMock, request);
+        assertThat(response.getCapabilities().getMainCapabilities(),
+              not(contains(MainCapability.ORDER_BY_EXPRESSION, LiteralCapability.NULL,
+                    AggregateFunctionCapability.COUNT_STAR, PredicateCapability.AND, ScalarFunctionCapability.ADD)));
+    }
+
+    @Test
+    void testDropVirtualSchemaMustSucceedEvenIfDebugAddressIsInvalid() {
         setGenericSqlDialectProperty();
         setDerbyConnectionProperties();
         final ExaMetadata exaMetadataMock = mock(ExaMetadata.class);
@@ -151,5 +148,40 @@ class JdbcAdapterTest {
         assertAll(() -> assertThat(tables, hasSize(2)), //
                 () -> assertThat(tables.get(0).getName(), equalTo("T1")),
                 () -> assertThat(tables.get(1).getName(), equalTo("T2")));
+    }
+
+    @Test
+    void testCreateVirtualSchema() throws AdapterException {
+        setGenericSqlDialectProperty();
+        setDerbyConnectionProperties();
+        final CreateVirtualSchemaRequest request =
+              new CreateVirtualSchemaRequest(TEST_DIALECT_NAME, createSchemaMetadataInfo());
+        final ExaMetadata exaMetadataMock = mock(ExaMetadata.class);
+        final CreateVirtualSchemaResponse response = this.adapter.createVirtualSchema(exaMetadataMock, request);
+        assertAll(() -> assertThat(response, instanceOf(CreateVirtualSchemaResponse.class)),
+              () -> assertThat(response.getSchemaMetadata(), instanceOf(SchemaMetadata.class)),
+              () -> assertThat(response.getSchemaMetadata().getTables(), not(IsEmptyCollection.empty())),
+              () -> assertThat(response.getSchemaMetadata().getAdapterNotes(), equalTo(
+                    "{\"catalogSeparator\":\"\",\"identifierQuoteString\":\"\\\"\","
+                          + "\"storesLowerCaseIdentifiers\":false,\"storesUpperCaseIdentifiers\":true,"
+                          + "\"storesMixedCaseIdentifiers\":false,\"supportsMixedCaseIdentifiers\":false,"
+                          + "\"storesLowerCaseQuotedIdentifiers\":false,\"storesUpperCaseQuotedIdentifiers\":false,"
+                          + "\"storesMixedCaseQuotedIdentifiers\":true,\"supportsMixedCaseQuotedIdentifiers\":true,"
+                          + "\"areNullsSortedAtEnd\":false,\"areNullsSortedAtStart\":false,"
+                          + "\"areNullsSortedHigh\":true,\"areNullsSortedLow\":false}")));
+    }
+
+    @Test
+    void testRefreshSelectedTables() throws AdapterException {
+        setGenericSqlDialectProperty();
+        setDerbyConnectionProperties();
+        final List<String> tablesList = new ArrayList<>();
+        tablesList.add("SYSDUMMY1");
+        final RefreshRequest request = new RefreshRequest(TEST_DIALECT_NAME, createSchemaMetadataInfo(), tablesList);
+        final ExaMetadata exaMetadataMock = mock(ExaMetadata.class);
+        final RefreshResponse response = this.adapter.refresh(exaMetadataMock, request);
+        assertAll(() -> assertThat(response, instanceOf(RefreshResponse.class)),
+              () -> assertThat(response.getSchemaMetadata(), instanceOf(SchemaMetadata.class)),
+              () -> assertThat(response.getSchemaMetadata().getTables().get(0).getName(), equalTo("SYSDUMMY1")));
     }
 }

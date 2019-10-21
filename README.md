@@ -26,7 +26,7 @@ This is an open source project which is officially supported by Exasol. For any 
 
 ## Information for Developers 
 
-Please refer to the [documentation in the main Virtual Schema project](https://github.com/exaol/virtual_schemas/README.md).
+Please refer to the [documentation in the main Virtual Schema project](https://github.com/exasol/virtual_schemas/README.md).
 
 ## Dependencies
 
