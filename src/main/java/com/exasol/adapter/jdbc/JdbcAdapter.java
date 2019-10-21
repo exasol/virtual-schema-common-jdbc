@@ -2,40 +2,17 @@ package com.exasol.adapter.jdbc;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 
 import com.exasol.ExaMetadata;
-import com.exasol.adapter.AdapterException;
-import com.exasol.adapter.AdapterProperties;
-import com.exasol.adapter.VirtualSchemaAdapter;
-import com.exasol.adapter.capabilities.AggregateFunctionCapability;
-import com.exasol.adapter.capabilities.Capabilities;
-import com.exasol.adapter.capabilities.LiteralCapability;
-import com.exasol.adapter.capabilities.MainCapability;
-import com.exasol.adapter.capabilities.ScalarFunctionCapability;
-import com.exasol.adapter.dialects.PropertyValidationException;
-import com.exasol.adapter.dialects.SqlDialect;
-import com.exasol.adapter.dialects.SqlDialectRegistry;
+import com.exasol.adapter.*;
+import com.exasol.adapter.capabilities.*;
+import com.exasol.adapter.dialects.*;
 import com.exasol.adapter.metadata.SchemaMetadata;
 import com.exasol.adapter.metadata.SchemaMetadataInfo;
-import com.exasol.adapter.request.AdapterRequest;
-import com.exasol.adapter.request.CreateVirtualSchemaRequest;
-import com.exasol.adapter.request.DropVirtualSchemaRequest;
-import com.exasol.adapter.request.GetCapabilitiesRequest;
-import com.exasol.adapter.request.PushDownRequest;
-import com.exasol.adapter.request.RefreshRequest;
-import com.exasol.adapter.request.SetPropertiesRequest;
-import com.exasol.adapter.response.CreateVirtualSchemaResponse;
-import com.exasol.adapter.response.DropVirtualSchemaResponse;
-import com.exasol.adapter.response.GetCapabilitiesResponse;
-import com.exasol.adapter.response.PushDownResponse;
-import com.exasol.adapter.response.RefreshResponse;
-import com.exasol.adapter.response.SetPropertiesResponse;
+import com.exasol.adapter.request.*;
+import com.exasol.adapter.response.*;
 
 /**
  * This class implements main logic for different types of requests a virtual schema JDBC adapter can receive.
