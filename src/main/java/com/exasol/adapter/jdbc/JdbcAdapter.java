@@ -235,12 +235,12 @@ public class JdbcAdapter implements VirtualSchemaAdapter {
             } else if (capability.startsWith(AGGREGATE_FUNCTION_PREFIX)) {
                 final String aggregateFunctionCap = capability.replaceFirst(AGGREGATE_FUNCTION_PREFIX, "");
                 builder.addAggregateFunction(AggregateFunctionCapability.valueOf(aggregateFunctionCap));
+            } else if (capability.startsWith(PREDICATE_PREFIX)) {
+                final String predicateCapabilities = capability.replaceFirst(PREDICATE_PREFIX, "");
+                builder.addPredicate(PredicateCapability.valueOf(predicateCapabilities));
             } else if (capability.startsWith(SCALAR_FUNCTION_PREFIX)) {
                 final String scalarFunctionCapabilities = capability.replaceFirst(SCALAR_FUNCTION_PREFIX, "");
                 builder.addScalarFunction(ScalarFunctionCapability.valueOf(scalarFunctionCapabilities));
-            } else if (capability.startsWith(PREDICATE_PREFIX)) {
-                final String predicateCapabilities = capability.replaceFirst(SCALAR_FUNCTION_PREFIX, "");
-                builder.addScalarFunction(ScalarFunctionCapability.valueOf(predicateCapabilities));
             } else {
                 builder.addMain(MainCapability.valueOf(capability));
             }
