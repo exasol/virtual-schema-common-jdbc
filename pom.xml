@@ -224,10 +224,8 @@
         <version>2.2</version>
         <executions>
           <execution>
-            <id>sign-artifacts</id>
-            <phase>verify</phase>
             <goals>
-              <goal>sign</goal>
+              <goal>test-jar</goal>
             </goals>
           </execution>
         </executions>
