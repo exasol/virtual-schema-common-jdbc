@@ -20,7 +20,7 @@ public final class TestSqlStatementFactory {
         final SqlNode fromClause = new SqlTable(tableName, tableMetadata);
         final SqlSelectList selectList = SqlSelectList
                 .createRegularSelectList(Arrays.asList(new SqlLiteralExactnumeric(BigDecimal.ONE)));
-        return new SqlStatementSelect(fromClause, selectList, null, null, null, null, null);
+        return new SqlStatementSelect.Builder().selectList(selectList).fromClause(fromClause).build();
     }
 
     static public SqlStatement createSelectOneFromDual() {
