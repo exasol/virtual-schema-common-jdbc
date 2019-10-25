@@ -27,7 +27,7 @@ class SqlDialectTest {
                         new SqlFunctionAggregate(AggregateFunction.AVG, List.of(col1), false),
                         new SqlFunctionAggregate(AggregateFunction.COUNT, new ArrayList<SqlNode>(), true),
                         new SqlFunctionAggregate(AggregateFunction.MAX, List.of(col1), false)));
-        final SqlNode node = new SqlStatementSelect(fromClause, selectList, null, null, null, null, null);
+        final SqlNode node = SqlStatementSelect.builder().selectList(selectList).fromClause(fromClause).build();
 
         final String schemaName = "SCHEMA";
         final String expectedSql = "SELECT NDV(\"C1\"), AVERAGE(\"C1\"), COUNT2(DISTINCT *), MAX(\"C1\") FROM \""
@@ -62,7 +62,7 @@ class SqlDialectTest {
                                 List.of(col1, new SqlLiteralExactnumeric(new BigDecimal(100))), true, false),
                         new SqlFunctionScalar(ScalarFunction.TO_CHAR, List.of(col1), true, false),
                         new SqlFunctionScalar(ScalarFunction.NEG, List.of(col1), false, false)));
-        final SqlNode node = new SqlStatementSelect(fromClause, selectList, null, null, null, null, null);
+        final SqlNode node = SqlStatementSelect.builder().selectList(selectList).fromClause(fromClause).build();
 
         final String schemaName = "SCHEMA";
         // ADD is infix by default, but must be non-infix after applying the alias.

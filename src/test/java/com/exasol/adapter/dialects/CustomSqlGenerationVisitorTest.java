@@ -38,7 +38,7 @@ class CustomSqlGenerationVisitorTest {
         final SqlTable fromClause = new SqlTable("TEST", clicksMeta);
         final SqlSelectList selectList = SqlSelectList.createRegularSelectList(
                 List.of(new SqlPredicateNot(new SqlPredicateNot(new SqlColumn(1, clicksMeta.getColumns().get(0))))));
-        return new SqlStatementSelect(fromClause, selectList, null, null, null, null, null);
+        return SqlStatementSelect.builder().selectList(selectList).fromClause(fromClause).build();
     }
 
     private TableMetadata getTestTableMetadata() {
