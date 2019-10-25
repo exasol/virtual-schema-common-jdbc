@@ -56,7 +56,7 @@ public final class SqlDialectRegistry {
     }
 
     /**
-     * Get a list of the name of all registered SQL dialect adapters
+     * Get a list of the name of all registered SQL dialect adapters.
      *
      * @return list of dialect names
      */
