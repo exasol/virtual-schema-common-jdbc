@@ -1,8 +1,15 @@
 package com.exasol.adapter.dialects;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.util.Set;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -60,6 +67,14 @@ class SqlDialectRegistryTest {
         this.registry.registerSqlDialectFactory(new DummySqlDialectFactory());
         final String dialectNames = this.registry.listRegisteredSqlDialectNames();
         assertThat(dialectNames, equalTo("\"DERBY\", \"DUMMYDIALECT\""));
+    }
+
+    @Test
+    void testGetRegisteredDialectNames() {
+        this.registry.registerSqlDialectFactory(new DerbySqlDialectFactory());
+        this.registry.registerSqlDialectFactory(new DummySqlDialectFactory());
+        final Set<String> dialectNames = this.registry.getRegisteredAdapterNames();
+        assertThat(dialectNames, containsInAnyOrder("DERBY", "DUMMYDIALECT"));
     }
 
     @Test

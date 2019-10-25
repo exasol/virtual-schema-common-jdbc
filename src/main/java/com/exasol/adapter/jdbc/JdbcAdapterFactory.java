@@ -5,6 +5,7 @@ import java.util.Set;
 
 import com.exasol.adapter.AdapterFactory;
 import com.exasol.adapter.VirtualSchemaAdapter;
+import com.exasol.adapter.dialects.SqlDialectRegistry;
 import com.exasol.logging.VersionCollector;
 
 /**
@@ -18,8 +19,7 @@ public class JdbcAdapterFactory implements AdapterFactory {
 
     @Override
     public Set<String> getSupportedAdapterNames() {
-        return Set.of("ATHENA", "BIGQUERY", "DB2", "DERBY", "EXASOL", "GENERIC", "HIVE", "IMPALA", "MYSQL", "ORACLE",
-                "POSTGRESQL", "REDSHIFT", "SAPHANA", "SQLSERVER", "SYBASE", "TERADATA");
+        return SqlDialectRegistry.getInstance().getRegisteredAdapterNames();
     }
 
     @Override

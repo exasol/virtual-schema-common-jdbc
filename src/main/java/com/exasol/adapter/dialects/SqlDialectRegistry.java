@@ -1,7 +1,13 @@
 package com.exasol.adapter.dialects;
 
 import java.sql.Connection;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.ServiceLoader;
+import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -40,19 +46,31 @@ public final class SqlDialectRegistry {
     /**
      * Register a factory for an {@link SqlDialect}.
      *
-     * @param factory factory that can create the SqlDialect
+     * @param factory factory that creates an {@link SqlDialect}
      */
     public void registerSqlDialectFactory(final SqlDialectFactory factory) {
         this.registeredFactories.put(factory.getSqlDialectName(), factory);
     }
 
     /**
-     * Get a list of all currently registered Virtual Schema Adapters.
+     * Get a list of all currently registered SQL dialect adapters.
      *
-     * @return list of adapter factories
+     * @return list of dialect factories
      */
     public List<SqlDialectFactory> getRegisteredAdapterFactories() {
         return new ArrayList<>(this.registeredFactories.values());
+    }
+
+    /**
+     * Get a list of the name of all registered SQL dialect adapters
+     *
+     * @return list of dialect names
+     */
+    public Set<String> getRegisteredAdapterNames() {
+        return this.registeredFactories.values() //
+                .stream() //
+                .map(SqlDialectFactory::getSqlDialectName) //
+                .collect(Collectors.toSet());
     }
 
     /**
