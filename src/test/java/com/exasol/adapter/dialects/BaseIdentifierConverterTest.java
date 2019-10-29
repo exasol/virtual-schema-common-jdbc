@@ -9,8 +9,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 class BaseIdentifierConverterTest {
-    final IdentifierConverter identifierConverter = new BaseIdentifierConverter(IdentifierCaseHandling.INTERPRET_AS_UPPER,
-            IdentifierCaseHandling.INTERPRET_CASE_SENSITIVE);
+    final IdentifierConverter identifierConverter = new BaseIdentifierConverter(
+            IdentifierCaseHandling.INTERPRET_AS_UPPER, IdentifierCaseHandling.INTERPRET_CASE_SENSITIVE);
 
     @CsvSource({ "INTERPRET_AS_LOWER, INTERPRET_AS_LOWER, true", //
             "INTERPRET_AS_LOWER, INTERPRET_AS_UPPER, false", //

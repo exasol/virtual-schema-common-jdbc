@@ -52,14 +52,16 @@ public interface SqlDialect {
      * Dialects that support a single database should not use <code>AUTO_DETECT</code> because this unnecessarily costs
      * performance.
      */
-    public enum StructureElementSupport {
+    public enum StructureElementSupport
+    {
         NONE, SINGLE, MULTIPLE, AUTO_DETECT
     }
 
     /**
      * This enumeration specifies different exception handling strategies.
      */
-    public enum ExceptionHandlingMode {
+    public enum ExceptionHandlingMode
+    {
         IGNORE_INVALID_VIEWS, NONE
     }
 
@@ -144,7 +146,8 @@ public interface SqlDialect {
      * when sorted ascending</dd>
      * </dl>
      */
-    public enum NullSorting {
+    public enum NullSorting
+    {
         NULLS_SORTED_AT_END, NULLS_SORTED_AT_START, NULLS_SORTED_HIGH, NULLS_SORTED_LOW
     }
 

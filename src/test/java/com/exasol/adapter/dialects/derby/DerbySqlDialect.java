@@ -27,9 +27,9 @@ public class DerbySqlDialect extends AbstractSqlDialect {
 
     private static Capabilities createCapabilityList() {
         return Capabilities.builder().addMain(MainCapability.ORDER_BY_EXPRESSION)
-              .addScalarFunction(ScalarFunctionCapability.ADD)
-              .addAggregateFunction(AggregateFunctionCapability.COUNT_STAR).addLiteral(LiteralCapability.NULL)
-              .addPredicate(PredicateCapability.AND).build();
+                .addScalarFunction(ScalarFunctionCapability.ADD)
+                .addAggregateFunction(AggregateFunctionCapability.COUNT_STAR).addLiteral(LiteralCapability.NULL)
+                .addPredicate(PredicateCapability.AND).build();
     }
 
     /**

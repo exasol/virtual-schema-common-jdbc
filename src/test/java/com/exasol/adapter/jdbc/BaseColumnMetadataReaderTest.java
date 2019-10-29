@@ -28,13 +28,13 @@ class BaseColumnMetadataReaderTest {
     @BeforeEach
     void beforeEach() {
         this.reader = new BaseColumnMetadataReader(null, AdapterProperties.emptyProperties(),
-              new BaseIdentifierConverter(IdentifierCaseHandling.INTERPRET_AS_UPPER,
-                    IdentifierCaseHandling.INTERPRET_CASE_SENSITIVE));
+                new BaseIdentifierConverter(IdentifierCaseHandling.INTERPRET_AS_UPPER,
+                        IdentifierCaseHandling.INTERPRET_CASE_SENSITIVE));
     }
 
-    @ValueSource(ints = {Types.OTHER, Types.BLOB, Types.NCLOB, Types.LONGVARBINARY, Types.VARBINARY, Types.JAVA_OBJECT,
-          Types.DISTINCT, Types.STRUCT, Types.ARRAY, Types.REF, Types.DATALINK, Types.SQLXML, Types.NULL,
-          Types.REF_CURSOR})
+    @ValueSource(ints = { Types.OTHER, Types.BLOB, Types.NCLOB, Types.LONGVARBINARY, Types.VARBINARY, Types.JAVA_OBJECT,
+            Types.DISTINCT, Types.STRUCT, Types.ARRAY, Types.REF, Types.DATALINK, Types.SQLXML, Types.NULL,
+            Types.REF_CURSOR })
     @ParameterizedTest
     void testMappingUnsupportedTypesReturnsUnsupportedType(final int jdbcType) {
         final JdbcTypeDescription jdbcTypeDescription = new JdbcTypeDescription(jdbcType, 0, 0, 0, null);
@@ -45,31 +45,31 @@ class BaseColumnMetadataReaderTest {
     void testGetColumnsFromResultSetSkipsUnsupportedColumns() throws SQLException {
         final ResultSet remoteColumnsMock = mock(ResultSet.class);
         when(remoteColumnsMock.next()).thenReturn(true, true, true, false);
-        when(remoteColumnsMock.getString(BaseColumnMetadataReader.NAME_COLUMN))
-              .thenReturn("DATE_COL", "BLOB_COL", "DOUBLE_COL");
-        when(remoteColumnsMock.getInt(BaseColumnMetadataReader.DATA_TYPE_COLUMN))
-              .thenReturn(Types.DATE, Types.BLOB, Types.DOUBLE);
+        when(remoteColumnsMock.getString(BaseColumnMetadataReader.NAME_COLUMN)).thenReturn("DATE_COL", "BLOB_COL",
+                "DOUBLE_COL");
+        when(remoteColumnsMock.getInt(BaseColumnMetadataReader.DATA_TYPE_COLUMN)).thenReturn(Types.DATE, Types.BLOB,
+                Types.DOUBLE);
         final List<ColumnMetadata> columns = this.reader.getColumnsFromResultSet(remoteColumnsMock);
         final List<ExaDataType> columnTypes = columns //
-              .stream() //
-              .map(column -> column.getType().getExaDataType()) //
-              .collect(Collectors.toList());
+                .stream() //
+                .map(column -> column.getType().getExaDataType()) //
+                .collect(Collectors.toList());
         assertThat(columnTypes, containsInAnyOrder(ExaDataType.DATE, ExaDataType.DOUBLE));
     }
 
     @Test
     void testMapJdbcTypeNumericToDecimalWithFallbackToDoubleReturnsDouble() {
-        final JdbcTypeDescription jdbcTypeDescription =
-              new JdbcTypeDescription(8, 10, DataType.MAX_EXASOL_DECIMAL_PRECISION + 1, 0, "");
+        final JdbcTypeDescription jdbcTypeDescription = new JdbcTypeDescription(8, 10,
+                DataType.MAX_EXASOL_DECIMAL_PRECISION + 1, 0, "");
         assertThat(this.reader.mapJdbcTypeNumericToDecimalWithFallbackToDouble(jdbcTypeDescription),
-              equalTo(DataType.createDouble()));
+                equalTo(DataType.createDouble()));
     }
 
     @Test
     void testMapJdbcTypeNumericToDecimalWithFallbackToDoubleReturnsDecimal() {
-        final JdbcTypeDescription jdbcTypeDescription =
-              new JdbcTypeDescription(8, 10, DataType.MAX_EXASOL_DECIMAL_PRECISION, 0, "");
+        final JdbcTypeDescription jdbcTypeDescription = new JdbcTypeDescription(8, 10,
+                DataType.MAX_EXASOL_DECIMAL_PRECISION, 0, "");
         assertThat(this.reader.mapJdbcTypeNumericToDecimalWithFallbackToDouble(jdbcTypeDescription),
-              equalTo(DataType.createDecimal(DataType.MAX_EXASOL_DECIMAL_PRECISION, 10)));
+                equalTo(DataType.createDecimal(DataType.MAX_EXASOL_DECIMAL_PRECISION, 10)));
     }
 }

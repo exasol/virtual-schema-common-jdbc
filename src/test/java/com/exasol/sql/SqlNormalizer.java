@@ -1,8 +1,8 @@
 package com.exasol.sql;
 
 public final class SqlNormalizer {
-    private SqlNormalizer(){
-        //Intentionally left blank
+    private SqlNormalizer() {
+        // Intentionally left blank
     }
 
     /**
@@ -12,9 +12,6 @@ public final class SqlNormalizer {
      * @return normalized SQL
      */
     public static String normalizeSql(final String sql) {
-        return sql.replaceAll("\t", " ")
-              .replaceAll("\n", " ")
-              .replaceAll("\\s+", " ");
+        return sql.replaceAll("\t", " ").replaceAll("\n", " ").replaceAll("\\s+", " ");
     }
 }
-

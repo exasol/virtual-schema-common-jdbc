@@ -10,8 +10,7 @@ import com.exasol.adapter.dialects.IdentifierConverter;
  * This class implements basic reading of database metadata from JDBC.
  *
  * <p>
- * See <a href=
- * "https://docs.oracle.com/javase/8/docs/api/java/sql/DatabaseMetaData.html">java.sql.DatabaseMetaData</a>
+ * See <a href= "https://docs.oracle.com/javase/8/docs/api/java/sql/DatabaseMetaData.html">java.sql.DatabaseMetaData</a>
  */
 public final class BaseRemoteMetadataReader extends AbstractRemoteMetadataReader {
     /**
