@@ -11,7 +11,7 @@ import com.exasol.*;
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.sql.SqlStatement;
 
-public abstract class AbstractQueryRewriterTest {
+public abstract class AbstractQueryRewriterTestBase {
     protected static final String CONNECTION_NAME = "the_connection";
     private static final String CONNECTION_USER = "connection_user";
     private static final String CONNECTION_PW = "connection_secret";

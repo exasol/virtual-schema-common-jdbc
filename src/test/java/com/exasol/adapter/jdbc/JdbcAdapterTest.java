@@ -16,8 +16,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.exasol.ExaMetadata;
-import com.exasol.adapter.AdapterException;
-import com.exasol.adapter.AdapterProperties;
+import com.exasol.adapter.*;
 import com.exasol.adapter.capabilities.*;
 import com.exasol.adapter.metadata.*;
 import com.exasol.adapter.request.*;
@@ -28,7 +27,7 @@ import com.exasol.adapter.sql.TestSqlStatementFactory;
 class JdbcAdapterTest {
     private static final String SCHEMA_NAME = "THE_SCHEMA";
     private static final String TEST_DIALECT_NAME = "DERBY";
-    private final JdbcAdapter adapter = new JdbcAdapter();
+    private final VirtualSchemaAdapter adapter = new JdbcAdapterFactory().createAdapter();
     private Map<String, String> rawProperties;
 
     @BeforeEach
@@ -115,7 +114,7 @@ class JdbcAdapterTest {
     }
 
     @Test
-    void testDropVirtualSchemaMustSucceedEvenIfDebugAddressIsInvalid() {
+    void testDropVirtualSchemaMustSucceedEvenIfDebugAddressIsInvalid() throws AdapterException {
         setTestSqlDialectProperty();
         setDerbyConnectionProperties();
         final ExaMetadata exaMetadataMock = mock(ExaMetadata.class);

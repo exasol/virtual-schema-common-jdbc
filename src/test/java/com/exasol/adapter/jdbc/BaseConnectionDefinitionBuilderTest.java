@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import com.exasol.ExaConnectionInformation;
 
-class BaseConnectionDefinitionBuilderTest extends AbstractConnectionDefinitionBuilderTest {
+class BaseConnectionDefinitionBuilderTest extends AbstractConnectionDefinitionBuilderTestBase {
     @BeforeEach
     void beforeEach() {
         this.exaConnectionInformation = mock(ExaConnectionInformation.class);

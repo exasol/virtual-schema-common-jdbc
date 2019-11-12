@@ -7,7 +7,7 @@ import java.sql.Types;
 
 import com.exasol.adapter.metadata.DataType;
 
-public abstract class AbstractColumnMetadataReaderTest {
+public abstract class AbstractColumnMetadataReaderTestBase {
     protected ColumnMetadataReader columnMetadataReader;
 
     protected DataType mapJdbcType(final int type) {
