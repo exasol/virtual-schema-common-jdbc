@@ -12,7 +12,7 @@ import com.exasol.adapter.AdapterProperties;
  */
 public final class SqlDialectRegistry {
     private static final Logger LOGGER = Logger.getLogger(SqlDialectRegistry.class.getName());
-    private static final SqlDialectRegistry instance = new SqlDialectRegistry();
+    private static SqlDialectRegistry instance;
     private final Map<String, SqlDialectFactory> registeredFactories = new HashMap<>();
 
     /**
@@ -20,14 +20,16 @@ public final class SqlDialectRegistry {
      *
      * @return singleton instance
      */
-    public static SqlDialectRegistry getInstance() {
+    public static final synchronized SqlDialectRegistry getInstance() {
+        if (instance == null) {
+            LOGGER.finer(() -> "Instanciating SQL dialect registry and loading adapter factories.");
+            instance = new SqlDialectRegistry();
+            instance.loadSqlDialectFactories();
+        }
         return instance;
     }
 
-    /**
-     * Load available dialect factories.
-     */
-    public void loadSqlDialectFactories() {
+    private void loadSqlDialectFactories() {
         final ServiceLoader<SqlDialectFactory> serviceLoader = ServiceLoader.load(SqlDialectFactory.class);
         final Iterator<SqlDialectFactory> factories = serviceLoader.iterator();
         while (factories.hasNext()) {
@@ -40,19 +42,31 @@ public final class SqlDialectRegistry {
     /**
      * Register a factory for an {@link SqlDialect}.
      *
-     * @param factory factory that can create the SqlDialect
+     * @param factory factory that creates an {@link SqlDialect}
      */
-    public void registerSqlDialectFactory(final SqlDialectFactory factory) {
+    private void registerSqlDialectFactory(final SqlDialectFactory factory) {
         this.registeredFactories.put(factory.getSqlDialectName(), factory);
     }
 
     /**
-     * Get a list of all currently registered Virtual Schema Adapters.
+     * Get a list of all currently registered SQL dialect adapters.
      *
-     * @return list of adapter factories
+     * @return list of dialect factories
      */
     public List<SqlDialectFactory> getRegisteredAdapterFactories() {
         return new ArrayList<>(this.registeredFactories.values());
+    }
+
+    /**
+     * Get a list of the name of all registered SQL dialect adapters.
+     *
+     * @return list of dialect names
+     */
+    public Set<String> getRegisteredAdapterNames() {
+        return this.registeredFactories.values() //
+                .stream() //
+                .map(SqlDialectFactory::getSqlDialectName) //
+                .collect(Collectors.toSet());
     }
 
     /**
@@ -107,9 +121,10 @@ public final class SqlDialectRegistry {
      * @return comma-separated string containing list of SQL dialect names
      */
     public String listRegisteredSqlDialectNames() {
-        return this.registeredFactories.keySet() //
+        final String dialectNamesAsString = this.registeredFactories.keySet() //
                 .stream() //
                 .sorted().map(name -> "\"" + name + "\"") //
                 .collect(Collectors.joining(", "));
+        return dialectNamesAsString.isEmpty() ? "none" : dialectNamesAsString;
     }
 }

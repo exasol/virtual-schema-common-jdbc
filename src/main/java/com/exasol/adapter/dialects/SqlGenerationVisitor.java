@@ -271,14 +271,14 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
             functionNameInSourceSystem = this.dialect.getScalarFunctionAliases().get(function.getFunction());
         } else {
             if (this.dialect.getBinaryInfixFunctionAliases().containsKey(function.getFunction())) {
-                assert (argumentsSql.size() == 2);
+                assert(argumentsSql.size() == 2);
                 String realFunctionName = function.getFunctionName();
                 if (this.dialect.getBinaryInfixFunctionAliases().containsKey(function.getFunction())) {
                     realFunctionName = this.dialect.getBinaryInfixFunctionAliases().get(function.getFunction());
                 }
                 return "(" + argumentsSql.get(0) + " " + realFunctionName + " " + argumentsSql.get(1) + ")";
             } else if (this.dialect.getPrefixFunctionAliases().containsKey(function.getFunction())) {
-                assert (argumentsSql.size() == 1);
+                assert(argumentsSql.size() == 1);
                 String realFunctionName = function.getFunctionName();
                 if (this.dialect.getPrefixFunctionAliases().containsKey(function.getFunction())) {
                     realFunctionName = this.dialect.getPrefixFunctionAliases().get(function.getFunction());

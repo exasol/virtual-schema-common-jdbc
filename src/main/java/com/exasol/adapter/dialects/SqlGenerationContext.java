@@ -14,8 +14,8 @@ public class SqlGenerationContext {
      * Creates a new instance of the {@link SqlGenerationContext}.
      *
      * @param catalogName catalog name as a string
-     * @param schemaName schema name as a string
-     * @param isLocal true if import is local
+     * @param schemaName  schema name as a string
+     * @param isLocal     true if import is local
      */
     public SqlGenerationContext(final String catalogName, final String schemaName, final boolean isLocal) {
         this.catalogName = catalogName;

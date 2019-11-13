@@ -60,7 +60,7 @@ public class ColumnAdapterNotes {
      * Deserialize column adapter notes.
      *
      * @param columnAdapterNotes column adapter notes
-     * @param columnName column name
+     * @param columnName         column name
      * @return deserialized column adapter notes
      * @throws AdapterException if column adapter notes are empty or null
      */

@@ -15,18 +15,18 @@ import com.exasol.adapter.sql.*;
  */
 public final class SqlGenerationHelper {
     private SqlGenerationHelper() {
-        //intentionally left blank
+        // intentionally left blank
     }
 
     /**
      * Check if selected node requires cast or not.
      *
-     * @param selectList SQL select list
+     * @param selectList       SQL select list
      * @param nodeRequiresCast node that requires cast
      * @return true if selected node requires cast
      */
     public static boolean selectListRequiresCasts(final SqlSelectList selectList,
-          final Predicate<SqlNode> nodeRequiresCast) {
+            final Predicate<SqlNode> nodeRequiresCast) {
         boolean requiresCasts = false;
         final SqlStatementSelect select = (SqlStatementSelect) selectList.getParent();
         final int columnId = 0;
@@ -45,7 +45,7 @@ public final class SqlGenerationHelper {
     /**
      * Add metadata to the list.
      *
-     * @param node SQL node to get metadata from
+     * @param node     SQL node to get metadata from
      * @param metadata list of TableMetadata
      */
     public static void addMetadata(final SqlNode node, final List<TableMetadata> metadata) {

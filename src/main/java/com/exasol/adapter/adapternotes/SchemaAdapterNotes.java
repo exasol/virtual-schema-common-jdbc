@@ -63,64 +63,64 @@ public final class SchemaAdapterNotes {
     }
 
     /**
-     * @return true if remote database treats mixed case unquoted SQL identifiers as case sensitive
-     * and as a result stores them in mixed case.
+     * @return true if remote database treats mixed case unquoted SQL identifiers as case sensitive and as a result
+     *         stores them in mixed case.
      */
     public boolean supportsMixedCaseIdentifiers() {
         return this.supportsMixedCaseIdentifiers;
     }
 
     /**
-     * @return true if remote database treats mixed case quoted SQL identifiers as case sensitive
-     * and as a result stores them in mixed case. TRUE for EXASOL and Oracle.
+     * @return true if remote database treats mixed case quoted SQL identifiers as case sensitive and as a result stores
+     *         them in mixed case. TRUE for EXASOL and Oracle.
      */
     public boolean supportsMixedCaseQuotedIdentifiers() {
         return this.supportsMixedCaseQuotedIdentifiers;
     }
 
     /**
-     * @return true if remote database treats mixed case unquoted SQL identifiers
-     * as case insensitive and stores them in lower case.
+     * @return true if remote database treats mixed case unquoted SQL identifiers as case insensitive and stores them in
+     *         lower case.
      */
     public boolean storesLowerCaseIdentifiers() {
         return this.storesLowerCaseIdentifiers;
     }
 
     /**
-     * @return true if remote database treats mixed case unquoted SQL identifiers
-     * as case insensitive and stores them in upper case. TRUE for EXASOL and Oracle
+     * @return true if remote database treats mixed case unquoted SQL identifiers as case insensitive and stores them in
+     *         upper case. TRUE for EXASOL and Oracle
      */
     public boolean storesUpperCaseIdentifiers() {
         return this.storesUpperCaseIdentifiers;
     }
 
     /**
-     * @return true if remote database treats mixed case unquoted SQL identifiers
-     * as case insensitive and stores them in mixed case.
+     * @return true if remote database treats mixed case unquoted SQL identifiers as case insensitive and stores them in
+     *         mixed case.
      */
     public boolean storesMixedCaseIdentifiers() {
         return this.storesMixedCaseIdentifiers;
     }
 
     /**
-     * @return true if remote database treats mixed case quoted SQL identifiers as case insensitive
-     * and stores them in lower case.
+     * @return true if remote database treats mixed case quoted SQL identifiers as case insensitive and stores them in
+     *         lower case.
      */
     public boolean storesLowerCaseQuotedIdentifiers() {
         return this.storesLowerCaseQuotedIdentifiers;
     }
 
     /**
-     * @return true if remote database treats mixed case quoted SQL identifiers as case insensitive
-     * and stores them in upper case.
+     * @return true if remote database treats mixed case quoted SQL identifiers as case insensitive and stores them in
+     *         upper case.
      */
     public boolean storesUpperCaseQuotedIdentifiers() {
         return this.storesUpperCaseQuotedIdentifiers;
     }
 
     /**
-     * @return true if remote database treats mixed case quoted SQL identifiers as case insensitive
-     * and stores them in mixed case. TRUE for Oracle.
+     * @return true if remote database treats mixed case quoted SQL identifiers as case insensitive and stores them in
+     *         mixed case. TRUE for Oracle.
      */
     public boolean storesMixedCaseQuotedIdentifiers() {
         return this.storesMixedCaseQuotedIdentifiers;
@@ -164,27 +164,28 @@ public final class SchemaAdapterNotes {
         }
         final SchemaAdapterNotes that = (SchemaAdapterNotes) o;
         return this.storesLowerCaseIdentifiers == that.storesLowerCaseIdentifiers
-              && this.storesUpperCaseIdentifiers == that.storesUpperCaseIdentifiers
-              && this.storesMixedCaseIdentifiers == that.storesMixedCaseIdentifiers
-              && this.supportsMixedCaseIdentifiers == that.supportsMixedCaseIdentifiers
-              && this.storesLowerCaseQuotedIdentifiers == that.storesLowerCaseQuotedIdentifiers
-              && this.storesUpperCaseQuotedIdentifiers == that.storesUpperCaseQuotedIdentifiers
-              && this.storesMixedCaseQuotedIdentifiers == that.storesMixedCaseQuotedIdentifiers
-              && this.supportsMixedCaseQuotedIdentifiers == that.supportsMixedCaseQuotedIdentifiers
-              && this.areNullsSortedAtEnd == that.areNullsSortedAtEnd
-              && this.areNullsSortedAtStart == that.areNullsSortedAtStart
-              && this.areNullsSortedHigh == that.areNullsSortedHigh && this.areNullsSortedLow == that.areNullsSortedLow
-              && Objects.equals(this.catalogSeparator, that.catalogSeparator) && Objects
-              .equals(this.identifierQuoteString, that.identifierQuoteString);
+                && this.storesUpperCaseIdentifiers == that.storesUpperCaseIdentifiers
+                && this.storesMixedCaseIdentifiers == that.storesMixedCaseIdentifiers
+                && this.supportsMixedCaseIdentifiers == that.supportsMixedCaseIdentifiers
+                && this.storesLowerCaseQuotedIdentifiers == that.storesLowerCaseQuotedIdentifiers
+                && this.storesUpperCaseQuotedIdentifiers == that.storesUpperCaseQuotedIdentifiers
+                && this.storesMixedCaseQuotedIdentifiers == that.storesMixedCaseQuotedIdentifiers
+                && this.supportsMixedCaseQuotedIdentifiers == that.supportsMixedCaseQuotedIdentifiers
+                && this.areNullsSortedAtEnd == that.areNullsSortedAtEnd
+                && this.areNullsSortedAtStart == that.areNullsSortedAtStart
+                && this.areNullsSortedHigh == that.areNullsSortedHigh
+                && this.areNullsSortedLow == that.areNullsSortedLow
+                && Objects.equals(this.catalogSeparator, that.catalogSeparator)
+                && Objects.equals(this.identifierQuoteString, that.identifierQuoteString);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(this.catalogSeparator, this.identifierQuoteString, this.storesLowerCaseIdentifiers,
-              this.storesUpperCaseIdentifiers, this.storesMixedCaseIdentifiers, this.supportsMixedCaseIdentifiers,
-              this.storesLowerCaseQuotedIdentifiers, this.storesUpperCaseQuotedIdentifiers,
-              this.storesMixedCaseQuotedIdentifiers, this.supportsMixedCaseQuotedIdentifiers, this.areNullsSortedAtEnd,
-              this.areNullsSortedAtStart, this.areNullsSortedHigh, this.areNullsSortedLow);
+                this.storesUpperCaseIdentifiers, this.storesMixedCaseIdentifiers, this.supportsMixedCaseIdentifiers,
+                this.storesLowerCaseQuotedIdentifiers, this.storesUpperCaseQuotedIdentifiers,
+                this.storesMixedCaseQuotedIdentifiers, this.supportsMixedCaseQuotedIdentifiers,
+                this.areNullsSortedAtEnd, this.areNullsSortedAtStart, this.areNullsSortedHigh, this.areNullsSortedLow);
     }
 
     @Override
@@ -201,7 +202,7 @@ public final class SchemaAdapterNotes {
         builder.append("storesLowerCaseQuotedIdentifiers=").append(this.storesLowerCaseQuotedIdentifiers).append(",\n");
         builder.append("storesMixedCaseQuotedIdentifiers=").append(this.storesMixedCaseQuotedIdentifiers).append(",\n");
         builder.append("supportsMixedCaseQuotedIdentifiers=").append(this.supportsMixedCaseQuotedIdentifiers)
-              .append(",\n");
+                .append(",\n");
         builder.append("areNullsSortedAtEnd=").append(this.areNullsSortedAtEnd).append(",\n");
         builder.append("areNullsSortedAtStart=").append(this.areNullsSortedAtStart).append(",\n");
         builder.append("areNullsSortedHigh=").append(this.areNullsSortedHigh).append(",\n");

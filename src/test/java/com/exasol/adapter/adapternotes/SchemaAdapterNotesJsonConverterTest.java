@@ -20,43 +20,42 @@ class SchemaAdapterNotesJsonConverterTest {
     }
 
     private static final String SERIALIZED_STRING = "{\"catalogSeparator\":\".\"," //
-          + "\"identifierQuoteString\":\"\\\"\"," //
-          + "\"storesLowerCaseIdentifiers\":false," //
-          + "\"storesUpperCaseIdentifiers\":false," //
-          + "\"storesMixedCaseIdentifiers\":false,"  //
-          + "\"supportsMixedCaseIdentifiers\":false," //
-          + "\"storesLowerCaseQuotedIdentifiers\":false," //
-          + "\"storesUpperCaseQuotedIdentifiers\":false," //
-          + "\"storesMixedCaseQuotedIdentifiers\":false," //
-          + "\"supportsMixedCaseQuotedIdentifiers\":false," //
-          + "\"areNullsSortedAtEnd\":false," //
-          + "\"areNullsSortedAtStart\":false," //
-          + "\"areNullsSortedHigh\":false," //
-          + "\"areNullsSortedLow\":false}";
+            + "\"identifierQuoteString\":\"\\\"\"," //
+            + "\"storesLowerCaseIdentifiers\":false," //
+            + "\"storesUpperCaseIdentifiers\":false," //
+            + "\"storesMixedCaseIdentifiers\":false," //
+            + "\"supportsMixedCaseIdentifiers\":false," //
+            + "\"storesLowerCaseQuotedIdentifiers\":false," //
+            + "\"storesUpperCaseQuotedIdentifiers\":false," //
+            + "\"storesMixedCaseQuotedIdentifiers\":false," //
+            + "\"supportsMixedCaseQuotedIdentifiers\":false," //
+            + "\"areNullsSortedAtEnd\":false," //
+            + "\"areNullsSortedAtStart\":false," //
+            + "\"areNullsSortedHigh\":false," //
+            + "\"areNullsSortedLow\":false}";
 
     @Test
     void convertToJsonWithDefaultValues() throws JSONException {
         JSONAssert.assertEquals(SERIALIZED_STRING,
-              this.schemaAdapterNotesJsonConverter.convertToJson(SchemaAdapterNotes.builder().build()), false);
+                this.schemaAdapterNotesJsonConverter.convertToJson(SchemaAdapterNotes.builder().build()), false);
     }
 
     @Test
     void deserializeWithDefaultValues() throws AdapterException {
-        assertThat(
-              this.schemaAdapterNotesJsonConverter.convertFromJsonToSchemaAdapterNotes(SERIALIZED_STRING, "test_name"),
-              equalTo(SchemaAdapterNotes.builder().build()));
+        assertThat(this.schemaAdapterNotesJsonConverter.convertFromJsonToSchemaAdapterNotes(SERIALIZED_STRING,
+                "test_name"), equalTo(SchemaAdapterNotes.builder().build()));
     }
 
     @Test
     void deserializeThrowsExceptionWithEmptyAdapterNotes() {
         assertThrows(AdapterException.class,
-              () -> this.schemaAdapterNotesJsonConverter.convertFromJsonToSchemaAdapterNotes("", ""));
+                () -> this.schemaAdapterNotesJsonConverter.convertFromJsonToSchemaAdapterNotes("", ""));
     }
 
     @Test
     void deserializeThrowsExceptionWithWrongAdapterNotes() {
         assertThrows(AdapterException.class,
-              () -> this.schemaAdapterNotesJsonConverter.convertFromJsonToSchemaAdapterNotes("testNotes", ""));
+                () -> this.schemaAdapterNotesJsonConverter.convertFromJsonToSchemaAdapterNotes("testNotes", ""));
     }
 
 }

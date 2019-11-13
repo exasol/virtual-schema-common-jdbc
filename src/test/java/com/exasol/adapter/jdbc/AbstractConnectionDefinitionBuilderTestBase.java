@@ -9,7 +9,7 @@ import java.util.Map;
 import com.exasol.ExaConnectionInformation;
 import com.exasol.adapter.AdapterProperties;
 
-public abstract class AbstractConnectionDefinitionBuilderTest {
+public abstract class AbstractConnectionDefinitionBuilderTestBase {
     protected static final String USER = "property_user";
     protected static final String PW = "property_secret";
     protected static final String USER_IDENTIFIED_BY = "USER '" + USER + "' IDENTIFIED BY '" + PW + "'";

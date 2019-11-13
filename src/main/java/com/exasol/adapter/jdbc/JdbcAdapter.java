@@ -22,18 +22,9 @@ public class JdbcAdapter implements VirtualSchemaAdapter {
     private static final String PREDICATE_PREFIX = "FN_PRED_";
     private static final String AGGREGATE_FUNCTION_PREFIX = "FN_AGG_";
     private static final String LITERAL_PREFIX = "LITERAL_";
-
     private static final String TABLES_PROPERTY = "TABLE_FILTER";
-
     private static final Logger LOGGER = Logger.getLogger(JdbcAdapter.class.getName());
     private final RemoteConnectionFactory connectionFactory = new RemoteConnectionFactory();
-
-    /**
-     * Create a new instance of type {@link JdbcAdapter}.
-     */
-    public JdbcAdapter() {
-        SqlDialectRegistry.getInstance().loadSqlDialectFactories();
-    }
 
     @Override
     public CreateVirtualSchemaResponse createVirtualSchema(final ExaMetadata exasolMetadata,

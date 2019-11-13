@@ -1,0 +1,2 @@
+com.exasol.adapter.dialects.derby.DerbySqlDialectFactory
+com.exasol.adapter.dialects.dummy.DummySqlDialectFactory
