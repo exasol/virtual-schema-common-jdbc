@@ -19,9 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.adapternotes.SchemaAdapterNotes;
 import com.exasol.adapter.dialects.IdentifierCaseHandling;
-import com.exasol.adapter.metadata.ColumnMetadata;
-import com.exasol.adapter.metadata.SchemaMetadata;
-import com.exasol.adapter.metadata.TableMetadata;
+import com.exasol.adapter.metadata.*;
 
 @ExtendWith(MockitoExtension.class)
 class BaseRemoteMetadataReaderTest {
