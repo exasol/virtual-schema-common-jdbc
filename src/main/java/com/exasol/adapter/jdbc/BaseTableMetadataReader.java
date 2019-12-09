@@ -1,7 +1,11 @@
 package com.exasol.adapter.jdbc;
 
-import java.sql.*;
-import java.util.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
@@ -76,7 +80,12 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
     }
 
     private boolean isTableFilteredOut(final String tableName) {
-        return this.properties.getFilteredTables().contains(tableName);
+        List<String> filteredTables = this.properties.getFilteredTables();
+        if (filteredTables.isEmpty()) {
+            return false;
+        } else {
+            return !filteredTables.contains(tableName);
+        }
     }
 
     protected void skipFilteredTable(final String tableName) {

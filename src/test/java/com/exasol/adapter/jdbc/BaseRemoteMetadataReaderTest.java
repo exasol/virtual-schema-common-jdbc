@@ -19,7 +19,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.adapternotes.SchemaAdapterNotes;
 import com.exasol.adapter.dialects.IdentifierCaseHandling;
-import com.exasol.adapter.metadata.*;
+import com.exasol.adapter.metadata.ColumnMetadata;
+import com.exasol.adapter.metadata.SchemaMetadata;
+import com.exasol.adapter.metadata.TableMetadata;
 
 @ExtendWith(MockitoExtension.class)
 class BaseRemoteMetadataReaderTest {
@@ -136,14 +138,14 @@ class BaseRemoteMetadataReaderTest {
         final Connection connectionMock = mockConnection(remoteMetadataMock);
         final Map<String, String> rawProperties = new HashMap<>();
         rawProperties.put(AdapterProperties.TABLE_FILTER_PROPERTY, TABLE_B);
-        mockTableA(remoteMetadataMock);
+        mockTableB(remoteMetadataMock);
         mockGetTableCalls(remoteMetadataMock);
         final SchemaMetadata metadata = readMockedSchemaMetadataWithProperties(connectionMock,
                 new AdapterProperties(rawProperties));
         final List<TableMetadata> tables = metadata.getTables();
         final TableMetadata tableAMetadata = tables.get(0);
         assertAll(() -> assertThat(tables, iterableWithSize(1)),
-                () -> assertThat(tableAMetadata.getName(), equalTo(TABLE_A)));
+                () -> assertThat(tableAMetadata.getName(), equalTo(TABLE_B)));
     }
 
     @Test
