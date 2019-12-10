@@ -51,16 +51,16 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
             final Optional<List<String>> selectedTables) throws SQLException {
         final String tableName = readTableName(remoteTables);
         if (isTableIncludedByMapping(tableName)) {
-            mapSelectedTables(remoteTables, translatedTables, selectedTables, tableName);
+            mapSupportedTables(remoteTables, translatedTables, selectedTables, tableName);
         } else {
             skipUnsupportedTable(tableName);
         }
     }
 
-    private void mapSelectedTables(ResultSet remoteTables, List<TableMetadata> translatedTables,
+    private void mapSupportedTables(ResultSet remoteTables, List<TableMetadata> translatedTables,
             Optional<List<String>> selectedTables, String tableName) throws SQLException {
         if (isTableSelected(tableName, selectedTables)) {
-            mapOrSkipSupportedTable(remoteTables, translatedTables, tableName);
+            mapOrSkipSelectedTable(remoteTables, translatedTables, tableName);
         } else {
             LOGGER.fine(() -> "Skipping filtered out table \"" + tableName + "\" when mapping remote metadata.");
         }
@@ -75,7 +75,7 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
         return selectedTables.isEmpty() || selectedTables.get().contains(tableName);
     }
 
-    protected void mapOrSkipSupportedTable(final ResultSet remoteTables, final List<TableMetadata> translatedTables,
+    protected void mapOrSkipSelectedTable(final ResultSet remoteTables, final List<TableMetadata> translatedTables,
             final String tableName) throws SQLException {
         if (isTableFilteredOut(tableName)) {
             skipFilteredTable(tableName);
