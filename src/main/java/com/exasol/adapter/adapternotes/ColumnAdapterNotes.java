@@ -1,5 +1,7 @@
 package com.exasol.adapter.adapternotes;
 
+import java.util.Objects;
+
 import javax.json.*;
 
 import com.exasol.adapter.AdapterException;
@@ -68,14 +70,14 @@ public class ColumnAdapterNotes {
             throws AdapterException {
         if ((columnAdapterNotes == null) || columnAdapterNotes.isEmpty()) {
             throw new AdapterException("The adapternotes field of column " + columnName
-                    + " are empty or null. Please refresh the virtual schema. ");
+                    + " is empty or null. Please refresh the virtual schema.");
         }
         final JsonObject root;
         try {
             root = JsonHelper.getJsonObject(columnAdapterNotes);
-        } catch (final Exception ex) {
+        } catch (final Exception exception) {
             throw new AdapterException("Can not get the json object for column notes of column " + columnName
-                    + ". Please refresh the virtual schema");
+                    + ". Please refresh the virtual schema. Caused by: " + exception.getMessage(), exception);
         }
         checkKey(root, JDBC_DATA_TYPE, columnName);
         checkKey(root, TYPE_NAME, columnName);
@@ -88,5 +90,22 @@ public class ColumnAdapterNotes {
             throw new AdapterException("Adapter notes of column " + columnName + " don't have the key " + key
                     + ". Please refresh the virtual schema");
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ColumnAdapterNotes that = (ColumnAdapterNotes) o;
+        return jdbcDataType == that.jdbcDataType && Objects.equals(typeName, that.typeName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(jdbcDataType, typeName);
     }
 }
