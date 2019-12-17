@@ -10,7 +10,7 @@ import com.exasol.utils.JsonHelper;
 /**
  * Serializes and deserializes the column adapter notes specific to the JDBC Adapter.
  */
-public class ColumnAdapterNotes {
+public final class ColumnAdapterNotes {
     private static final String TYPE_NAME = "typeName";
     private static final String JDBC_DATA_TYPE = "jdbcDataType";
     private final int jdbcDataType;
@@ -93,19 +93,17 @@ public class ColumnAdapterNotes {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
+    public boolean equals(final Object o) {
+        if (this == o)
             return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
+        if (!(o instanceof ColumnAdapterNotes))
             return false;
-        }
-        ColumnAdapterNotes that = (ColumnAdapterNotes) o;
-        return jdbcDataType == that.jdbcDataType && Objects.equals(typeName, that.typeName);
+        final ColumnAdapterNotes that = (ColumnAdapterNotes) o;
+        return this.jdbcDataType == that.jdbcDataType && Objects.equals(this.typeName, that.typeName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(jdbcDataType, typeName);
+        return Objects.hash(this.jdbcDataType, this.typeName);
     }
 }

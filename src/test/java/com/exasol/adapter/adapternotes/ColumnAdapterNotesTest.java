@@ -10,6 +10,8 @@ import org.junit.jupiter.api.Test;
 
 import com.exasol.adapter.AdapterException;
 
+import nl.jqno.equalsverifier.EqualsVerifier;
+
 class ColumnAdapterNotesTest {
     private ColumnAdapterNotes columnAdapterNotes;
 
@@ -45,5 +47,10 @@ class ColumnAdapterNotesTest {
         AdapterException exception = assertThrows(AdapterException.class,
                 () -> ColumnAdapterNotes.deserialize(null, "C1"));
         assertThat(exception.getMessage(), containsString("The adapternotes field of column C1 is empty or null"));
+    }
+
+    @Test
+    void equalsContract() {
+        EqualsVerifier.forClass(ColumnAdapterNotes.class).verify();
     }
 }
