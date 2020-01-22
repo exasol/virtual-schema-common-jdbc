@@ -36,8 +36,9 @@ public class RemoteConnectionFactory {
     private Connection createConnectionWithUserCredentials(final String username, final String password,
             final String connectionString) throws SQLException {
         logConnectionAttempt(username, password);
+        final long start = System.currentTimeMillis();
         final Connection connection = DriverManager.getConnection(connectionString, username, password);
-        logRemoteDatabaseDetails(connection);
+        logRemoteDatabaseDetails(connection, System.currentTimeMillis() - start);
         return connection;
     }
 
@@ -46,10 +47,10 @@ public class RemoteConnectionFactory {
                 () -> "Connecting to \"" + address + "\" as user \"" + username + "\" using password authentication.");
     }
 
-    protected void logRemoteDatabaseDetails(final Connection connection) throws SQLException {
+    protected void logRemoteDatabaseDetails(final Connection connection, final long connectionTime) throws SQLException {
         final String databaseProductName = connection.getMetaData().getDatabaseProductName();
         final String databaseProductVersion = connection.getMetaData().getDatabaseProductVersion();
-        LOGGER.info(() -> "Connected to " + databaseProductName + " " + databaseProductVersion);
+        LOGGER.info(() -> "Connected to " + databaseProductName + " " + databaseProductVersion + " in " + connectionTime + " milliseconds.");
     }
 
     private Connection createConnection(final String connectionName, final ExaMetadata exaMetadata)
@@ -71,15 +72,16 @@ public class RemoteConnectionFactory {
     }
 
     private Connection establishConnectionWithKerberos(final String password, final String username,
-            final String address) throws SQLException {
+                                                       final String address) throws SQLException {
         logConnectionAttemptWithKerberos(address, username);
         final Properties jdbcProperties = new Properties();
         jdbcProperties.put("user", username);
         jdbcProperties.put("password", password);
         final KerberosConfigurationCreator kerberosConfigurationCreator = new KerberosConfigurationCreator();
         kerberosConfigurationCreator.writeKerberosConfigurationFiles(username, password);
+        final long start = System.currentTimeMillis();
         final Connection connection = DriverManager.getConnection(address, jdbcProperties);
-        logRemoteDatabaseDetails(connection);
+        logRemoteDatabaseDetails(connection, System.currentTimeMillis() - start);
         return connection;
     }
 
@@ -91,8 +93,9 @@ public class RemoteConnectionFactory {
     private Connection establishConnectionWithRegularCredentials(final String password, final String username,
             final String address) throws SQLException {
         logConnectionAttempt(address, username);
+        final long start = System.currentTimeMillis();
         final Connection connection = DriverManager.getConnection(address, username, password);
-        logRemoteDatabaseDetails(connection);
+        logRemoteDatabaseDetails(connection, System.currentTimeMillis() - start);
         return connection;
     }
 }
