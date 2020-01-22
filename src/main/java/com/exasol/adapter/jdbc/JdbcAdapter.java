@@ -51,9 +51,9 @@ public class JdbcAdapter implements VirtualSchemaAdapter {
     private SchemaMetadata readMetadata(final AdapterProperties properties, final ExaMetadata exasolMetadata)
             throws SQLException, PropertyValidationException {
         final List<String> tables = properties.getFilteredTables();
-        long start = System.currentTimeMillis();
+        final long start = System.currentTimeMillis();
         try (final Connection connection = this.connectionFactory.createConnection(exasolMetadata, properties)) {
-            long finish = System.currentTimeMillis() - start;
+            final long finish = System.currentTimeMillis() - start;
             LOGGER.finer(() -> "Connection established in " + finish + " milliseconds.");
             final SqlDialect dialect = createDialect(connection, properties);
             dialect.validateProperties();
@@ -68,9 +68,9 @@ public class JdbcAdapter implements VirtualSchemaAdapter {
     protected SchemaMetadata readMetadata(final AdapterProperties properties,
             final List<String> whiteListedRemoteTables, final ExaMetadata exasolMetadata)
             throws SQLException, PropertyValidationException {
-        long start = System.currentTimeMillis();
+        final long start = System.currentTimeMillis();
         try (final Connection connection = this.connectionFactory.createConnection(exasolMetadata, properties)) {
-            long finish = System.currentTimeMillis() - start;
+            final long finish = System.currentTimeMillis() - start;
             LOGGER.finer(() -> "Connection established in " + finish + " milliseconds.");
             final SqlDialect dialect = createDialect(connection, properties);
             dialect.validateProperties();
@@ -168,9 +168,9 @@ public class JdbcAdapter implements VirtualSchemaAdapter {
             throws AdapterException {
         LOGGER.fine(() -> "Received request to list the adapter's capabilites.");
         final AdapterProperties properties = getPropertiesFromRequest(request);
-        long start = System.currentTimeMillis();
+        final long start = System.currentTimeMillis();
         try (final Connection connection = this.connectionFactory.createConnection(exaMetadata, properties)) {
-            long finish = System.currentTimeMillis() - start;
+            final long finish = System.currentTimeMillis() - start;
             LOGGER.finer(() -> "Connection established in " + finish + " milliseconds.");
             final SqlDialect dialect = createDialect(connection, properties);
             final Capabilities capabilities = dialect.getCapabilities();
@@ -229,9 +229,9 @@ public class JdbcAdapter implements VirtualSchemaAdapter {
     public PushDownResponse pushdown(final ExaMetadata exaMetadata, final PushDownRequest request)
             throws AdapterException {
         final AdapterProperties properties = getPropertiesFromRequest(request);
-        long start = System.currentTimeMillis();
+        final long start = System.currentTimeMillis();
         try (final Connection connection = this.connectionFactory.createConnection(exaMetadata, properties)) {
-            long finish = System.currentTimeMillis() - start;
+            final long finish = System.currentTimeMillis() - start;
             LOGGER.finer(() -> "Connection established in " + finish + " milliseconds.");
             final SqlDialect dialect = createDialect(connection, properties);
             final String importFromPushdownQuery = dialect.rewriteQuery(request.getSelect(), exaMetadata);
