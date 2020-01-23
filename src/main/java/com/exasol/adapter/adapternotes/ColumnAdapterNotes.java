@@ -1,5 +1,7 @@
 package com.exasol.adapter.adapternotes;
 
+import java.util.Objects;
+
 import javax.json.*;
 
 import com.exasol.adapter.AdapterException;
@@ -8,7 +10,7 @@ import com.exasol.utils.JsonHelper;
 /**
  * Serializes and deserializes the column adapter notes specific to the JDBC Adapter.
  */
-public class ColumnAdapterNotes {
+public final class ColumnAdapterNotes {
     private static final String TYPE_NAME = "typeName";
     private static final String JDBC_DATA_TYPE = "jdbcDataType";
     private final int jdbcDataType;
@@ -68,14 +70,14 @@ public class ColumnAdapterNotes {
             throws AdapterException {
         if ((columnAdapterNotes == null) || columnAdapterNotes.isEmpty()) {
             throw new AdapterException("The adapternotes field of column " + columnName
-                    + " are empty or null. Please refresh the virtual schema. ");
+                    + " is empty or null. Please refresh the virtual schema.");
         }
         final JsonObject root;
         try {
             root = JsonHelper.getJsonObject(columnAdapterNotes);
-        } catch (final Exception ex) {
+        } catch (final Exception exception) {
             throw new AdapterException("Can not get the json object for column notes of column " + columnName
-                    + ". Please refresh the virtual schema");
+                    + ". Please refresh the virtual schema. Caused by: " + exception.getMessage(), exception);
         }
         checkKey(root, JDBC_DATA_TYPE, columnName);
         checkKey(root, TYPE_NAME, columnName);
@@ -88,5 +90,20 @@ public class ColumnAdapterNotes {
             throw new AdapterException("Adapter notes of column " + columnName + " don't have the key " + key
                     + ". Please refresh the virtual schema");
         }
+    }
+
+    @Override
+    public boolean equals(final Object other) {
+        if (this == other)
+            return true;
+        if (!(other instanceof ColumnAdapterNotes))
+            return false;
+        final ColumnAdapterNotes that = (ColumnAdapterNotes) other;
+        return this.jdbcDataType == that.jdbcDataType && Objects.equals(this.typeName, that.typeName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.jdbcDataType, this.typeName);
     }
 }
