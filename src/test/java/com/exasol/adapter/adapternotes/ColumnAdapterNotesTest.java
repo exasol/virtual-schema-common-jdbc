@@ -5,12 +5,14 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import org.json.JSONException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.exasol.adapter.AdapterException;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
+import org.skyscreamer.jsonassert.JSONAssert;
 
 class ColumnAdapterNotesTest {
     private ColumnAdapterNotes columnAdapterNotes;
@@ -31,9 +33,9 @@ class ColumnAdapterNotesTest {
     }
 
     @Test
-    void testSerialize() {
-        assertThat(ColumnAdapterNotes.serialize(columnAdapterNotes),
-                equalTo("{\"jdbcDataType\":8,\"typeName\":\"DOUBLE\"}"));
+    void testSerialize() throws JSONException {
+        JSONAssert.assertEquals("{\"jdbcDataType\":8,\"typeName\":\"DOUBLE\"}",
+                ColumnAdapterNotes.serialize(columnAdapterNotes), false);
     }
 
     @Test
@@ -44,7 +46,7 @@ class ColumnAdapterNotesTest {
 
     @Test
     void testDeserializeEmptyAdapterNotes() {
-        AdapterException exception = assertThrows(AdapterException.class,
+        final AdapterException exception = assertThrows(AdapterException.class,
                 () -> ColumnAdapterNotes.deserialize(null, "C1"));
         assertThat(exception.getMessage(), containsString("The adapternotes field of column C1 is empty or null"));
     }

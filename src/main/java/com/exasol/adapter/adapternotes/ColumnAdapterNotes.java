@@ -93,12 +93,12 @@ public final class ColumnAdapterNotes {
     }
 
     @Override
-    public boolean equals(final Object o) {
-        if (this == o)
+    public boolean equals(final Object other) {
+        if (this == other)
             return true;
-        if (!(o instanceof ColumnAdapterNotes))
+        if (!(other instanceof ColumnAdapterNotes))
             return false;
-        final ColumnAdapterNotes that = (ColumnAdapterNotes) o;
+        final ColumnAdapterNotes that = (ColumnAdapterNotes) other;
         return this.jdbcDataType == that.jdbcDataType && Objects.equals(this.typeName, that.typeName);
     }
 
