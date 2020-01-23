@@ -79,7 +79,7 @@ public class JdbcAdapter implements VirtualSchemaAdapter {
 
     @Override
     public DropVirtualSchemaResponse dropVirtualSchema(final ExaMetadata metadata,
-                                                       final DropVirtualSchemaRequest request) {
+            final DropVirtualSchemaRequest request) {
         logDropVirtualSchemaRequestReceived(request);
         return DropVirtualSchemaResponse.builder().build();
     }

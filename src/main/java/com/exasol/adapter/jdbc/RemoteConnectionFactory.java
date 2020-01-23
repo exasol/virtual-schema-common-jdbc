@@ -72,7 +72,7 @@ public class RemoteConnectionFactory {
     }
 
     private Connection establishConnectionWithKerberos(final String password, final String username,
-                                                       final String address) throws SQLException {
+            final String address) throws SQLException {
         logConnectionAttemptWithKerberos(address, username);
         final Properties jdbcProperties = new Properties();
         jdbcProperties.put("user", username);
