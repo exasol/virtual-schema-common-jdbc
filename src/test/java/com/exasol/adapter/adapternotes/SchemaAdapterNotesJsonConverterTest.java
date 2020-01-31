@@ -12,11 +12,11 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import com.exasol.adapter.AdapterException;
 
 class SchemaAdapterNotesJsonConverterTest {
-    private SchemaAdapterNotesJsonConverter schemaAdapterNotesJsonConverter;
+    private SchemaAdapterNotesJsonConverter converter;
 
     @BeforeEach
     void setUp() {
-        this.schemaAdapterNotesJsonConverter = SchemaAdapterNotesJsonConverter.getInstance();
+        this.converter = SchemaAdapterNotesJsonConverter.getInstance();
     }
 
     private static final String SERIALIZED_STRING = "{\"catalogSeparator\":\".\"," //
@@ -35,27 +35,29 @@ class SchemaAdapterNotesJsonConverterTest {
             + "\"areNullsSortedLow\":false}";
 
     @Test
-    void convertToJsonWithDefaultValues() throws JSONException {
-        JSONAssert.assertEquals(SERIALIZED_STRING,
-                this.schemaAdapterNotesJsonConverter.convertToJson(SchemaAdapterNotes.builder().build()), false);
+    void testConvertToJsonWithDefaultValues() throws JSONException {
+        JSONAssert.assertEquals(SERIALIZED_STRING, this.converter.convertToJson(SchemaAdapterNotes.builder().build()),
+                false);
     }
 
     @Test
-    void deserializeWithDefaultValues() throws AdapterException {
-        assertThat(this.schemaAdapterNotesJsonConverter.convertFromJsonToSchemaAdapterNotes(SERIALIZED_STRING,
-                "test_name"), equalTo(SchemaAdapterNotes.builder().build()));
+    void testConvertFromJsonToSchemaAdapterNotesWithDefaultValues() throws AdapterException {
+        assertThat(this.converter.convertFromJsonToSchemaAdapterNotes(SERIALIZED_STRING, "test_name"),
+                equalTo(SchemaAdapterNotes.builder().build()));
     }
 
     @Test
-    void deserializeThrowsExceptionWithEmptyAdapterNotes() {
-        assertThrows(AdapterException.class,
-                () -> this.schemaAdapterNotesJsonConverter.convertFromJsonToSchemaAdapterNotes("", ""));
+    void testConvertFromJsonToSchemaAdapterNotesThrowsExceptionWhenEmptyAdapterNotesAreBzkk() {
+        assertThrows(AdapterException.class, () -> this.converter.convertFromJsonToSchemaAdapterNotes(null, ""));
     }
 
     @Test
-    void deserializeThrowsExceptionWithWrongAdapterNotes() {
-        assertThrows(AdapterException.class,
-                () -> this.schemaAdapterNotesJsonConverter.convertFromJsonToSchemaAdapterNotes("testNotes", ""));
+    void testConvertFromJsonToSchemaAdapterNotesThrowsExceptionWithEmptyAdapterNotes() {
+        assertThrows(AdapterException.class, () -> this.converter.convertFromJsonToSchemaAdapterNotes("", ""));
     }
 
+    @Test
+    void testconvertFromJsonToSchemaAdapterNotesThrowsExceptionWithWrongAdapterNotes() {
+        assertThrows(AdapterException.class, () -> this.converter.convertFromJsonToSchemaAdapterNotes("testNotes", ""));
+    }
 }

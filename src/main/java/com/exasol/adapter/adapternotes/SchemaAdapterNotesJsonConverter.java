@@ -41,7 +41,7 @@ public final class SchemaAdapterNotesJsonConverter {
     /**
      * Converts schema adapter notes into a JSON format.
      *
-     * @param schemaAdapterNotes instance
+     * @param schemaAdapterNotes schema adapter notes to be converted
      * @return string representation of a JSON Object
      */
     public String convertToJson(final SchemaAdapterNotes schemaAdapterNotes) {
@@ -65,27 +65,25 @@ public final class SchemaAdapterNotesJsonConverter {
     }
 
     /**
-     * Converts JSON representation of schema adapter notes into instance of {@link SchemaAdapterNotesJsonConverter}
-     * class.
+     * Converts JSON representation of schema adapter notes into instance of {@link SchemaAdapterNotes} class.
      *
      * @param adapterNotes JSON representation of schema adapter notes
      * @param schemaName   name of virtual schema
-     * @return instance of {@link SchemaAdapterNotesJsonConverter}
+     * @return instance of {@link SchemaAdapterNotes}
      * @throws AdapterException if the adapter notes are missing or cannot be parsed
      */
     public SchemaAdapterNotes convertFromJsonToSchemaAdapterNotes(final String adapterNotes, final String schemaName)
             throws AdapterException {
         if ((adapterNotes == null) || adapterNotes.isEmpty()) {
-            throw new AdapterException("Adapter notes for virtual schema " + schemaName + " are empty or null. " //
-                    + "Please refresh the virtual schema");
+            throw new AdapterException("Adapter notes for virtual schema " + schemaName + " are empty or NULL. " //
+                    + "Please refresh the virtual schema.");
         }
         final JsonObject root;
         try {
             root = JsonHelper.getJsonObject(adapterNotes);
-        } catch (final Exception ex) {
-            throw new AdapterException(
-                    "Could not parse the json which is expected to be stored in the adapter notes of virtual schema "
-                            + schemaName + ". Please refresh the virtual schema");
+        } catch (final Exception exception) {
+            throw new AdapterException("Could not parse the schema adapter notes of virtual schema \"" + schemaName
+                    + "\". Please refresh the virtual schema.", exception);
         }
         checkKey(root, CATALOG_SEPARATOR, schemaName);
         checkKey(root, IDENTIFIER_QUOTE_STRING, schemaName);

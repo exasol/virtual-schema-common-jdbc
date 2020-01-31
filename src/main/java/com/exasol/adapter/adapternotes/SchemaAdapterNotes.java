@@ -3,8 +3,7 @@ package com.exasol.adapter.adapternotes;
 import java.util.Objects;
 
 /**
- * Holds the schema adapter notes specific to the JDBC Adapter. Also includes functionality to serialize and
- * deserialize.
+ * Holds the schema adapter notes specific to the JDBC Adapter.
  */
 public final class SchemaAdapterNotes {
     private final String catalogSeparator;
@@ -159,22 +158,22 @@ public final class SchemaAdapterNotes {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if ((o == null) || (getClass() != o.getClass())) {
             return false;
         }
         final SchemaAdapterNotes that = (SchemaAdapterNotes) o;
-        return this.storesLowerCaseIdentifiers == that.storesLowerCaseIdentifiers
-                && this.storesUpperCaseIdentifiers == that.storesUpperCaseIdentifiers
-                && this.storesMixedCaseIdentifiers == that.storesMixedCaseIdentifiers
-                && this.supportsMixedCaseIdentifiers == that.supportsMixedCaseIdentifiers
-                && this.storesLowerCaseQuotedIdentifiers == that.storesLowerCaseQuotedIdentifiers
-                && this.storesUpperCaseQuotedIdentifiers == that.storesUpperCaseQuotedIdentifiers
-                && this.storesMixedCaseQuotedIdentifiers == that.storesMixedCaseQuotedIdentifiers
-                && this.supportsMixedCaseQuotedIdentifiers == that.supportsMixedCaseQuotedIdentifiers
-                && this.areNullsSortedAtEnd == that.areNullsSortedAtEnd
-                && this.areNullsSortedAtStart == that.areNullsSortedAtStart
-                && this.areNullsSortedHigh == that.areNullsSortedHigh
-                && this.areNullsSortedLow == that.areNullsSortedLow
+        return (this.storesLowerCaseIdentifiers == that.storesLowerCaseIdentifiers)
+                && (this.storesUpperCaseIdentifiers == that.storesUpperCaseIdentifiers)
+                && (this.storesMixedCaseIdentifiers == that.storesMixedCaseIdentifiers)
+                && (this.supportsMixedCaseIdentifiers == that.supportsMixedCaseIdentifiers)
+                && (this.storesLowerCaseQuotedIdentifiers == that.storesLowerCaseQuotedIdentifiers)
+                && (this.storesUpperCaseQuotedIdentifiers == that.storesUpperCaseQuotedIdentifiers)
+                && (this.storesMixedCaseQuotedIdentifiers == that.storesMixedCaseQuotedIdentifiers)
+                && (this.supportsMixedCaseQuotedIdentifiers == that.supportsMixedCaseQuotedIdentifiers)
+                && (this.areNullsSortedAtEnd == that.areNullsSortedAtEnd)
+                && (this.areNullsSortedAtStart == that.areNullsSortedAtStart)
+                && (this.areNullsSortedHigh == that.areNullsSortedHigh)
+                && (this.areNullsSortedLow == that.areNullsSortedLow)
                 && Objects.equals(this.catalogSeparator, that.catalogSeparator)
                 && Objects.equals(this.identifierQuoteString, that.identifierQuoteString);
     }
