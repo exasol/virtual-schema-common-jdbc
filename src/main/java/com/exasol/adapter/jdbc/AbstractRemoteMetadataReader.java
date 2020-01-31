@@ -128,7 +128,7 @@ public abstract class AbstractRemoteMetadataReader extends AbstractMetadataReade
 
     protected void logTablesScan(final String catalogName, final String schemaName) {
         LOGGER.fine(() -> {
-            final StringBuilder builder = new StringBuilder("Scanning \"");
+            final StringBuilder builder = new StringBuilder("Scanning ");
             if (catalogName == null) {
                 builder.append("any catalog, ");
             } else {
@@ -143,7 +143,8 @@ public abstract class AbstractRemoteMetadataReader extends AbstractMetadataReade
                 builder.append(schemaName);
                 builder.append("\" ");
             }
-            builder.append("for contained tables.");
+            builder.append("for contained tables of the following supported types: ");
+            builder.append(String.join(", ", getSupportedTableTypes()));
             return builder.toString();
         });
     }
