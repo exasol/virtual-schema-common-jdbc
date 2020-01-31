@@ -1,8 +1,7 @@
 package com.exasol.adapter.jdbc;
 
 import static com.exasol.adapter.jdbc.TableMetadataMockUtils.*;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.iterableWithSize;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.Mockito.when;
@@ -10,6 +9,7 @@ import static org.mockito.Mockito.when;
 import java.sql.*;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,6 +20,7 @@ import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.dialects.BaseIdentifierConverter;
 import com.exasol.adapter.metadata.DataType;
 import com.exasol.adapter.metadata.TableMetadata;
+import com.exasol.logging.CapturingLogHandler;
 
 @ExtendWith(MockitoExtension.class)
 class BaseTableMetadataReaderTest {
@@ -81,5 +82,14 @@ class BaseTableMetadataReaderTest {
         final TableMetadata tableA = tables.get(0);
         assertAll(() -> assertThat(tables, iterableWithSize(1)), //
                 () -> assertThat(tableA.getName(), equalTo(TABLE_A)));
+    }
+
+    @Test
+    void testWarnIfTableScanResultsAreEmpty() throws SQLException {
+        mockTableCount(this.tablesMock, 0);
+        final CapturingLogHandler capturingLogHandler = new CapturingLogHandler();
+        Logger.getLogger("com.exasol").addHandler(capturingLogHandler);
+        createDefaultTableMetadataReader().mapTables(this.tablesMock, Optional.empty());
+        assertThat(capturingLogHandler.getCapturedData(), containsString("Table scan did not find any tables."));
     }
 }

@@ -1,6 +1,7 @@
 package com.exasol.adapter.jdbc;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -22,7 +23,7 @@ class AbstractRemoteMetadataReaderTest {
 
     private Connection mockConnectionThrowingExceptionOnGetMetadata() throws SQLException {
         final Connection connectionMock = Mockito.mock(Connection.class);
-        Mockito.when(connectionMock.getMetaData()).thenThrow(new SQLException("FAKE SQL exception"));
+        when(connectionMock.getMetaData()).thenThrow(new SQLException("FAKE SQL exception"));
         return connectionMock;
     }
 
