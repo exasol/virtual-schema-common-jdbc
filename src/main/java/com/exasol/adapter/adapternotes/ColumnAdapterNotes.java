@@ -20,7 +20,7 @@ public final class ColumnAdapterNotes {
     /**
      * Get JDBC data type.
      *
-     * @return JDBC data type as an number
+     * @return JDBC data type as a number
      */
     public int getJdbcDataType() {
         return this.jdbcDataType;
