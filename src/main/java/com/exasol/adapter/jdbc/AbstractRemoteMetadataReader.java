@@ -110,7 +110,7 @@ public abstract class AbstractRemoteMetadataReader extends AbstractMetadataReade
         logTablesScan(catalogName, schemaName);
         try (final ResultSet remoteTables = remoteMetadata.getTables(catalogName, schemaName, ANY_TABLE,
                 getTableTypeFilter())) {
-            return mapTables(remoteTables, selectedTables);
+            return this.tableMetadataReader.mapTables(remoteTables, selectedTables);
         }
     }
 
@@ -147,11 +147,6 @@ public abstract class AbstractRemoteMetadataReader extends AbstractMetadataReade
             builder.append(String.join(", ", getSupportedTableTypes()));
             return builder.toString();
         });
-    }
-
-    private List<TableMetadata> mapTables(final ResultSet remoteTables, final Optional<List<String>> selectedTables)
-            throws SQLException {
-        return this.tableMetadataReader.mapTables(remoteTables, selectedTables);
     }
 
     @Override

@@ -41,8 +41,16 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
     public List<TableMetadata> mapTables(final ResultSet remoteTables, final Optional<List<String>> selectedTables)
             throws SQLException {
         final List<TableMetadata> translatedTables = new ArrayList<>();
-        while (remoteTables.next()) {
-            mapOrSkipTable(remoteTables, translatedTables, selectedTables);
+        if (remoteTables.next()) {
+            do {
+                mapOrSkipTable(remoteTables, translatedTables, selectedTables);
+            } while (remoteTables.next());
+        } else {
+            LOGGER.warning(() -> "Table scan did not find any tables. This can mean that either" //
+                    + " a) the source does not contain tables (yet)," + " b) the table type is not supported or" //
+                    + " c) the table scan filter criteria is incorrect." //
+                    + " Please check that the source actually contains tables. " //
+                    + " Also check the spelling and exact case of any catalog or schema name you provided.");
         }
         return translatedTables;
     }
@@ -57,8 +65,8 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
         }
     }
 
-    private void mapSupportedTables(ResultSet remoteTables, List<TableMetadata> translatedTables,
-            Optional<List<String>> selectedTables, String tableName) throws SQLException {
+    private void mapSupportedTables(final ResultSet remoteTables, final List<TableMetadata> translatedTables,
+            final Optional<List<String>> selectedTables, final String tableName) throws SQLException {
         if (isTableSelected(tableName, selectedTables)) {
             mapOrSkipSelectedTable(remoteTables, translatedTables, tableName);
         } else {
@@ -85,7 +93,7 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
     }
 
     private boolean isTableFilteredOut(final String tableName) {
-        List<String> filteredTables = this.properties.getFilteredTables();
+        final List<String> filteredTables = this.properties.getFilteredTables();
         if (filteredTables.isEmpty()) {
             return false;
         } else {
