@@ -27,7 +27,7 @@ public final class ColumnAdapterNotesJsonConverter {
     /**
      * Converts column adapter notes into a JSON format.
      *
-     * @param columAdapterNotes column adapter notes to be converted
+     * @param columnAdapterNotes column adapter notes to be converted
      * @return string representation of a JSON Object
      */
     public String convertToJson(final ColumnAdapterNotes columnAdapterNotes) {
@@ -38,7 +38,7 @@ public final class ColumnAdapterNotesJsonConverter {
     }
 
     /**
-     * Converts JSON representation of column adapter notes into instance of {@link ColumnAdapterNotesJson} class.
+     * Converts JSON representation of column adapter notes into instance of {@link ColumnAdapterNotes} class.
      *
      * @param adapterNotes JSON representation of schema adapter notes
      * @param columnName   name of the column

@@ -12,7 +12,6 @@ public final class ColumnAdapterNotes {
      * Create a new instance of the {@link ColumnAdapterNotes}.
      *
      * @param jdbcDataType JDBC data type number
-     * @param typeName     name of the data type
      */
     public ColumnAdapterNotes(final int jdbcDataType) {
         this.jdbcDataType = jdbcDataType;
