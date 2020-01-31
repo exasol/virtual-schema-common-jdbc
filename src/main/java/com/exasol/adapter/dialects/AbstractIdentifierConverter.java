@@ -6,7 +6,7 @@ import java.util.logging.Logger;
  * Abstract base class for all identifier converters.
  */
 public abstract class AbstractIdentifierConverter implements IdentifierConverter {
-    private final static Logger LOGGER = Logger.getLogger(AbstractIdentifierConverter.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(AbstractIdentifierConverter.class.getName());
     protected final IdentifierCaseHandling unquotedIdentifierHandling;
     protected final IdentifierCaseHandling quotedIdentifierHandling;
 
