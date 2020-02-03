@@ -11,26 +11,35 @@ import com.exasol.auth.kerberos.KerberosConfigurationCreator;
 /**
  * Factory that produces JDBC connections to remote data sources.
  */
-public class RemoteConnectionFactory {
+public final class RemoteConnectionFactory implements ConnectionFactory {
     private static final Logger LOGGER = Logger.getLogger(RemoteConnectionFactory.class.getName());
+    private final ExaMetadata exaMetadata;
+    private final AdapterProperties properties;
+    private Connection cachedConnection = null;
+
+    public RemoteConnectionFactory(final ExaMetadata exaMetadata, final AdapterProperties properties) {
+        this.exaMetadata = exaMetadata;
+        this.properties = properties;
+    }
 
     /**
      * Create a JDBC connection to the remote data source.
      *
-     * @param exaMetadata Exasol metadata (contains information about stored * connection details)
-     * @param properties  user-defined adapter properties
      * @return JDBC connection to remote data source
      * @throws SQLException if the connection to the remote source could not be established
      */
-    public Connection createConnection(final ExaMetadata exaMetadata, final AdapterProperties properties)
-            throws SQLException {
-        final String connectionName = properties.getConnectionName();
-        if ((connectionName != null) && !connectionName.isEmpty()) {
-            return createConnection(connectionName, exaMetadata);
-        } else {
-            return createConnectionWithUserCredentials(properties.getUsername(), properties.getPassword(),
-                    properties.getConnectionString());
+    @Override
+    public synchronized Connection getConnection() throws SQLException {
+        if (this.cachedConnection == null) {
+            final String connectionName = this.properties.getConnectionName();
+            if ((connectionName != null) && !connectionName.isEmpty()) {
+                this.cachedConnection = createConnection(connectionName, this.exaMetadata);
+            } else {
+                this.cachedConnection = createConnectionWithUserCredentials(this.properties.getUsername(),
+                        this.properties.getPassword(), this.properties.getConnectionString());
+            }
         }
+        return this.cachedConnection;
     }
 
     private Connection createConnectionWithUserCredentials(final String username, final String password,
@@ -47,10 +56,12 @@ public class RemoteConnectionFactory {
                 () -> "Connecting to \"" + address + "\" as user \"" + username + "\" using password authentication.");
     }
 
-    protected void logRemoteDatabaseDetails(final Connection connection, final long connectionTime) throws SQLException {
+    protected void logRemoteDatabaseDetails(final Connection connection, final long connectionTime)
+            throws SQLException {
         final String databaseProductName = connection.getMetaData().getDatabaseProductName();
         final String databaseProductVersion = connection.getMetaData().getDatabaseProductVersion();
-        LOGGER.info(() -> "Connected to " + databaseProductName + " " + databaseProductVersion + " in " + connectionTime + " milliseconds.");
+        LOGGER.info(() -> "Connected to " + databaseProductName + " " + databaseProductVersion + " in " + connectionTime
+                + " milliseconds.");
     }
 
     private Connection createConnection(final String connectionName, final ExaMetadata exaMetadata)

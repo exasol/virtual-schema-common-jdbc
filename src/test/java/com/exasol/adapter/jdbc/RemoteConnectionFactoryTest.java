@@ -46,7 +46,7 @@ class RemoteConnectionFactoryTest {
     }
 
     @Test
-    void testCreateConnectionWithConnectionName() throws ExaConnectionAccessException, SQLException {
+    void testGetConnectionWithConnectionName() throws ExaConnectionAccessException, SQLException {
         this.rawProperties.put("CONNECTION_NAME", CONNECTION_NAME);
         when(this.exaMetadataMock.getConnection(CONNECTION_NAME)).thenReturn(this.exaConnectionMock);
         when(this.exaConnectionMock.getUser()).thenReturn(USER);
@@ -56,13 +56,13 @@ class RemoteConnectionFactoryTest {
     }
 
     private Connection createConnection() throws SQLException {
-        final RemoteConnectionFactory factory = new RemoteConnectionFactory();
         final AdapterProperties properties = new AdapterProperties(this.rawProperties);
-        return factory.createConnection(this.exaMetadataMock, properties);
+        final ConnectionFactory factory = new RemoteConnectionFactory(this.exaMetadataMock, properties);
+        return factory.getConnection();
     }
 
     @Test
-    void testCreateConnectionWithConnectionDetailsInProperties() throws ExaConnectionAccessException, SQLException {
+    void testGetConnectionWithConnectionDetailsInProperties() throws ExaConnectionAccessException, SQLException {
         this.rawProperties.put("CONNECTION_STRING", DERBY_INSTANT_JDBC_CONNECTION_STRING);
         this.rawProperties.put("USERNAME", USER);
         this.rawProperties.put("PASSWORD", "testPassword");
@@ -70,7 +70,7 @@ class RemoteConnectionFactoryTest {
     }
 
     @Test
-    void testCreateConnectionWithConnectionDetailsInPropertiesAndEmptyConnectionName()
+    void testGetConnectionWithConnectionDetailsInPropertiesAndEmptyConnectionName()
             throws ExaConnectionAccessException, SQLException {
         this.rawProperties.put("CONNECTION_NAME", "");
         this.rawProperties.put("CONNECTION_STRING", DERBY_INSTANT_JDBC_CONNECTION_STRING);
@@ -80,7 +80,7 @@ class RemoteConnectionFactoryTest {
     }
 
     @Test
-    void testCreateConnectionWithUnaccessibleNamedConnectionThrowsException()
+    void testGetConnectionWithUnaccessibleNamedConnectionThrowsException()
             throws ExaConnectionAccessException, SQLException {
         when(this.exaMetadataMock.getConnection(CONNECTION_NAME))
                 .thenThrow(new ExaConnectionAccessException("FAKE connection access exception"));
@@ -89,7 +89,7 @@ class RemoteConnectionFactoryTest {
     }
 
     @Test
-    void testCreateConnectionWithKerberosDetailsInNamedConnection() throws SQLException, ExaConnectionAccessException {
+    void testGetConnectionWithKerberosDetailsInNamedConnection() throws SQLException, ExaConnectionAccessException {
         final String principal = "the_kerberos_principal";
         final String base64EncodedKerberosConfig = DatatypeConverter.printBase64Binary("<a></a>".getBytes());
         final String base64EncodedKeyTab = DatatypeConverter.printBase64Binary("<b></b>".getBytes());

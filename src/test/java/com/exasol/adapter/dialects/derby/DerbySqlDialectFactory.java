@@ -1,10 +1,9 @@
 package com.exasol.adapter.dialects.derby;
 
-import java.sql.Connection;
-
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.dialects.SqlDialect;
 import com.exasol.adapter.dialects.SqlDialectFactory;
+import com.exasol.adapter.jdbc.ConnectionFactory;
 
 /**
  * Factory for the test Apache Derby SQL dialect.
@@ -16,8 +15,8 @@ public class DerbySqlDialectFactory implements SqlDialectFactory {
     }
 
     @Override
-    public SqlDialect createSqlDialect(final Connection connection, final AdapterProperties properties) {
-        return new DerbySqlDialect(connection, properties);
+    public SqlDialect createSqlDialect(final ConnectionFactory connectionFactory, final AdapterProperties properties) {
+        return new DerbySqlDialect(connectionFactory, properties);
     }
 
     @Override

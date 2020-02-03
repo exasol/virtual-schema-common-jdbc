@@ -1,6 +1,5 @@
 package com.exasol.adapter.dialects;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.logging.Logger;
 
@@ -18,7 +17,7 @@ public class BaseQueryRewriter implements QueryRewriter {
     private static final Logger LOGGER = Logger.getLogger(BaseQueryRewriter.class.getName());
     protected final SqlDialect dialect;
     protected final RemoteMetadataReader remoteMetadataReader;
-    protected final Connection connection;
+    protected final ConnectionFactory connectionFactory;
     protected final ConnectionDefinitionBuilder connectionDefinitionBuilder;
 
     /**
@@ -26,13 +25,13 @@ public class BaseQueryRewriter implements QueryRewriter {
      *
      * @param dialect              dialect
      * @param remoteMetadataReader remote metadata reader
-     * @param connection           JDBC connection to remote data source
+     * @param connectionFactory    JDBC connection to remote data source
      */
     public BaseQueryRewriter(final SqlDialect dialect, final RemoteMetadataReader remoteMetadataReader,
-            final Connection connection) {
+            final ConnectionFactory connectionFactory) {
         this.dialect = dialect;
         this.remoteMetadataReader = remoteMetadataReader;
-        this.connection = connection;
+        this.connectionFactory = connectionFactory;
         this.connectionDefinitionBuilder = createConnectionDefinitionBuilder();
     }
 
@@ -71,10 +70,10 @@ public class BaseQueryRewriter implements QueryRewriter {
         return pushdownQuery;
     }
 
-    private String createImportColumnsDescription(final String query) {
+    private String createImportColumnsDescription(final String query) throws SQLException {
         final ColumnMetadataReader columnMetadataReader = this.remoteMetadataReader.getColumnMetadataReader();
-        final ResultSetMetadataReader resultSetMetadataReader = new ResultSetMetadataReader(this.connection,
-                columnMetadataReader);
+        final ResultSetMetadataReader resultSetMetadataReader = new ResultSetMetadataReader(
+                this.connectionFactory.getConnection(), columnMetadataReader);
         final String columnsDescription = resultSetMetadataReader.describeColumns(query);
         LOGGER.finer(() -> "Import columns: " + columnsDescription);
         return columnsDescription;

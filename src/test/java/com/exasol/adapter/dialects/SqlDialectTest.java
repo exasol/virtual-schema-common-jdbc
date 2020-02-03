@@ -3,6 +3,7 @@ package com.exasol.adapter.dialects;
 import static org.junit.Assert.assertEquals;
 
 import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.util.*;
 
 import org.junit.jupiter.api.Test;
@@ -10,8 +11,7 @@ import org.junit.jupiter.api.Test;
 import com.exasol.adapter.AdapterException;
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.capabilities.*;
-import com.exasol.adapter.jdbc.BaseRemoteMetadataReader;
-import com.exasol.adapter.jdbc.RemoteMetadataReader;
+import com.exasol.adapter.jdbc.*;
 import com.exasol.adapter.metadata.*;
 import com.exasol.adapter.sql.*;
 import com.exasol.sql.SqlNormalizer;
@@ -222,12 +222,17 @@ class SqlDialectTest {
 
         @Override
         protected RemoteMetadataReader createRemoteMetadataReader() {
-            return new BaseRemoteMetadataReader(this.connection, this.properties);
+            try {
+                return new BaseRemoteMetadataReader(this.connectionFactory.getConnection(), this.properties);
+            } catch (final SQLException exception) {
+                throw new RemoteMetadataReaderException("Unable to create a metadata reader for the Aliases dialect.",
+                        exception);
+            }
         }
 
         @Override
         protected QueryRewriter createQueryRewriter() {
-            return new BaseQueryRewriter(this, this.remoteMetadataReader, this.connection);
+            return new BaseQueryRewriter(this, createRemoteMetadataReader(), this.connectionFactory);
         }
     }
 }

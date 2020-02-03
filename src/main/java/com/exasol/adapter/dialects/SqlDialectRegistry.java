@@ -1,11 +1,11 @@
 package com.exasol.adapter.dialects;
 
-import java.sql.Connection;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import com.exasol.adapter.AdapterProperties;
+import com.exasol.adapter.jdbc.ConnectionFactory;
 
 /**
  * This class implements a registry for supported SQL dialects.
@@ -72,18 +72,18 @@ public final class SqlDialectRegistry {
     /**
      * Get the SQL dialect registered under the given name.
      *
-     * @param name       name of the SQL dialect
-     * @param connection JDBC connection to the remote data source
-     * @param properties user-defined adapter properties
+     * @param name              name of the SQL dialect
+     * @param connectionFactory factory for JDBC connection to the remote data source
+     * @param properties        user-defined adapter properties
      * @return dialect instance
      */
-    public SqlDialect getDialectForName(final String name, final Connection connection,
+    public SqlDialect getDialectForName(final String name, final ConnectionFactory connectionFactory,
             final AdapterProperties properties) {
         if (hasDialectWithName(name)) {
             final SqlDialectFactory factory = this.registeredFactories.get(name);
             LOGGER.config(() -> "Loading SQL dialect: " + factory.getSqlDialectName() + " dialect adapter "
                     + factory.getSqlDialectVersion());
-            return factory.createSqlDialect(connection, properties);
+            return factory.createSqlDialect(connectionFactory, properties);
         } else {
             throw new IllegalArgumentException("Unknown SQL dialect \"" + name + "\" requested. " + describe());
         }
