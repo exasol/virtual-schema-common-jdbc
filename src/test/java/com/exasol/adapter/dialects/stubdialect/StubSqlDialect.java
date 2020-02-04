@@ -2,13 +2,13 @@ package com.exasol.adapter.dialects.stubdialect;
 
 import static com.exasol.adapter.AdapterProperties.*;
 
-import java.sql.Connection;
 import java.util.Arrays;
 import java.util.List;
 
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.capabilities.Capabilities;
 import com.exasol.adapter.dialects.*;
+import com.exasol.adapter.jdbc.ConnectionFactory;
 import com.exasol.adapter.jdbc.RemoteMetadataReader;
 
 /**
@@ -21,14 +21,8 @@ public class StubSqlDialect extends AbstractSqlDialect {
             CATALOG_NAME_PROPERTY, SCHEMA_NAME_PROPERTY, TABLE_FILTER_PROPERTY, EXCLUDED_CAPABILITIES_PROPERTY,
             DEBUG_ADDRESS_PROPERTY, LOG_LEVEL_PROPERTY);
 
-    /**
-     * Create a new instance of the {@link StubSqlDialect}.
-     *
-     * @param connection SQL connection
-     * @param properties user-defined adapter properties
-     */
-    public StubSqlDialect(final Connection connection, final AdapterProperties properties) {
-        super(connection, properties);
+    public StubSqlDialect(final ConnectionFactory connectionFactory, final AdapterProperties properties) {
+        super(connectionFactory, properties);
     }
 
     @Override
@@ -63,7 +57,7 @@ public class StubSqlDialect extends AbstractSqlDialect {
 
     @Override
     protected QueryRewriter createQueryRewriter() {
-        return new BaseQueryRewriter(this, this.remoteMetadataReader, this.connection);
+        return new BaseQueryRewriter(this, createRemoteMetadataReader(), this.connectionFactory);
     }
 
     @Override

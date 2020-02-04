@@ -1,6 +1,5 @@
 package com.exasol.adapter.jdbc;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Logger;
@@ -24,7 +23,6 @@ public class JdbcAdapter implements VirtualSchemaAdapter {
     private static final String LITERAL_PREFIX = "LITERAL_";
     private static final String TABLES_PROPERTY = "TABLE_FILTER";
     private static final Logger LOGGER = Logger.getLogger(JdbcAdapter.class.getName());
-    private final RemoteConnectionFactory connectionFactory = new RemoteConnectionFactory();
 
     @Override
     public CreateVirtualSchemaResponse createVirtualSchema(final ExaMetadata exasolMetadata,
@@ -51,30 +49,28 @@ public class JdbcAdapter implements VirtualSchemaAdapter {
     private SchemaMetadata readMetadata(final AdapterProperties properties, final ExaMetadata exasolMetadata)
             throws SQLException, PropertyValidationException {
         final List<String> tables = properties.getFilteredTables();
-        try (final Connection connection = this.connectionFactory.createConnection(exasolMetadata, properties)) {
-            final SqlDialect dialect = createDialect(connection, properties);
-            dialect.validateProperties();
-            if (tables.isEmpty()) {
-                return dialect.readSchemaMetadata();
-            } else {
-                return dialect.readSchemaMetadata(tables);
-            }
+        final ConnectionFactory connectionFactory = new RemoteConnectionFactory(exasolMetadata, properties);
+        final SqlDialect dialect = createDialect(connectionFactory, properties);
+        dialect.validateProperties();
+        if (tables.isEmpty()) {
+            return dialect.readSchemaMetadata();
+        } else {
+            return dialect.readSchemaMetadata(tables);
         }
     }
 
     protected SchemaMetadata readMetadata(final AdapterProperties properties,
             final List<String> whiteListedRemoteTables, final ExaMetadata exasolMetadata)
-            throws SQLException, PropertyValidationException {
-        try (final Connection connection = this.connectionFactory.createConnection(exasolMetadata, properties)) {
-            final SqlDialect dialect = createDialect(connection, properties);
-            dialect.validateProperties();
-            return dialect.readSchemaMetadata(whiteListedRemoteTables);
-        }
+            throws PropertyValidationException {
+        final ConnectionFactory connectionFactory = new RemoteConnectionFactory(exasolMetadata, properties);
+        final SqlDialect dialect = createDialect(connectionFactory, properties);
+        dialect.validateProperties();
+        return dialect.readSchemaMetadata(whiteListedRemoteTables);
     }
 
-    private SqlDialect createDialect(final Connection connection, final AdapterProperties properties) {
+    private SqlDialect createDialect(final ConnectionFactory connectionFactory, final AdapterProperties properties) {
         final String dialectName = properties.getSqlDialect();
-        return SqlDialectRegistry.getInstance().getDialectForName(dialectName, connection, properties);
+        return SqlDialectRegistry.getInstance().getDialectForName(dialectName, connectionFactory, properties);
     }
 
     @Override
@@ -117,15 +113,7 @@ public class JdbcAdapter implements VirtualSchemaAdapter {
         final AdapterProperties mergedProperties = new AdapterProperties(mergedRawProperties);
         if (AdapterProperties.isRefreshingVirtualSchemaRequired(requestRawProperties)) {
             final List<String> tableFilter = getTableFilter(mergedRawProperties);
-            final SchemaMetadata remoteMeta;
-            try {
-                remoteMeta = readMetadata(mergedProperties, tableFilter, metadata);
-            } catch (final SQLException exception) {
-                throw new AdapterException("Unable to set new properties for the virtual schema \""
-                        + schemaMetadataInfo.getSchemaName()
-                        + ("\", because metadata of the remote source could not be read. Cause: \" + exception.getMessage()"),
-                        exception);
-            }
+            final SchemaMetadata remoteMeta = readMetadata(mergedProperties, tableFilter, metadata);
             return SetPropertiesResponse.builder().schemaMetadata(remoteMeta).build();
         }
         return SetPropertiesResponse.builder().schemaMetadata(null).build();
@@ -162,19 +150,15 @@ public class JdbcAdapter implements VirtualSchemaAdapter {
             throws AdapterException {
         LOGGER.fine(() -> "Received request to list the adapter's capabilites.");
         final AdapterProperties properties = getPropertiesFromRequest(request);
-        try (final Connection connection = this.connectionFactory.createConnection(exaMetadata, properties)) {
-            final SqlDialect dialect = createDialect(connection, properties);
-            final Capabilities capabilities = dialect.getCapabilities();
-            final Capabilities excludedCapabilities = getExcludedCapabilities(properties);
-            capabilities.subtractCapabilities(excludedCapabilities);
-            return GetCapabilitiesResponse //
-                    .builder()//
-                    .capabilities(capabilities)//
-                    .build();
-        } catch (final SQLException exception) {
-            throw new AdapterException(
-                    "Unable to execute request to get capabilities. Cause: " + exception.getMessage(), exception);
-        }
+        final ConnectionFactory connectionFactory = new RemoteConnectionFactory(exaMetadata, properties);
+        final SqlDialect dialect = createDialect(connectionFactory, properties);
+        final Capabilities capabilities = dialect.getCapabilities();
+        final Capabilities excludedCapabilities = getExcludedCapabilities(properties);
+        capabilities.subtractCapabilities(excludedCapabilities);
+        return GetCapabilitiesResponse //
+                .builder()//
+                .capabilities(capabilities)//
+                .build();
     }
 
     private Capabilities getExcludedCapabilities(final AdapterProperties properties) {
@@ -219,9 +203,10 @@ public class JdbcAdapter implements VirtualSchemaAdapter {
     @Override
     public PushDownResponse pushdown(final ExaMetadata exaMetadata, final PushDownRequest request)
             throws AdapterException {
-        final AdapterProperties properties = getPropertiesFromRequest(request);
-        try (final Connection connection = this.connectionFactory.createConnection(exaMetadata, properties)) {
-            final SqlDialect dialect = createDialect(connection, properties);
+        try {
+            final AdapterProperties properties = getPropertiesFromRequest(request);
+            final ConnectionFactory connectionFactory = new RemoteConnectionFactory(exaMetadata, properties);
+            final SqlDialect dialect = createDialect(connectionFactory, properties);
             final String importFromPushdownQuery = dialect.rewriteQuery(request.getSelect(), exaMetadata);
             return PushDownResponse.builder().pushDownSql(importFromPushdownQuery).build();
         } catch (final SQLException exception) {

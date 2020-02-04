@@ -2,15 +2,14 @@ package com.exasol.adapter.dialects.derby;
 
 import static com.exasol.adapter.AdapterProperties.*;
 
-import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.capabilities.*;
 import com.exasol.adapter.dialects.*;
-import com.exasol.adapter.jdbc.BaseRemoteMetadataReader;
-import com.exasol.adapter.jdbc.RemoteMetadataReader;
+import com.exasol.adapter.jdbc.*;
 
 /**
  * This class implements the Apache Derby SQL Dialect.
@@ -35,11 +34,11 @@ public class DerbySqlDialect extends AbstractSqlDialect {
     /**
      * Create a new instance of a {@link DerbySqlDialect}.
      *
-     * @param connection JDBC connection to the Apache Derby database
-     * @param properties user-defined adapter properties
+     * @param connectionFactory factory for JDBC connection to the Apache Derby database
+     * @param properties        user-defined adapter properties
      */
-    public DerbySqlDialect(final Connection connection, final AdapterProperties properties) {
-        super(connection, properties);
+    public DerbySqlDialect(final ConnectionFactory connectionFactory, final AdapterProperties properties) {
+        super(connectionFactory, properties);
     }
 
     @Override
@@ -92,12 +91,16 @@ public class DerbySqlDialect extends AbstractSqlDialect {
 
     @Override
     protected RemoteMetadataReader createRemoteMetadataReader() {
-        return new BaseRemoteMetadataReader(this.connection, this.properties);
+        try {
+            return new BaseRemoteMetadataReader(this.connectionFactory.getConnection(), this.properties);
+        } catch (final SQLException exception) {
+            throw new RemoteMetadataReaderException("Unable to create a metadata reader for Derby.", exception);
+        }
     }
 
     @Override
     protected QueryRewriter createQueryRewriter() {
-        return new BaseQueryRewriter(this, this.remoteMetadataReader, this.connection);
+        return new BaseQueryRewriter(this, createRemoteMetadataReader(), this.connectionFactory);
     }
 
     @Override

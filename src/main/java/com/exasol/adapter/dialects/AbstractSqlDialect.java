@@ -2,7 +2,6 @@ package com.exasol.adapter.dialects;
 
 import static com.exasol.adapter.AdapterProperties.*;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Logger;
@@ -12,6 +11,7 @@ import java.util.regex.Pattern;
 import com.exasol.ExaMetadata;
 import com.exasol.adapter.AdapterException;
 import com.exasol.adapter.AdapterProperties;
+import com.exasol.adapter.jdbc.ConnectionFactory;
 import com.exasol.adapter.jdbc.RemoteMetadataReader;
 import com.exasol.adapter.metadata.SchemaMetadata;
 import com.exasol.adapter.sql.*;
@@ -21,10 +21,8 @@ import com.exasol.adapter.sql.*;
  */
 public abstract class AbstractSqlDialect implements SqlDialect {
     protected Set<ScalarFunction> omitParenthesesMap = EnumSet.noneOf(ScalarFunction.class);
-    protected RemoteMetadataReader remoteMetadataReader;
     protected AdapterProperties properties;
-    protected final Connection connection;
-    protected QueryRewriter queryRewriter;
+    protected final ConnectionFactory connectionFactory;
     private static final Pattern BOOLEAN_PROPERTY_VALUE_PATTERN = Pattern.compile("^TRUE$|^FALSE$",
             Pattern.CASE_INSENSITIVE);
     private static final Logger LOGGER = Logger.getLogger(AbstractSqlDialect.class.getName());
@@ -32,14 +30,12 @@ public abstract class AbstractSqlDialect implements SqlDialect {
     /**
      * Create a new instance of an {@link AbstractSqlDialect}.
      *
-     * @param connection JDBC connection to remote data source
-     * @param properties user properties
+     * @param connectionFactory factory for JDBC connection to remote data source
+     * @param properties        user properties
      */
-    public AbstractSqlDialect(final Connection connection, final AdapterProperties properties) {
-        this.connection = connection;
+    public AbstractSqlDialect(final ConnectionFactory connectionFactory, final AdapterProperties properties) {
+        this.connectionFactory = connectionFactory;
         this.properties = properties;
-        this.remoteMetadataReader = createRemoteMetadataReader();
-        this.queryRewriter = createQueryRewriter();
     }
 
     /**
@@ -109,17 +105,17 @@ public abstract class AbstractSqlDialect implements SqlDialect {
     @Override
     public String rewriteQuery(final SqlStatement statement, final ExaMetadata exaMetadata)
             throws AdapterException, SQLException {
-        return this.queryRewriter.rewrite(statement, exaMetadata, this.properties);
+        return createQueryRewriter().rewrite(statement, exaMetadata, this.properties);
     }
 
     @Override
     public SchemaMetadata readSchemaMetadata() throws SQLException {
-        return this.remoteMetadataReader.readRemoteSchemaMetadata();
+        return createRemoteMetadataReader().readRemoteSchemaMetadata();
     }
 
     @Override
     public SchemaMetadata readSchemaMetadata(final List<String> tables) {
-        return this.remoteMetadataReader.readRemoteSchemaMetadata(tables);
+        return createRemoteMetadataReader().readRemoteSchemaMetadata(tables);
     }
 
     @Override
