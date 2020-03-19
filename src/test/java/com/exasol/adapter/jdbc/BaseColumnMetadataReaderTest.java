@@ -1,8 +1,8 @@
 package com.exasol.adapter.jdbc;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -20,6 +20,7 @@ import com.exasol.adapter.dialects.BaseIdentifierConverter;
 import com.exasol.adapter.dialects.IdentifierCaseHandling;
 import com.exasol.adapter.metadata.ColumnMetadata;
 import com.exasol.adapter.metadata.DataType;
+import com.exasol.adapter.metadata.DataType.ExaCharset;
 import com.exasol.adapter.metadata.DataType.ExaDataType;
 
 class BaseColumnMetadataReaderTest {
@@ -71,5 +72,20 @@ class BaseColumnMetadataReaderTest {
                 DataType.MAX_EXASOL_DECIMAL_PRECISION, 0, "");
         assertThat(this.reader.mapJdbcTypeNumericToDecimalWithFallbackToDouble(jdbcTypeDescription),
                 equalTo(DataType.createDecimal(DataType.MAX_EXASOL_DECIMAL_PRECISION, 10)));
+    }
+
+    @ValueSource(ints = { 256, 65536, 2000000 }) // 2 pow 8, 2 pow 16, max
+    @ParameterizedTest
+    void mapLongVarchar(final int size) {
+        final JdbcTypeDescription typeDescription = new JdbcTypeDescription(Types.LONGVARCHAR, 0, size, 0, "VARCHAR");
+        assertThat(this.reader.mapJdbcType(typeDescription), equalTo(DataType.createVarChar(size, ExaCharset.UTF8)));
+    }
+
+    @ValueSource(ints = { 2000001, 16777216 }) // max + 1, 2 pow 24
+    @ParameterizedTest
+    void mapLongVarcharToUnsupportedIfTooLarge(final int size) {
+        final JdbcTypeDescription typeDescription = new JdbcTypeDescription(Types.LONGVARCHAR, 0, size, 0, "VARCHAR");
+        assertThat(this.reader.mapJdbcType(typeDescription),
+                equalTo(DataType.createMaximumSizeVarChar(ExaCharset.UTF8)));
     }
 }
