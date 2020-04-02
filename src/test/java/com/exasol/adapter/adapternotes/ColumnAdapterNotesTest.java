@@ -17,8 +17,14 @@ class ColumnAdapterNotesTest {
 
     @Test
     void testGetJdbcDataType() {
-        this.columnAdapterNotes = new ColumnAdapterNotes(8);
+        this.columnAdapterNotes = ColumnAdapterNotes.builder().jdbcDataType(8).build();
         assertThat(this.columnAdapterNotes.getJdbcDataType(), equalTo(8));
+    }
+
+    @Test
+    void testGetTypeName() {
+        this.columnAdapterNotes = new ColumnAdapterNotes.Builder().typeName("bar").build();
+        assertThat(this.columnAdapterNotes.getTypeName(), equalTo("bar"));
     }
 
     @Test

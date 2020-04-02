@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.exasol.adapter.AdapterException;
+import com.exasol.adapter.adapternotes.ColumnAdapterNotesJsonConverter;
 import com.exasol.adapter.metadata.DataType;
 import com.exasol.adapter.sql.*;
 
@@ -537,5 +538,11 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
     public String visit(final SqlPredicateIsNotNull predicate) throws AdapterException {
         return predicate.getExpression().accept(this) + " IS NOT NULL";
 
+    }
+
+    protected String getTypeNameFromColumn(final SqlColumn column) throws AdapterException {
+        final ColumnAdapterNotesJsonConverter converter = ColumnAdapterNotesJsonConverter.getInstance();
+        return converter.convertFromJsonToColumnAdapterNotes(column.getMetadata().getAdapterNotes(), column.getName())
+                .getTypeName();
     }
 }

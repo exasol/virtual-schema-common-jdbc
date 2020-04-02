@@ -92,12 +92,16 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
         final JdbcTypeDescription jdbcTypeDescription = readJdbcTypeDescription(remoteColumn);
         final String columnName = readColumnName(remoteColumn);
         final String originalTypeName = readColumnTypeName(remoteColumn);
-        final String adapterNotes = ColumnAdapterNotesJsonConverter.getInstance()
-                .convertToJson(new ColumnAdapterNotes(jdbcTypeDescription.getJdbcType()));
+        final ColumnAdapterNotes columnAdapterNotes = ColumnAdapterNotes.builder() //
+                .jdbcDataType(jdbcTypeDescription.getJdbcType()) //
+                .typeName(jdbcTypeDescription.getTypeName()) //
+                .build();
+        final String columnAdapterNotesJson = ColumnAdapterNotesJsonConverter.getInstance()
+                .convertToJson(columnAdapterNotes);
         final DataType exasolType = mapJdbcType(jdbcTypeDescription);
         return ColumnMetadata.builder() //
                 .name(columnName) //
-                .adapterNotes(adapterNotes) //
+                .adapterNotes(columnAdapterNotesJson) //
                 .type(exasolType) //
                 .nullable(isRemoteColumnNullable(remoteColumn, columnName)) //
                 .identity(isAutoIncrementColumn(remoteColumn, columnName)) //

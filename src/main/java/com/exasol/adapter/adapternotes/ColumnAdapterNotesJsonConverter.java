@@ -10,6 +10,8 @@ import com.exasol.utils.JsonHelper;
  */
 public final class ColumnAdapterNotesJsonConverter {
     private static final ColumnAdapterNotesJsonConverter COLUMN_ADAPTER_NOTES_JSON_CONVERTER = new ColumnAdapterNotesJsonConverter();
+    static final String JDBC_DATA_TYPE = "jdbcDataType";
+    public static final String TYPE_NAME = "typeName";
 
     /**
      * Returns instance of {@link ColumnAdapterNotesJsonConverter} singleton class.
@@ -32,8 +34,12 @@ public final class ColumnAdapterNotesJsonConverter {
      */
     public String convertToJson(final ColumnAdapterNotes columnAdapterNotes) {
         final JsonBuilderFactory factory = JsonHelper.getBuilderFactory();
-        final JsonObjectBuilder builder = factory.createObjectBuilder().add("jdbcDataType",
-                columnAdapterNotes.getJdbcDataType());
+        final JsonObjectBuilder builder = factory.createObjectBuilder() //
+                .add(JDBC_DATA_TYPE, columnAdapterNotes.getJdbcDataType());
+        final String typeName = columnAdapterNotes.getTypeName();
+        if (typeName != null) {
+            builder.add(TYPE_NAME, typeName);
+        }
         return builder.build().toString();
     }
 
@@ -58,6 +64,9 @@ public final class ColumnAdapterNotesJsonConverter {
             throw new AdapterException("Could not parse the column adapter notes of column \"" + columnName + "\"." //
                     + "Please refresh the virtual schema.", exception);
         }
-        return new ColumnAdapterNotes(root.getInt("jdbcDataType"));
+        return ColumnAdapterNotes.builder() //
+                .jdbcDataType(root.getInt(JDBC_DATA_TYPE)) //
+                .typeName(root.getString(TYPE_NAME)) //
+                .build();
     }
 }
