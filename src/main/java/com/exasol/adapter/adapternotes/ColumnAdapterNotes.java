@@ -26,7 +26,7 @@ public final class ColumnAdapterNotes {
     }
 
     /**
-     * Get the type name
+     * Get the type name.
      *
      * @return name of the type
      */
