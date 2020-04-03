@@ -396,6 +396,7 @@ class ColumnMetadataReaderTest {
     void testMapColumnAdapterNotes() throws SQLException, JSONException {
         mockDatatype(Types.DOUBLE);
         mockTypeName("DOUBLE");
-        JSONAssert.assertEquals(mapSingleMockedColumn().getAdapterNotes(), "{\"jdbcDataType\":8}", true);
+        JSONAssert.assertEquals("{\"jdbcDataType\":8,\"typeName\":\"DOUBLE\"}",
+                mapSingleMockedColumn().getAdapterNotes(), true);
     }
 }

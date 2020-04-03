@@ -5,10 +5,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.sql.*;
-import java.util.Map;
 
 import com.exasol.*;
-import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.sql.SqlStatement;
 
 public abstract class AbstractQueryRewriterTestBase {
@@ -16,21 +14,15 @@ public abstract class AbstractQueryRewriterTestBase {
     private static final String CONNECTION_USER = "connection_user";
     private static final String CONNECTION_PW = "connection_secret";
     private static final String CONNECTION_ADDRESS = "connection_address";
-    protected ExaConnectionInformation exaConnectionInformation;
-    protected ExaMetadata exaMetadata;
-    protected Map<String, String> rawProperties;
+    private static final ExaConnectionInformation EXA_CONNECTION_INFORMATION = ExaConnectionInformationStub.builder() //
+            .user(CONNECTION_USER) //
+            .password(CONNECTION_PW) //
+            .address(CONNECTION_ADDRESS) //
+            .build();
+    protected static final ExaMetadata EXA_METADATA = ExaMetadataStub.builder()
+            .exaConnectionInformation(EXA_CONNECTION_INFORMATION) //
+            .build();
     protected SqlStatement statement;
-
-    protected void mockExasolNamedConnection() throws ExaConnectionAccessException {
-        when(this.exaMetadata.getConnection(any())).thenReturn(this.exaConnectionInformation);
-        when(this.exaConnectionInformation.getUser()).thenReturn(CONNECTION_USER);
-        when(this.exaConnectionInformation.getPassword()).thenReturn(CONNECTION_PW);
-        when(this.exaConnectionInformation.getAddress()).thenReturn(CONNECTION_ADDRESS);
-    }
-
-    protected void setConnectionNameProperty() {
-        this.rawProperties.put(AdapterProperties.CONNECTION_NAME_PROPERTY, CONNECTION_NAME);
-    }
 
     protected Connection mockConnection() throws SQLException {
         final ResultSetMetaData metadataMock = mock(ResultSetMetaData.class);
@@ -42,5 +34,4 @@ public abstract class AbstractQueryRewriterTestBase {
         when(connectionMock.prepareStatement(any())).thenReturn(statementMock);
         return connectionMock;
     }
-
 }

@@ -14,7 +14,6 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import com.exasol.adapter.AdapterException;
 
 class ColumnAdapterNotesJsonConverterTest {
-    private static final String JDBC_DATA_TYPE = "jdbcDataType";
     private ColumnAdapterNotesJsonConverter converter;
 
     @BeforeEach
@@ -25,16 +24,29 @@ class ColumnAdapterNotesJsonConverterTest {
     @Test
     void testConvertToJson() throws JSONException {
         final int expectedType = Types.DATE;
-        final ColumnAdapterNotes adapterNotes = new ColumnAdapterNotes(expectedType);
-        JSONAssert.assertEquals("{\"" + JDBC_DATA_TYPE + "\":" + expectedType + "}",
-                this.converter.convertToJson(adapterNotes), false);
+        final String expectedTypeName = "THETYPE";
+        final ColumnAdapterNotes adapterNotes = ColumnAdapterNotes.builder() //
+                .jdbcDataType(expectedType) //
+                .typeName(expectedTypeName) //
+                .build();
+        JSONAssert.assertEquals("{" //
+                + "\"" + ColumnAdapterNotesJsonConverter.JDBC_DATA_TYPE + "\":" + expectedType + "," //
+                + "\"" + ColumnAdapterNotesJsonConverter.TYPE_NAME + "\":\"" + expectedTypeName + "\"" //
+                + "}", this.converter.convertToJson(adapterNotes), false);
     }
 
     @Test
     void testConvertFromJsonToColumnAdapterNotes() throws AdapterException {
         final int expectedType = Types.VARCHAR;
-        final String adapterNotesAsJson = "{\"" + JDBC_DATA_TYPE + "\":" + expectedType + "}";
-        final ColumnAdapterNotes expectedAdapterNotes = new ColumnAdapterNotes(expectedType);
+        final String expectedTypeName = "ANOTHERTYPE";
+        final String adapterNotesAsJson = "{" //
+                + "\"" + ColumnAdapterNotesJsonConverter.JDBC_DATA_TYPE + "\":" + expectedType + ","//
+                + "\"" + ColumnAdapterNotesJsonConverter.TYPE_NAME + "\":\"" + expectedTypeName + "\""//
+                + "}";
+        final ColumnAdapterNotes expectedAdapterNotes = ColumnAdapterNotes.builder() //
+                .jdbcDataType(expectedType) //
+                .typeName(expectedTypeName) //
+                .build();
         assertThat(this.converter.convertFromJsonToColumnAdapterNotes(adapterNotesAsJson, "C1"),
                 equalTo(expectedAdapterNotes));
     }
