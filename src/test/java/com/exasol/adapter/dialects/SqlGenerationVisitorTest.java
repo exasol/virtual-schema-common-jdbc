@@ -1,6 +1,7 @@
 package com.exasol.adapter.dialects;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.any;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.Mockito.when;
 
@@ -72,7 +73,7 @@ class SqlGenerationVisitorTest {
     @Test
     void testVisitSqlPredicateIsJson() throws AdapterException {
         final SqlNode expressionMock = Mockito.mock(SqlNode.class);
-        when(expressionMock.toSimpleSql()).thenReturn("SELECT '{\"a\": 1}'");
+        when(expressionMock.accept(sqlGenerationVisitor)).thenReturn("SELECT '{\"a\": 1}'");
         final SqlPredicateIsJson sqlPredicateIsJson = new SqlPredicateIsJson(expressionMock,
                 AbstractSqlPredicateJson.TypeConstraints.OBJECT,
                 AbstractSqlPredicateJson.KeyUniquenessConstraint.WITH_UNIQUE_KEYS);
@@ -83,7 +84,7 @@ class SqlGenerationVisitorTest {
     @Test
     void testVisitSqlPredicateIsNotJson() throws AdapterException {
         final SqlNode expressionMock = Mockito.mock(SqlNode.class);
-        when(expressionMock.toSimpleSql()).thenReturn("SELECT '{\"a\": 1}'");
+        when(expressionMock.accept(sqlGenerationVisitor)).thenReturn("SELECT '{\"a\": 1}'");
         final SqlPredicateIsNotJson sqlPredicateIsNotJson = new SqlPredicateIsNotJson(expressionMock,
                 AbstractSqlPredicateJson.TypeConstraints.OBJECT,
                 AbstractSqlPredicateJson.KeyUniquenessConstraint.WITH_UNIQUE_KEYS);

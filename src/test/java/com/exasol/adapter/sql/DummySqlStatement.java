@@ -18,7 +18,7 @@ public class DummySqlStatement extends SqlStatement {
     }
 
     @Override
-    String toSimpleSql() {
+    public String toSimpleSql() {
         return DUMMY_SELECT;
     }
 }

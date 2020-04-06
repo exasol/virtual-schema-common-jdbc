@@ -320,17 +320,41 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
 
     @Override
     public String visit(final SqlFunctionScalarCast function) throws AdapterException {
-        return function.toSimpleSql();
+        final String expression = function.getArguments().get(0).accept(this);
+        return function.toSimpleSql() + "(" + expression + " AS " + function.getDataType() + ")";
     }
 
     @Override
     public String visit(final SqlFunctionScalarExtract function) throws AdapterException {
-        return function.toSimpleSql();
+        final String expression = function.getArguments().get(0).accept(this);
+        return function.toSimpleSql() + "(" + function.getToExtract() + " FROM " + expression + ")";
     }
 
     @Override
     public String visit(final SqlFunctionScalarJsonValue function) throws AdapterException {
-        return function.toSimpleSql();
+        final StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("JSON_VALUE(");
+        stringBuilder.append(function.getArguments().get(0).accept(this));
+        stringBuilder.append(", ");
+        stringBuilder.append(function.getArguments().get(1).accept(this));
+        stringBuilder.append(" RETURNING ");
+        stringBuilder.append(function.getReturningDataType().toString());
+        stringBuilder.append(" ");
+        final SqlFunctionScalarJsonValue.Behavior emptyBehavior = function.getEmptyBehavior();
+        stringBuilder.append(emptyBehavior.getBehaviorType());
+        if (emptyBehavior.getExpression().isPresent()) {
+            stringBuilder.append(" ");
+            stringBuilder.append(emptyBehavior.getExpression().get().accept(this));
+        }
+        stringBuilder.append(" ON EMPTY ");
+        final SqlFunctionScalarJsonValue.Behavior errorBehavior = function.getErrorBehavior();
+        stringBuilder.append(errorBehavior.getBehaviorType());
+        if (errorBehavior.getExpression().isPresent()) {
+            stringBuilder.append(" ");
+            stringBuilder.append(errorBehavior.getExpression().get().accept(this));
+        }
+        stringBuilder.append(" ON ERROR)");
+        return stringBuilder.toString();
     }
 
     @Override
@@ -465,13 +489,27 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
     }
 
     @Override
-    public String visit(final SqlPredicateIsJson sqlPredicateIsJson) throws AdapterException {
-        return sqlPredicateIsJson.toSimpleSql();
+    public String visit(final SqlPredicateIsJson function) throws AdapterException {
+        final StringBuilder stringBuilder = new StringBuilder();
+        final String expression = function.getExpression().accept(this);
+        stringBuilder.append(expression);
+        stringBuilder.append(function.toSimpleSql());
+        stringBuilder.append(function.getTypeConstraint());
+        stringBuilder.append(" ");
+        stringBuilder.append(function.getKeyUniquenessConstraint());
+        return stringBuilder.toString();
     }
 
     @Override
-    public String visit(final SqlPredicateIsNotJson sqlPredicateIsNotJson) throws AdapterException {
-        return sqlPredicateIsNotJson.toSimpleSql();
+    public String visit(final SqlPredicateIsNotJson function) throws AdapterException {
+        final StringBuilder stringBuilder = new StringBuilder();
+        final String expression = function.getExpression().accept(this);
+        stringBuilder.append(expression);
+        stringBuilder.append(function.toSimpleSql());
+        stringBuilder.append(function.getTypeConstraint());
+        stringBuilder.append(" ");
+        stringBuilder.append(function.getKeyUniquenessConstraint());
+        return stringBuilder.toString();
     }
 
     @Override
