@@ -230,7 +230,7 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
 
     @Override
     public String visit(final SqlFunctionAggregateGroupConcat function) throws AdapterException {
-        validateSingleAgrumentFunctionParameter(function);
+        validateSingleArgumentFunctionParameter(function.getArguments(), "AGGREGATE GROUP CONCAT");
         final StringBuilder builder = new StringBuilder();
         builder.append(function.getFunctionName());
         builder.append("(");
@@ -253,10 +253,10 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
         return builder.toString();
     }
 
-    private void validateSingleAgrumentFunctionParameter(final SqlFunctionAggregateGroupConcat function) {
-        if ((function.getArguments().size() != 1) || (function.getArguments().get(0) == null)) {
+    private void validateSingleArgumentFunctionParameter(final List<SqlNode> arguments, final String functionName) {
+        if ((arguments.size() != 1) || (arguments.get(0) == null)) {
             throw new IllegalArgumentException(
-                    "Function AGGREGATE GROUP CONCAT must have exactly one non-NULL parameter.");
+                    "Function " + functionName + " must have exactly one non-NULL parameter.");
         }
     }
 
@@ -272,14 +272,14 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
             functionNameInSourceSystem = this.dialect.getScalarFunctionAliases().get(function.getFunction());
         } else {
             if (this.dialect.getBinaryInfixFunctionAliases().containsKey(function.getFunction())) {
-                assert(argumentsSql.size() == 2);
+                assert (argumentsSql.size() == 2);
                 String realFunctionName = function.getFunctionName();
                 if (this.dialect.getBinaryInfixFunctionAliases().containsKey(function.getFunction())) {
                     realFunctionName = this.dialect.getBinaryInfixFunctionAliases().get(function.getFunction());
                 }
                 return "(" + argumentsSql.get(0) + " " + realFunctionName + " " + argumentsSql.get(1) + ")";
             } else if (this.dialect.getPrefixFunctionAliases().containsKey(function.getFunction())) {
-                assert(argumentsSql.size() == 1);
+                assert (argumentsSql.size() == 1);
                 String realFunctionName = function.getFunctionName();
                 if (this.dialect.getPrefixFunctionAliases().containsKey(function.getFunction())) {
                     realFunctionName = this.dialect.getPrefixFunctionAliases().get(function.getFunction());
@@ -320,43 +320,22 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
 
     @Override
     public String visit(final SqlFunctionScalarCast function) throws AdapterException {
-        validateSingleAgrumentFunctionParameter(function);
-        final StringBuilder builder = new StringBuilder();
-        builder.append("CAST");
-        builder.append("(");
-        builder.append(function.getArguments().get(0).accept(this));
-        builder.append(" AS ");
-        builder.append(function.getDataType());
-        builder.append(")");
-        return builder.toString();
-    }
-
-    private void validateSingleAgrumentFunctionParameter(final SqlFunctionScalarCast function) {
-        if ((function.getArguments().size() != 1) || (function.getArguments().get(0) == null)) {
-            throw new IllegalArgumentException("Function CAST must have exactly one non-NULL parameter.");
-        }
+        return function.toSimpleSql();
     }
 
     @Override
     public String visit(final SqlFunctionScalarExtract function) throws AdapterException {
-        validateSingleAgrumentFunctionParameter(function);
-        final String expression = function.getArguments().get(0).accept(this);
-        return function.getFunctionName() + "(" + function.getToExtract() + " FROM " + expression + ")";
+        return function.toSimpleSql();
     }
 
-    private void validateSingleAgrumentFunctionParameter(final SqlFunctionScalarExtract function) {
-        if ((function.getArguments().size() != 1) || (function.getArguments().get(0) == null)) {
-            throw new IllegalArgumentException("Function EXTRACT must have exactly one non-NULL parameter.");
-        }
+    @Override
+    public String visit(final SqlFunctionScalarJsonValue function) throws AdapterException {
+        return function.toSimpleSql();
     }
 
     @Override
     public String visit(final SqlLimit limit) {
-        String offsetSql = "";
-        if (limit.getOffset() != 0) {
-            offsetSql = " OFFSET " + limit.getOffset();
-        }
-        return "LIMIT " + limit.getLimit() + offsetSql;
+        return limit.toSimpleSql();
     }
 
     @Override
@@ -483,6 +462,16 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
             argumentsSql.add(node.accept(this));
         }
         return predicate.getExpression().accept(this) + " IN (" + String.join(", ", argumentsSql) + ")";
+    }
+
+    @Override
+    public String visit(final SqlPredicateIsJson sqlPredicateIsJson) throws AdapterException {
+        return sqlPredicateIsJson.toSimpleSql();
+    }
+
+    @Override
+    public String visit(final SqlPredicateIsNotJson sqlPredicateIsNotJson) throws AdapterException {
+        return sqlPredicateIsNotJson.toSimpleSql();
     }
 
     @Override
