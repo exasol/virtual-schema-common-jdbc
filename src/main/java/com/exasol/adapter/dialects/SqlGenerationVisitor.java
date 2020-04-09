@@ -490,26 +490,28 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
 
     @Override
     public String visit(final SqlPredicateIsJson function) throws AdapterException {
+        return visitSqlPredicateJson(function.getExpression(), function.toSimpleSql(), function.getTypeConstraint(),
+                function.getKeyUniquenessConstraint());
+    }
+
+    // We remove KEYS keyword from the query, because Exasol database can't parse it correctly in some cases.
+    // According to the SQL standard, KEYS is optional.
+    private String visitSqlPredicateJson(final SqlNode expression, final String functionToSimpleSql,
+            final String typeConstraint, final String keyUniquenessConstraint) throws AdapterException {
         final StringBuilder stringBuilder = new StringBuilder();
-        final String expression = function.getExpression().accept(this);
-        stringBuilder.append(expression);
-        stringBuilder.append(function.toSimpleSql());
-        stringBuilder.append(function.getTypeConstraint());
+        final String expressionString = expression.accept(this);
+        stringBuilder.append(expressionString);
+        stringBuilder.append(functionToSimpleSql);
+        stringBuilder.append(typeConstraint);
         stringBuilder.append(" ");
-        stringBuilder.append(function.getKeyUniquenessConstraint());
+        stringBuilder.append(keyUniquenessConstraint.replace(" KEYS", ""));
         return stringBuilder.toString();
     }
 
     @Override
     public String visit(final SqlPredicateIsNotJson function) throws AdapterException {
-        final StringBuilder stringBuilder = new StringBuilder();
-        final String expression = function.getExpression().accept(this);
-        stringBuilder.append(expression);
-        stringBuilder.append(function.toSimpleSql());
-        stringBuilder.append(function.getTypeConstraint());
-        stringBuilder.append(" ");
-        stringBuilder.append(function.getKeyUniquenessConstraint());
-        return stringBuilder.toString();
+        return visitSqlPredicateJson(function.getExpression(), function.toSimpleSql(), function.getTypeConstraint(),
+                function.getKeyUniquenessConstraint());
     }
 
     @Override

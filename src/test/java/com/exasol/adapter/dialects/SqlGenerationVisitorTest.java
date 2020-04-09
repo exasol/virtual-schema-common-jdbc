@@ -1,7 +1,6 @@
 package com.exasol.adapter.dialects;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.any;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.Mockito.when;
 
@@ -78,7 +77,7 @@ class SqlGenerationVisitorTest {
                 AbstractSqlPredicateJson.TypeConstraints.OBJECT,
                 AbstractSqlPredicateJson.KeyUniquenessConstraint.WITH_UNIQUE_KEYS);
         assertThat(sqlGenerationVisitor.visit(sqlPredicateIsJson),
-                equalTo("SELECT '{\"a\": 1}' IS JSON OBJECT WITH UNIQUE KEYS"));
+                equalTo("SELECT '{\"a\": 1}' IS JSON OBJECT WITH UNIQUE"));
     }
 
     @Test
@@ -89,6 +88,6 @@ class SqlGenerationVisitorTest {
                 AbstractSqlPredicateJson.TypeConstraints.OBJECT,
                 AbstractSqlPredicateJson.KeyUniquenessConstraint.WITH_UNIQUE_KEYS);
         assertThat(sqlGenerationVisitor.visit(sqlPredicateIsNotJson),
-                equalTo("SELECT '{\"a\": 1}' IS NOT JSON OBJECT WITH UNIQUE KEYS"));
+                equalTo("SELECT '{\"a\": 1}' IS NOT JSON OBJECT WITH UNIQUE"));
     }
 }
