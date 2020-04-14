@@ -70,6 +70,13 @@ class SqlGenerationVisitorTest {
     }
 
     @Test
+    void testVisitSqlLiteralTimestampUtc() {
+        final SqlLiteralTimestampUtc sqlLiteralTimestampUtc = new SqlLiteralTimestampUtc("2020-04-07 13:23:53");
+        assertThat(sqlGenerationVisitor.visit(sqlLiteralTimestampUtc),
+                equalTo("CAST(CONVERT_TZ(TIMESTAMP '2020-04-07 13:23:53', 'UTC', SESSIONTIMEZONE) AS TIMESTAMP WITH LOCAL TIME ZONE)"));
+    }
+
+    @Test
     void testVisitSqlPredicateIsJson() throws AdapterException {
         final SqlNode expressionMock = Mockito.mock(SqlNode.class);
         when(expressionMock.accept(sqlGenerationVisitor)).thenReturn("SELECT '{\"a\": 1}'");

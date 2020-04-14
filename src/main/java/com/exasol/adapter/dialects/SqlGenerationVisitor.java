@@ -2,6 +2,7 @@ package com.exasol.adapter.dialects;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import com.exasol.adapter.AdapterException;
 import com.exasol.adapter.adapternotes.ColumnAdapterNotesJsonConverter;
@@ -405,7 +406,8 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
 
     @Override
     public String visit(final SqlLiteralTimestampUtc literal) {
-        return "TIMESTAMP '" + literal.getValue() + "'";
+        return "CAST(CONVERT_TZ(TIMESTAMP '" + literal.getValue()
+                + "', 'UTC', SESSIONTIMEZONE) AS TIMESTAMP WITH LOCAL TIME ZONE)";
     }
 
     @Override
