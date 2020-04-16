@@ -1,7 +1,6 @@
 package com.exasol.adapter.dialects;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import com.exasol.adapter.AdapterException;
 import com.exasol.adapter.adapternotes.ColumnAdapterNotesJsonConverter;
@@ -342,16 +341,18 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
         stringBuilder.append(" ");
         final SqlFunctionScalarJsonValue.Behavior emptyBehavior = function.getEmptyBehavior();
         stringBuilder.append(emptyBehavior.getBehaviorType());
-        if (emptyBehavior.getExpression().isPresent()) {
+        final Optional<SqlNode> emptyBehaviorExpression = emptyBehavior.getExpression();
+        if (emptyBehaviorExpression.isPresent()) {
             stringBuilder.append(" ");
-            stringBuilder.append(emptyBehavior.getExpression().get().accept(this));
+            stringBuilder.append(emptyBehaviorExpression.get().accept(this));
         }
         stringBuilder.append(" ON EMPTY ");
         final SqlFunctionScalarJsonValue.Behavior errorBehavior = function.getErrorBehavior();
         stringBuilder.append(errorBehavior.getBehaviorType());
-        if (errorBehavior.getExpression().isPresent()) {
+        final Optional<SqlNode> errorBehaviorExpression = errorBehavior.getExpression();
+        if (errorBehaviorExpression.isPresent()) {
             stringBuilder.append(" ");
-            stringBuilder.append(errorBehavior.getExpression().get().accept(this));
+            stringBuilder.append(errorBehaviorExpression.get().accept(this));
         }
         stringBuilder.append(" ON ERROR)");
         return stringBuilder.toString();
@@ -373,9 +374,7 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
 
     @Override
     public String visit(final SqlLiteralDate literal) {
-        return "DATE '" + literal.getValue() + "'"; // This gets always executed
-                                                    // as
-                                                    // TO_DATE('2015-02-01','YYYY-MM-DD')
+        return "DATE '" + literal.getValue() + "'"; // This gets always executed as TO_DATE('2015-02-01','YYYY-MM-DD')
     }
 
     @Override
@@ -443,7 +442,7 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
      * @param isAscending        true if the desired sort order is ascending, false if descending
      * @param defaultNullSorting default null sorting of dialect
      * @return true, if the data source would position nulls at end of the resultset if NULLS FIRST/LAST is not
-     *         specified explicitly.
+     * specified explicitly.
      */
     private boolean nullsAreAtEndByDefault(final boolean isAscending, final SqlDialect.NullSorting defaultNullSorting) {
         if (defaultNullSorting == SqlDialect.NullSorting.NULLS_SORTED_AT_END) {
@@ -572,6 +571,6 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
     protected String getTypeNameFromColumn(final SqlColumn column) throws AdapterException {
         final ColumnAdapterNotesJsonConverter converter = ColumnAdapterNotesJsonConverter.getInstance();
         return converter.convertFromJsonToColumnAdapterNotes(column.getMetadata().getAdapterNotes(), column.getName())
-                .getTypeName();
+                        .getTypeName();
     }
 }
