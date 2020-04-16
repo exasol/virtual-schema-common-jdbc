@@ -4,6 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.Mockito.when;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -105,6 +106,7 @@ class SqlGenerationVisitorTest {
                 new SqlPredicateIsNotNull(new SqlPredicateLess(new SqlLiteralExactnumeric(
                         BigDecimal.ONE), new SqlLiteralNull()));
         assertThat(sqlGenerationVisitor.visit(sqlPredicateIsNotNull), equalTo("(1 < NULL) IS NOT NULL"));
+    }
 
     @Test
     void testVisitSqlLiteralDate() {

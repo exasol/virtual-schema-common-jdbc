@@ -354,7 +354,6 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
             stringBuilder.append(" ");
             stringBuilder.append(errorBehaviorExpression.get().accept(this));
         }
-
         stringBuilder.append(" ON ERROR)");
         return stringBuilder.toString();
     }
