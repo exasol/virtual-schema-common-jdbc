@@ -4,7 +4,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.Mockito.when;
 
-import java.math.BigDecimal;
 import java.util.*;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -53,7 +52,7 @@ class SqlGenerationVisitorTest {
         arguments.add(new SqlLiteralString("{\"a\": 1}"));
         arguments.add(new SqlLiteralString("$.a"));
         final SqlFunctionScalarJsonValue.Behavior emptyBehavior = new SqlFunctionScalarJsonValue.Behavior(
-                SqlFunctionScalarJsonValue.BehaviorType.ERROR, Optional.empty());
+                SqlFunctionScalarJsonValue.BehaviorType.DEFAULT, Optional.of(new SqlLiteralString("*** error ***")));
         final SqlFunctionScalarJsonValue.Behavior errorBehavior = new SqlFunctionScalarJsonValue.Behavior(
                 SqlFunctionScalarJsonValue.BehaviorType.DEFAULT, Optional.of(new SqlLiteralString("*** error ***")));
         final SqlFunctionScalarJsonValue sqlFunctionScalarJsonValue = new SqlFunctionScalarJsonValue(
@@ -61,7 +60,7 @@ class SqlGenerationVisitorTest {
                 emptyBehavior, errorBehavior);
         assertThat(sqlGenerationVisitor.visit(sqlFunctionScalarJsonValue),
                 equalTo("JSON_VALUE('{\"a\": 1}', '$.a' RETURNING VARCHAR(1000) UTF8 "
-                        + "ERROR ON EMPTY DEFAULT '*** error ***' ON ERROR)"));
+                        + "DEFAULT '*** error ***' ON EMPTY DEFAULT '*** error ***' ON ERROR)"));
     }
 
     @Test
@@ -106,5 +105,10 @@ class SqlGenerationVisitorTest {
                 new SqlPredicateIsNotNull(new SqlPredicateLess(new SqlLiteralExactnumeric(
                         BigDecimal.ONE), new SqlLiteralNull()));
         assertThat(sqlGenerationVisitor.visit(sqlPredicateIsNotNull), equalTo("(1 < NULL) IS NOT NULL"));
+
+    @Test
+    void testVisitSqlLiteralDate() {
+        final SqlLiteralDate sqlLiteralDate = new SqlLiteralDate("2015-12-01");
+        assertThat(sqlGenerationVisitor.visit(sqlLiteralDate), equalTo("DATE '2015-12-01'"));
     }
 }
