@@ -1,7 +1,6 @@
 package com.exasol.adapter.dialects;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import com.exasol.adapter.AdapterException;
 import com.exasol.adapter.adapternotes.ColumnAdapterNotesJsonConverter;
@@ -230,7 +229,7 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
 
     @Override
     public String visit(final SqlFunctionAggregateGroupConcat function) throws AdapterException {
-        validateSingleAgrumentFunctionParameter(function);
+        validateSingleArgumentFunctionParameter(function.getArguments(), "AGGREGATE GROUP CONCAT");
         final StringBuilder builder = new StringBuilder();
         builder.append(function.getFunctionName());
         builder.append("(");
@@ -253,10 +252,10 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
         return builder.toString();
     }
 
-    private void validateSingleAgrumentFunctionParameter(final SqlFunctionAggregateGroupConcat function) {
-        if ((function.getArguments().size() != 1) || (function.getArguments().get(0) == null)) {
+    private void validateSingleArgumentFunctionParameter(final List<SqlNode> arguments, final String functionName) {
+        if ((arguments.size() != 1) || (arguments.get(0) == null)) {
             throw new IllegalArgumentException(
-                    "Function AGGREGATE GROUP CONCAT must have exactly one non-NULL parameter.");
+                    "Function " + functionName + " must have exactly one non-NULL parameter.");
         }
     }
 
@@ -272,14 +271,14 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
             functionNameInSourceSystem = this.dialect.getScalarFunctionAliases().get(function.getFunction());
         } else {
             if (this.dialect.getBinaryInfixFunctionAliases().containsKey(function.getFunction())) {
-                assert(argumentsSql.size() == 2);
+                assert (argumentsSql.size() == 2);
                 String realFunctionName = function.getFunctionName();
                 if (this.dialect.getBinaryInfixFunctionAliases().containsKey(function.getFunction())) {
                     realFunctionName = this.dialect.getBinaryInfixFunctionAliases().get(function.getFunction());
                 }
                 return "(" + argumentsSql.get(0) + " " + realFunctionName + " " + argumentsSql.get(1) + ")";
             } else if (this.dialect.getPrefixFunctionAliases().containsKey(function.getFunction())) {
-                assert(argumentsSql.size() == 1);
+                assert (argumentsSql.size() == 1);
                 String realFunctionName = function.getFunctionName();
                 if (this.dialect.getPrefixFunctionAliases().containsKey(function.getFunction())) {
                     realFunctionName = this.dialect.getPrefixFunctionAliases().get(function.getFunction());
@@ -320,43 +319,48 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
 
     @Override
     public String visit(final SqlFunctionScalarCast function) throws AdapterException {
-        validateSingleAgrumentFunctionParameter(function);
-        final StringBuilder builder = new StringBuilder();
-        builder.append("CAST");
-        builder.append("(");
-        builder.append(function.getArguments().get(0).accept(this));
-        builder.append(" AS ");
-        builder.append(function.getDataType());
-        builder.append(")");
-        return builder.toString();
-    }
-
-    private void validateSingleAgrumentFunctionParameter(final SqlFunctionScalarCast function) {
-        if ((function.getArguments().size() != 1) || (function.getArguments().get(0) == null)) {
-            throw new IllegalArgumentException("Function CAST must have exactly one non-NULL parameter.");
-        }
+        final String expression = function.getArguments().get(0).accept(this);
+        return function.toSimpleSql() + "(" + expression + " AS " + function.getDataType() + ")";
     }
 
     @Override
     public String visit(final SqlFunctionScalarExtract function) throws AdapterException {
-        validateSingleAgrumentFunctionParameter(function);
         final String expression = function.getArguments().get(0).accept(this);
-        return function.getFunctionName() + "(" + function.getToExtract() + " FROM " + expression + ")";
+        return function.toSimpleSql() + "(" + function.getToExtract() + " FROM " + expression + ")";
     }
 
-    private void validateSingleAgrumentFunctionParameter(final SqlFunctionScalarExtract function) {
-        if ((function.getArguments().size() != 1) || (function.getArguments().get(0) == null)) {
-            throw new IllegalArgumentException("Function EXTRACT must have exactly one non-NULL parameter.");
+    @Override
+    public String visit(final SqlFunctionScalarJsonValue function) throws AdapterException {
+        final StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("JSON_VALUE(");
+        stringBuilder.append(function.getArguments().get(0).accept(this));
+        stringBuilder.append(", ");
+        stringBuilder.append(function.getArguments().get(1).accept(this));
+        stringBuilder.append(" RETURNING ");
+        stringBuilder.append(function.getReturningDataType().toString());
+        stringBuilder.append(" ");
+        final SqlFunctionScalarJsonValue.Behavior emptyBehavior = function.getEmptyBehavior();
+        stringBuilder.append(emptyBehavior.getBehaviorType());
+        final Optional<SqlNode> emptyBehaviorExpression = emptyBehavior.getExpression();
+        if (emptyBehaviorExpression.isPresent()) {
+            stringBuilder.append(" ");
+            stringBuilder.append(emptyBehaviorExpression.get().accept(this));
         }
+        stringBuilder.append(" ON EMPTY ");
+        final SqlFunctionScalarJsonValue.Behavior errorBehavior = function.getErrorBehavior();
+        stringBuilder.append(errorBehavior.getBehaviorType());
+        final Optional<SqlNode> errorBehaviorExpression = errorBehavior.getExpression();
+        if (errorBehaviorExpression.isPresent()) {
+            stringBuilder.append(" ");
+            stringBuilder.append(errorBehaviorExpression.get().accept(this));
+        }
+        stringBuilder.append(" ON ERROR)");
+        return stringBuilder.toString();
     }
 
     @Override
     public String visit(final SqlLimit limit) {
-        String offsetSql = "";
-        if (limit.getOffset() != 0) {
-            offsetSql = " OFFSET " + limit.getOffset();
-        }
-        return "LIMIT " + limit.getLimit() + offsetSql;
+        return limit.toSimpleSql();
     }
 
     @Override
@@ -370,9 +374,7 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
 
     @Override
     public String visit(final SqlLiteralDate literal) {
-        return "DATE '" + literal.getValue() + "'"; // This gets always executed
-                                                    // as
-                                                    // TO_DATE('2015-02-01','YYYY-MM-DD')
+        return "DATE '" + literal.getValue() + "'"; // This gets always executed as TO_DATE('2015-02-01','YYYY-MM-DD')
     }
 
     @Override
@@ -440,7 +442,7 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
      * @param isAscending        true if the desired sort order is ascending, false if descending
      * @param defaultNullSorting default null sorting of dialect
      * @return true, if the data source would position nulls at end of the resultset if NULLS FIRST/LAST is not
-     *         specified explicitly.
+     * specified explicitly.
      */
     private boolean nullsAreAtEndByDefault(final boolean isAscending, final SqlDialect.NullSorting defaultNullSorting) {
         if (defaultNullSorting == SqlDialect.NullSorting.NULLS_SORTED_AT_END) {
@@ -483,6 +485,32 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
             argumentsSql.add(node.accept(this));
         }
         return predicate.getExpression().accept(this) + " IN (" + String.join(", ", argumentsSql) + ")";
+    }
+
+    @Override
+    public String visit(final SqlPredicateIsJson function) throws AdapterException {
+        return visitSqlPredicateJson(function.getExpression(), function.toSimpleSql(), function.getTypeConstraint(),
+                function.getKeyUniquenessConstraint());
+    }
+
+    // We remove KEYS keyword from the query, because Exasol database can't parse it correctly in some cases.
+    // According to the SQL standard, KEYS is optional.
+    private String visitSqlPredicateJson(final SqlNode expression, final String functionToSimpleSql,
+            final String typeConstraint, final String keyUniquenessConstraint) throws AdapterException {
+        final StringBuilder stringBuilder = new StringBuilder();
+        final String expressionString = expression.accept(this);
+        stringBuilder.append(expressionString);
+        stringBuilder.append(functionToSimpleSql);
+        stringBuilder.append(typeConstraint);
+        stringBuilder.append(" ");
+        stringBuilder.append(keyUniquenessConstraint.replace(" KEYS", ""));
+        return stringBuilder.toString();
+    }
+
+    @Override
+    public String visit(final SqlPredicateIsNotJson function) throws AdapterException {
+        return visitSqlPredicateJson(function.getExpression(), function.toSimpleSql(), function.getTypeConstraint(),
+                function.getKeyUniquenessConstraint());
     }
 
     @Override
@@ -543,6 +571,6 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
     protected String getTypeNameFromColumn(final SqlColumn column) throws AdapterException {
         final ColumnAdapterNotesJsonConverter converter = ColumnAdapterNotesJsonConverter.getInstance();
         return converter.convertFromJsonToColumnAdapterNotes(column.getMetadata().getAdapterNotes(), column.getName())
-                .getTypeName();
+                        .getTypeName();
     }
 }
