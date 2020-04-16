@@ -560,13 +560,12 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
 
     @Override
     public String visit(final SqlPredicateIsNull predicate) throws AdapterException {
-        return predicate.getExpression().accept(this) + " IS NULL";
+        return "(" + predicate.getExpression().accept(this) + ") IS NULL";
     }
 
     @Override
     public String visit(final SqlPredicateIsNotNull predicate) throws AdapterException {
-        return predicate.getExpression().accept(this) + " IS NOT NULL";
-
+        return "(" + predicate.getExpression().accept(this) + ") IS NOT NULL";
     }
 
     protected String getTypeNameFromColumn(final SqlColumn column) throws AdapterException {
