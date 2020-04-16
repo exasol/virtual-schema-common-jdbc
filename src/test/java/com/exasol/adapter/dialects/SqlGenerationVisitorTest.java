@@ -52,7 +52,7 @@ class SqlGenerationVisitorTest {
         arguments.add(new SqlLiteralString("{\"a\": 1}"));
         arguments.add(new SqlLiteralString("$.a"));
         final SqlFunctionScalarJsonValue.Behavior emptyBehavior = new SqlFunctionScalarJsonValue.Behavior(
-                SqlFunctionScalarJsonValue.BehaviorType.ERROR, Optional.empty());
+                SqlFunctionScalarJsonValue.BehaviorType.DEFAULT, Optional.of(new SqlLiteralString("*** error ***")));
         final SqlFunctionScalarJsonValue.Behavior errorBehavior = new SqlFunctionScalarJsonValue.Behavior(
                 SqlFunctionScalarJsonValue.BehaviorType.DEFAULT, Optional.of(new SqlLiteralString("*** error ***")));
         final SqlFunctionScalarJsonValue sqlFunctionScalarJsonValue = new SqlFunctionScalarJsonValue(
@@ -60,7 +60,7 @@ class SqlGenerationVisitorTest {
                 emptyBehavior, errorBehavior);
         assertThat(sqlGenerationVisitor.visit(sqlFunctionScalarJsonValue),
                 equalTo("JSON_VALUE('{\"a\": 1}', '$.a' RETURNING VARCHAR(1000) UTF8 "
-                        + "ERROR ON EMPTY DEFAULT '*** error ***' ON ERROR)"));
+                        + "DEFAULT '*** error ***' ON EMPTY DEFAULT '*** error ***' ON ERROR)"));
     }
 
     @Test
@@ -89,5 +89,11 @@ class SqlGenerationVisitorTest {
                 AbstractSqlPredicateJson.KeyUniquenessConstraint.WITH_UNIQUE_KEYS);
         assertThat(sqlGenerationVisitor.visit(sqlPredicateIsNotJson),
                 equalTo("SELECT '{\"a\": 1}' IS NOT JSON OBJECT WITH UNIQUE"));
+    }
+
+    @Test
+    void testVisitSqlLiteralDate() {
+        final SqlLiteralDate sqlLiteralDate = new SqlLiteralDate("2015-12-01");
+        assertThat(sqlGenerationVisitor.visit(sqlLiteralDate), equalTo("DATE '2015-12-01'"));
     }
 }
