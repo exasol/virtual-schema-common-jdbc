@@ -4,6 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.Mockito.when;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -89,6 +90,22 @@ class SqlGenerationVisitorTest {
                 AbstractSqlPredicateJson.KeyUniquenessConstraint.WITH_UNIQUE_KEYS);
         assertThat(sqlGenerationVisitor.visit(sqlPredicateIsNotJson),
                 equalTo("SELECT '{\"a\": 1}' IS NOT JSON OBJECT WITH UNIQUE"));
+    }
+
+    @Test
+    void testVisitSqlPredicateIsNull() throws AdapterException {
+        final SqlPredicateIsNull sqlPredicateIsNull =
+                new SqlPredicateIsNull(new SqlPredicateLess(new SqlLiteralExactnumeric(
+                        BigDecimal.ONE), new SqlLiteralNull()));
+        assertThat(sqlGenerationVisitor.visit(sqlPredicateIsNull), equalTo("(1 < NULL) IS NULL"));
+    }
+
+    @Test
+    void testVisitSqlPredicateIsNotNull() throws AdapterException {
+        final SqlPredicateIsNotNull sqlPredicateIsNotNull =
+                new SqlPredicateIsNotNull(new SqlPredicateLess(new SqlLiteralExactnumeric(
+                        BigDecimal.ONE), new SqlLiteralNull()));
+        assertThat(sqlGenerationVisitor.visit(sqlPredicateIsNotNull), equalTo("(1 < NULL) IS NOT NULL"));
     }
 
     @Test
