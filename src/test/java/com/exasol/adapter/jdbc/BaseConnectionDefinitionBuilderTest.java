@@ -32,36 +32,7 @@ class BaseConnectionDefinitionBuilderTest extends AbstractConnectionDefinitionBu
     }
 
     @Test
-    void testBuildConnectionDefinitionForJDBCImportWithConnectionStringUsernamePasswordGiven() {
-        setConnectionStringProperty(ADDRESS);
-        setUserNameProperty();
-        setPasswordProperty();
-        assertThat(calculateConnectionDefinition(), equalTo(ADDRESS_WITH_USER_IDENTIFIED_BY));
-    }
-
-    @Test
-    void testBuildConnectionDefinitionWithoutConnectionInfomationThrowsException() {
+    void testBuildConnectionDefinitionWithoutConnectionInformationThrowsException() {
         assertIllegalPropertiesThrowsException(Collections.emptyMap());
-    }
-
-    @Test
-    void testBuildConnectionDefinitionWithExtraUsernameThrowsException() {
-        setConnectionNameProperty();
-        setUserNameProperty();
-        assertIllegalPropertiesThrowsException(this.rawProperties);
-    }
-
-    @Test
-    void testBuildConnectionDefinitionWithExtraPasswordThrowsException() {
-        setConnectionNameProperty();
-        setPasswordProperty();
-        assertIllegalPropertiesThrowsException(this.rawProperties);
-    }
-
-    @Test
-    void testBuildConnectionDefinitionWithExtraConnectionStringThrowsException() {
-        setConnectionNameProperty();
-        setConnectionStringProperty("irrelevant");
-        assertIllegalPropertiesThrowsException(this.rawProperties);
     }
 }

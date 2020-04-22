@@ -62,30 +62,11 @@ class RemoteConnectionFactoryTest {
     }
 
     @Test
-    void testGetConnectionWithConnectionDetailsInProperties() throws ExaConnectionAccessException, SQLException {
-        this.rawProperties.put("CONNECTION_STRING", DERBY_INSTANT_JDBC_CONNECTION_STRING);
-        this.rawProperties.put("USERNAME", USER);
-        this.rawProperties.put("PASSWORD", "testPassword");
-        assertThat(createConnection().getMetaData().getUserName(), equalTo(USER));
-    }
-
-    @Test
-    void testGetConnectionWithConnectionDetailsInPropertiesAndEmptyConnectionName()
-            throws ExaConnectionAccessException, SQLException {
-        this.rawProperties.put("CONNECTION_NAME", "");
-        this.rawProperties.put("CONNECTION_STRING", DERBY_INSTANT_JDBC_CONNECTION_STRING);
-        this.rawProperties.put("USERNAME", USER);
-        this.rawProperties.put("PASSWORD", "testPassword");
-        assertThat(createConnection().getMetaData().getUserName(), equalTo(USER));
-    }
-
-    @Test
-    void testGetConnectionWithUnaccessibleNamedConnectionThrowsException()
-            throws ExaConnectionAccessException, SQLException {
+    void testGetConnectionWithInaccessibleNamedConnectionThrowsException() throws ExaConnectionAccessException {
         when(this.exaMetadataMock.getConnection(CONNECTION_NAME))
                 .thenThrow(new ExaConnectionAccessException("FAKE connection access exception"));
         this.rawProperties.put("CONNECTION_NAME", CONNECTION_NAME);
-        assertThrows(RemoteConnectionException.class, () -> createConnection());
+        assertThrows(RemoteConnectionException.class, this::createConnection);
     }
 
     @Test

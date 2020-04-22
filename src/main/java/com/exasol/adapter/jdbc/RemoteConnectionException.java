@@ -15,4 +15,13 @@ public class RemoteConnectionException extends RuntimeException {
     public RemoteConnectionException(final String message, final Throwable cause) {
         super(message, cause);
     }
+
+    /**
+     * Create a new instance of a {@link RemoteConnectionException}.
+     *
+     * @param message error message
+     */
+    public RemoteConnectionException(final String message) {
+        super(message);
+    }
 }

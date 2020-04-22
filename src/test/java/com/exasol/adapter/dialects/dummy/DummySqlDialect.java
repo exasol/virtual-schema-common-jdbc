@@ -14,9 +14,8 @@ import com.exasol.adapter.jdbc.*;
 public class DummySqlDialect extends AbstractSqlDialect {
     static final String NAME = "DUMMYDIALECT";
     private static final List<String> SUPPORTED_PROPERTIES = Arrays.asList(SQL_DIALECT_PROPERTY,
-            CONNECTION_NAME_PROPERTY, SCHEMA_NAME_PROPERTY, CONNECTION_STRING_PROPERTY, USERNAME_PROPERTY,
-            PASSWORD_PROPERTY, TABLE_FILTER_PROPERTY, EXCLUDED_CAPABILITIES_PROPERTY, DEBUG_ADDRESS_PROPERTY,
-            LOG_LEVEL_PROPERTY, EXCEPTION_HANDLING_PROPERTY);
+            CONNECTION_NAME_PROPERTY, SCHEMA_NAME_PROPERTY, TABLE_FILTER_PROPERTY, EXCLUDED_CAPABILITIES_PROPERTY,
+            DEBUG_ADDRESS_PROPERTY, LOG_LEVEL_PROPERTY, EXCEPTION_HANDLING_PROPERTY);
 
     public DummySqlDialect(final ConnectionFactory connectionFactory, final AdapterProperties properties) {
         super(connectionFactory, properties);

@@ -20,9 +20,8 @@ public class DerbySqlDialect extends AbstractSqlDialect {
     static final String NAME = "DERBY";
     private static final Capabilities CAPABILITIES = createCapabilityList();
     private static final List<String> SUPPORTED_PROPERTIES = Arrays.asList(SQL_DIALECT_PROPERTY,
-            CONNECTION_NAME_PROPERTY, CONNECTION_STRING_PROPERTY, USERNAME_PROPERTY, PASSWORD_PROPERTY,
-            CATALOG_NAME_PROPERTY, SCHEMA_NAME_PROPERTY, TABLE_FILTER_PROPERTY, EXCLUDED_CAPABILITIES_PROPERTY,
-            DEBUG_ADDRESS_PROPERTY, LOG_LEVEL_PROPERTY);
+            CONNECTION_NAME_PROPERTY, CATALOG_NAME_PROPERTY, SCHEMA_NAME_PROPERTY, TABLE_FILTER_PROPERTY,
+            EXCLUDED_CAPABILITIES_PROPERTY, DEBUG_ADDRESS_PROPERTY, LOG_LEVEL_PROPERTY);
 
     private static Capabilities createCapabilityList() {
         return Capabilities.builder().addMain(MainCapability.ORDER_BY_EXPRESSION)
