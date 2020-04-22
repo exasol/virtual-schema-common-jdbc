@@ -1,7 +1,7 @@
 package com.exasol.adapter.jdbc;
 
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.Mockito.mock;
 
 import java.util.Collections;
@@ -34,5 +34,12 @@ class BaseConnectionDefinitionBuilderTest extends AbstractConnectionDefinitionBu
     @Test
     void testBuildConnectionDefinitionWithoutConnectionInformationThrowsException() {
         assertIllegalPropertiesThrowsException(Collections.emptyMap());
+    }
+
+    @Test
+    void testGetConnectionDefinition() {
+        final BaseConnectionDefinitionBuilder baseConnectionDefinitionBuilder = new BaseConnectionDefinitionBuilder();
+        assertThat(baseConnectionDefinitionBuilder.getConnectionDefinition("localhost:6666", "username", "password"),
+                equalTo("AT 'localhost:6666' USER 'username' IDENTIFIED BY 'password'"));
     }
 }
