@@ -28,4 +28,9 @@ public class BaseConnectionDefinitionBuilder implements ConnectionDefinitionBuil
                     "Please, provide a mandatory property \"" + CONNECTION_NAME_PROPERTY + "\".");
         }
     }
+
+    protected String getConnectionDefinition(final String connectionString, final String username,
+            final String password) {
+        return "AT '" + connectionString + "' USER '" + username + "' IDENTIFIED BY '" + password + "'";
+    }
 }
