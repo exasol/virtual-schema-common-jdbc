@@ -4,7 +4,7 @@ package com.exasol.adapter.jdbc;
  * Exception for remote connection problems.
  */
 public class RemoteConnectionException extends RuntimeException {
-    private static final long serialVersionUID = 550162141981742445L;
+    private static final long serialVersionUID = 2818034094289319833L;
 
     /**
      * Create a new instance of a {@link RemoteConnectionException}.
