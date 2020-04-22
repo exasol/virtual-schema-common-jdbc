@@ -25,7 +25,7 @@ class JdbcAdapterIT {
                 + "        \"properties\" :\n" //
                 + "        {\n" //
                 + "            \"" + SQL_DIALECT_PROPERTY + "\" : \"DERBY\"\n," //
-                + "            \"" + CONNECTION_NAME_PROPERTY + "\" : \"derby_connection\"\n" //
+                + "            \"" + CONNECTION_NAME_PROPERTY + "\" : \"DERBY_CONNECTION\"\n" //
                 + "        }\n" //
                 + "    }\n" //
                 + "}";
