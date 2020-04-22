@@ -20,12 +20,15 @@ import com.exasol.adapter.sql.*;
  * Abstract implementation of a dialect. We recommend that every dialect should extend this abstract class.
  */
 public abstract class AbstractSqlDialect implements SqlDialect {
+    private static final Logger LOGGER = Logger.getLogger(AbstractSqlDialect.class.getName());
+    private static final Pattern BOOLEAN_PROPERTY_VALUE_PATTERN = Pattern.compile("^TRUE$|^FALSE$",
+            Pattern.CASE_INSENSITIVE);
     protected Set<ScalarFunction> omitParenthesesMap = EnumSet.noneOf(ScalarFunction.class);
     protected AdapterProperties properties;
     protected final ConnectionFactory connectionFactory;
-    private static final Pattern BOOLEAN_PROPERTY_VALUE_PATTERN = Pattern.compile("^TRUE$|^FALSE$",
-            Pattern.CASE_INSENSITIVE);
-    private static final Logger LOGGER = Logger.getLogger(AbstractSqlDialect.class.getName());
+    private static final List<String> COMMON_SUPPORTED_PROPERTIES = Arrays.asList(SQL_DIALECT_PROPERTY,
+            CONNECTION_NAME_PROPERTY, TABLE_FILTER_PROPERTY, EXCLUDED_CAPABILITIES_PROPERTY, DEBUG_ADDRESS_PROPERTY,
+            LOG_LEVEL_PROPERTY);
 
     /**
      * Create a new instance of an {@link AbstractSqlDialect}.
@@ -36,6 +39,12 @@ public abstract class AbstractSqlDialect implements SqlDialect {
     public AbstractSqlDialect(final ConnectionFactory connectionFactory, final AdapterProperties properties) {
         this.connectionFactory = connectionFactory;
         this.properties = properties;
+    }
+
+    protected static List<String> addAdditionalSupportedProperties(final List<String> additionalPropertiesToSupport) {
+        final List<String> dialectProperties = new ArrayList<>(COMMON_SUPPORTED_PROPERTIES);
+        dialectProperties.addAll(additionalPropertiesToSupport);
+        return dialectProperties;
     }
 
     /**

@@ -1,6 +1,7 @@
 package com.exasol.adapter.dialects.derby;
 
-import static com.exasol.adapter.AdapterProperties.*;
+import static com.exasol.adapter.AdapterProperties.CATALOG_NAME_PROPERTY;
+import static com.exasol.adapter.AdapterProperties.SCHEMA_NAME_PROPERTY;
 
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -19,9 +20,11 @@ import com.exasol.adapter.jdbc.*;
 public class DerbySqlDialect extends AbstractSqlDialect {
     static final String NAME = "DERBY";
     private static final Capabilities CAPABILITIES = createCapabilityList();
-    private static final List<String> SUPPORTED_PROPERTIES = Arrays.asList(SQL_DIALECT_PROPERTY,
-            CONNECTION_NAME_PROPERTY, CATALOG_NAME_PROPERTY, SCHEMA_NAME_PROPERTY, TABLE_FILTER_PROPERTY,
-            EXCLUDED_CAPABILITIES_PROPERTY, DEBUG_ADDRESS_PROPERTY, LOG_LEVEL_PROPERTY);
+    private static final List<String> SUPPORTED_PROPERTIES = createSupportedPropertiesList();
+
+    private static List<String> createSupportedPropertiesList() {
+        return addAdditionalSupportedProperties(Arrays.asList(CATALOG_NAME_PROPERTY, SCHEMA_NAME_PROPERTY));
+    }
 
     private static Capabilities createCapabilityList() {
         return Capabilities.builder().addMain(MainCapability.ORDER_BY_EXPRESSION)
