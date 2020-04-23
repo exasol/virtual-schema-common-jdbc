@@ -34,8 +34,10 @@ public abstract class AbstractSqlDialect implements SqlDialect {
     /**
      * Create a new instance of an {@link AbstractSqlDialect}.
      *
-     * @param connectionFactory factory for JDBC connection to remote data source
-     * @param properties        user properties
+     * @param connectionFactory         factory for JDBC connection to remote data source
+     * @param properties                user properties
+     * @param dialectSpecificProperties a set of properties that dialect supports additionally to the common set *
+     *                                  {@link com.exasol.adapter.dialects.AbstractSqlDialect#COMMON_SUPPORTED_PROPERTIES}
      */
     public AbstractSqlDialect(final ConnectionFactory connectionFactory, final AdapterProperties properties,
             final Set<String> dialectSpecificProperties) {
