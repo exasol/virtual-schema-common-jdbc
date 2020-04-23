@@ -186,11 +186,6 @@ class SqlDialectTest {
         }
 
         @Override
-        protected Set<String> getSupportedProperties() {
-            return null;
-        }
-
-        @Override
         public String getName() {
             return "TEST";
         }

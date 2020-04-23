@@ -116,7 +116,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
      *
      * @return set of supported properties
      */
-    protected Set<String> getSupportedProperties() {
+    public Set<String> getSupportedProperties() {
         return this.supportedProperties;
     }
 
