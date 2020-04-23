@@ -3,8 +3,7 @@ package com.exasol.adapter.dialects.stubdialect;
 import static com.exasol.adapter.AdapterProperties.CATALOG_NAME_PROPERTY;
 import static com.exasol.adapter.AdapterProperties.SCHEMA_NAME_PROPERTY;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.Set;
 
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.capabilities.Capabilities;
@@ -17,14 +16,9 @@ import com.exasol.adapter.jdbc.RemoteMetadataReader;
  */
 public class StubSqlDialect extends AbstractSqlDialect {
     static final String NAME = "STUB";
-    private static final List<String> SUPPORTED_PROPERTIES = createSupportedPropertiesList();
-
-    private static List<String> createSupportedPropertiesList() {
-        return addAdditionalSupportedProperties(Arrays.asList(CATALOG_NAME_PROPERTY, SCHEMA_NAME_PROPERTY));
-    }
 
     public StubSqlDialect(final ConnectionFactory connectionFactory, final AdapterProperties properties) {
-        super(connectionFactory, properties);
+        super(connectionFactory, properties, Set.of(CATALOG_NAME_PROPERTY, SCHEMA_NAME_PROPERTY));
     }
 
     @Override
@@ -45,11 +39,6 @@ public class StubSqlDialect extends AbstractSqlDialect {
     @Override
     public StructureElementSupport supportsJdbcSchemas() {
         return StructureElementSupport.SINGLE;
-    }
-
-    @Override
-    protected List<String> getSupportedProperties() {
-        return SUPPORTED_PROPERTIES;
     }
 
     @Override

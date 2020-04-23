@@ -1,10 +1,10 @@
 package com.exasol.adapter.dialects.dummy;
 
-import static com.exasol.adapter.AdapterProperties.*;
+import static com.exasol.adapter.AdapterProperties.EXCEPTION_HANDLING_PROPERTY;
+import static com.exasol.adapter.AdapterProperties.SCHEMA_NAME_PROPERTY;
 
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Set;
 
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.capabilities.Capabilities;
@@ -13,14 +13,9 @@ import com.exasol.adapter.jdbc.*;
 
 public class DummySqlDialect extends AbstractSqlDialect {
     static final String NAME = "DUMMYDIALECT";
-    private static final List<String> SUPPORTED_PROPERTIES = createSupportedPropertiesList();
-
-    private static List<String> createSupportedPropertiesList() {
-        return addAdditionalSupportedProperties(Arrays.asList(SCHEMA_NAME_PROPERTY, EXCEPTION_HANDLING_PROPERTY));
-    }
 
     public DummySqlDialect(final ConnectionFactory connectionFactory, final AdapterProperties properties) {
-        super(connectionFactory, properties);
+        super(connectionFactory, properties, Set.of(SCHEMA_NAME_PROPERTY, EXCEPTION_HANDLING_PROPERTY));
     }
 
     @Override
@@ -65,11 +60,6 @@ public class DummySqlDialect extends AbstractSqlDialect {
     @Override
     public NullSorting getDefaultNullSorting() {
         return null;
-    }
-
-    @Override
-    protected List<String> getSupportedProperties() {
-        return SUPPORTED_PROPERTIES;
     }
 
     @Override
