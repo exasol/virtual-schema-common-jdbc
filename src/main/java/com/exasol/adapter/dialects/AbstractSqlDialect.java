@@ -110,12 +110,12 @@ public abstract class AbstractSqlDialect implements SqlDialect {
     }
 
     /**
-     * Get the set of user-defined adapter properties which the dialect supports.
+     * Get a set of adapter properties that the dialect supports.
      *
      * @return set of supported properties
      */
     protected Set<String> getSupportedProperties() {
-        return supportedProperties;
+        return this.supportedProperties;
     }
 
     @Override
