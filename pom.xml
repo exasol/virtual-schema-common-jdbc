@@ -9,14 +9,14 @@
     <description>Common module for JDBC-based data access from Virtual Schemas.</description>
     <url>https://github.com/exasol/virtual-schema-common-jdbc</url>
     <properties>
-        <product.version>4.0.0</product.version>
+        <product.version>5.0.0</product.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>11</java.version>
         <junit.version>5.6.1</junit.version>
         <junit.platform.version>1.6.1</junit.platform.version>
         <maven.surefire.version>3.0.0-M4</maven.surefire.version>
-        <vscommon.version>9.0.0</vscommon.version>
+        <vscommon.version>10.0.0</vscommon.version>
         <gpg.skip>true</gpg.skip>
     </properties>
     <licenses>

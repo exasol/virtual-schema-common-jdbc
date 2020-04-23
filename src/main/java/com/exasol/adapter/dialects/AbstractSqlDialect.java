@@ -130,7 +130,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
     @Override
     public void validateProperties() throws PropertyValidationException {
         validateSupportedPropertiesList();
-        validateConnectionProperties();
+        validateConnectionNameProperty();
         validateCatalogNameProperty();
         validateSchemaNameProperty();
         validateDebugOutputAddress();
@@ -141,8 +141,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
         final List<String> allProperties = new ArrayList<>(this.properties.keySet());
         for (final String property : allProperties) {
             if (!getSupportedProperties().contains(property)) {
-                final String unsupportedElement = property;
-                throw new PropertyValidationException(createUnsupportedElementMessage(unsupportedElement, property));
+                throw new PropertyValidationException(createUnsupportedElementMessage(property, property));
             }
         }
     }
@@ -156,24 +155,13 @@ public abstract class AbstractSqlDialect implements SqlDialect {
 
     protected String createUnsupportedElementMessage(final String unsupportedElement, final String property) {
         return "The dialect " + this.properties.getSqlDialect() + " does not support " + unsupportedElement
-                + " property. Please, do not set the " + property + " property.";
+                + " property. Please, do not set the \"" + property + "\" property.";
     }
 
-    private void validateConnectionProperties() throws PropertyValidationException {
-        if (this.properties.containsKey(CONNECTION_NAME_PROPERTY)) {
-            if (this.properties.containsKey(CONNECTION_STRING_PROPERTY)
-                    || this.properties.containsKey(USERNAME_PROPERTY)
-                    || this.properties.containsKey(PASSWORD_PROPERTY)) {
-                throw new PropertyValidationException("You specified a connection using the property "
-                        + CONNECTION_NAME_PROPERTY + " and therefore should not specify the properties "
-                        + CONNECTION_STRING_PROPERTY + ", " + USERNAME_PROPERTY + " and " + PASSWORD_PROPERTY);
-            }
-        } else {
-            if (!this.properties.containsKey(CONNECTION_STRING_PROPERTY)) {
-                throw new PropertyValidationException(
-                        "You did not specify a connection using the property " + CONNECTION_NAME_PROPERTY
-                                + " and therefore have to specify the property " + CONNECTION_STRING_PROPERTY);
-            }
+    private void validateConnectionNameProperty() throws PropertyValidationException {
+        if (!this.properties.hasConnectionName()) {
+            throw new PropertyValidationException(
+                    "Please specify a connection using the property \"" + CONNECTION_NAME_PROPERTY + "\".");
         }
     }
 
