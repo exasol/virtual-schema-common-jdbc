@@ -228,11 +228,12 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
         case Types.BIT:
         case Types.BOOLEAN:
             return DataType.createBool();
-        case Types.BINARY:
-        case Types.CLOB:
         case Types.TIME:
+            return DataType.createVarChar(100, DataType.ExaCharset.UTF8);
         case Types.NUMERIC:
             return fallBackToMaximumSizeVarChar();
+        case Types.BINARY:
+        case Types.CLOB:
         case Types.OTHER:
         case Types.BLOB:
         case Types.NCLOB:

@@ -1,7 +1,7 @@
 package com.exasol.adapter.jdbc;
 
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
@@ -256,13 +256,7 @@ class ColumnMetadataReaderTest {
 
     @Test
     void testTime() throws SQLException {
-        assertSqlTypeConvertedToExasolType(Types.TIME, TYPE_MAX_VARCHAR_UTF8);
-    }
-
-    @ValueSource(ints = { Types.BINARY, Types.CLOB })
-    @ParameterizedTest
-    void testBinary(final int typeId) throws SQLException {
-        assertSqlTypeConvertedToExasolType(typeId, TYPE_MAX_VARCHAR_UTF8);
+        assertSqlTypeConvertedToExasolType(Types.TIME, DataType.createVarChar(100, ExaCharset.UTF8));
     }
 
     @CsvSource({ RemoteMetadataReaderConstants.JDBC_FALSE + ", false",
