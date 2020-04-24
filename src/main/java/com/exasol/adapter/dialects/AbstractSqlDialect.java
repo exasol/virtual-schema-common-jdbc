@@ -20,22 +20,41 @@ import com.exasol.adapter.sql.*;
  * Abstract implementation of a dialect. We recommend that every dialect should extend this abstract class.
  */
 public abstract class AbstractSqlDialect implements SqlDialect {
+    private static final Logger LOGGER = Logger.getLogger(AbstractSqlDialect.class.getName());
+    private static final Pattern BOOLEAN_PROPERTY_VALUE_PATTERN = Pattern.compile("^TRUE$|^FALSE$",
+            Pattern.CASE_INSENSITIVE);
+    private static final Set<String> COMMON_SUPPORTED_PROPERTIES = Set.of(SQL_DIALECT_PROPERTY,
+            CONNECTION_NAME_PROPERTY, TABLE_FILTER_PROPERTY, EXCLUDED_CAPABILITIES_PROPERTY, DEBUG_ADDRESS_PROPERTY,
+            LOG_LEVEL_PROPERTY);
     protected Set<ScalarFunction> omitParenthesesMap = EnumSet.noneOf(ScalarFunction.class);
     protected AdapterProperties properties;
     protected final ConnectionFactory connectionFactory;
-    private static final Pattern BOOLEAN_PROPERTY_VALUE_PATTERN = Pattern.compile("^TRUE$|^FALSE$",
-            Pattern.CASE_INSENSITIVE);
-    private static final Logger LOGGER = Logger.getLogger(AbstractSqlDialect.class.getName());
+    private final Set<String> supportedProperties;
 
     /**
      * Create a new instance of an {@link AbstractSqlDialect}.
      *
-     * @param connectionFactory factory for JDBC connection to remote data source
-     * @param properties        user properties
+     * @param connectionFactory         factory for JDBC connection to remote data source
+     * @param properties                user properties
+     * @param dialectSpecificProperties a set of properties that dialect supports additionally to the common set *
+     *                                  {@link com.exasol.adapter.dialects.AbstractSqlDialect#COMMON_SUPPORTED_PROPERTIES}
      */
-    public AbstractSqlDialect(final ConnectionFactory connectionFactory, final AdapterProperties properties) {
+    public AbstractSqlDialect(final ConnectionFactory connectionFactory, final AdapterProperties properties,
+            final Set<String> dialectSpecificProperties) {
         this.connectionFactory = connectionFactory;
         this.properties = properties;
+        this.supportedProperties = new HashSet<>(COMMON_SUPPORTED_PROPERTIES);
+        this.supportedProperties.addAll(dialectSpecificProperties);
+    }
+
+    /**
+     * Add additional dialect-specific supported properties that are not in the
+     * {@link com.exasol.adapter.dialects.AbstractSqlDialect#COMMON_SUPPORTED_PROPERTIES} set.
+     * 
+     * @param additionalPropertiesToSupport list of properties names
+     */
+    protected void addAdditionalSupportedProperties(final List<String> additionalPropertiesToSupport) {
+        this.supportedProperties.addAll(additionalPropertiesToSupport);
     }
 
     /**
@@ -79,10 +98,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
 
     @Override
     public Map<AggregateFunction, String> getAggregateFunctionAliases() {
-        final Map<AggregateFunction, String> aliases = new EnumMap<>(AggregateFunction.class);
-        aliases.put(AggregateFunction.GEO_INTERSECTION_AGGREGATE, "ST_INTERSECTION");
-        aliases.put(AggregateFunction.GEO_UNION_AGGREGATE, "ST_UNION");
-        return aliases;
+        return new EnumMap<>(AggregateFunction.class);
     }
 
     @Override
@@ -93,6 +109,15 @@ public abstract class AbstractSqlDialect implements SqlDialect {
         aliases.put(ScalarFunction.MULT, "*");
         aliases.put(ScalarFunction.FLOAT_DIV, "/");
         return aliases;
+    }
+
+    /**
+     * Get a set of adapter properties that the dialect supports.
+     *
+     * @return set of supported properties
+     */
+    public Set<String> getSupportedProperties() {
+        return this.supportedProperties;
     }
 
     @Override
@@ -145,13 +170,6 @@ public abstract class AbstractSqlDialect implements SqlDialect {
             }
         }
     }
-
-    /**
-     * Get the list of user-defined adapter properties which the dialect supports.
-     *
-     * @return list of supported properties
-     */
-    protected abstract List<String> getSupportedProperties();
 
     protected String createUnsupportedElementMessage(final String unsupportedElement, final String property) {
         return "The dialect " + this.properties.getSqlDialect() + " does not support " + unsupportedElement
