@@ -1,7 +1,7 @@
 package com.exasol.adapter.jdbc;
 
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.Mockito.mock;
 
 import java.util.Collections;
@@ -32,36 +32,14 @@ class BaseConnectionDefinitionBuilderTest extends AbstractConnectionDefinitionBu
     }
 
     @Test
-    void testBuildConnectionDefinitionForJDBCImportWithConnectionStringUsernamePasswordGiven() {
-        setConnectionStringProperty(ADDRESS);
-        setUserNameProperty();
-        setPasswordProperty();
-        assertThat(calculateConnectionDefinition(), equalTo(ADDRESS_WITH_USER_IDENTIFIED_BY));
-    }
-
-    @Test
-    void testBuildConnectionDefinitionWithoutConnectionInfomationThrowsException() {
+    void testBuildConnectionDefinitionWithoutConnectionInformationThrowsException() {
         assertIllegalPropertiesThrowsException(Collections.emptyMap());
     }
 
     @Test
-    void testBuildConnectionDefinitionWithExtraUsernameThrowsException() {
-        setConnectionNameProperty();
-        setUserNameProperty();
-        assertIllegalPropertiesThrowsException(this.rawProperties);
-    }
-
-    @Test
-    void testBuildConnectionDefinitionWithExtraPasswordThrowsException() {
-        setConnectionNameProperty();
-        setPasswordProperty();
-        assertIllegalPropertiesThrowsException(this.rawProperties);
-    }
-
-    @Test
-    void testBuildConnectionDefinitionWithExtraConnectionStringThrowsException() {
-        setConnectionNameProperty();
-        setConnectionStringProperty("irrelevant");
-        assertIllegalPropertiesThrowsException(this.rawProperties);
+    void testGetConnectionDefinition() {
+        final BaseConnectionDefinitionBuilder baseConnectionDefinitionBuilder = new BaseConnectionDefinitionBuilder();
+        assertThat(baseConnectionDefinitionBuilder.getConnectionDefinition("localhost:6666", "username", "password"),
+                equalTo("AT 'localhost:6666' USER 'username' IDENTIFIED BY 'password'"));
     }
 }

@@ -1,9 +1,10 @@
 package com.exasol.adapter.jdbc;
 
-import static com.exasol.adapter.AdapterProperties.*;
+import static com.exasol.adapter.AdapterProperties.CONNECTION_NAME_PROPERTY;
+import static com.exasol.adapter.AdapterProperties.SQL_DIALECT_PROPERTY;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.List;
 
@@ -24,9 +25,7 @@ class JdbcAdapterIT {
                 + "        \"properties\" :\n" //
                 + "        {\n" //
                 + "            \"" + SQL_DIALECT_PROPERTY + "\" : \"DERBY\"\n," //
-                + "            \"" + CONNECTION_STRING_PROPERTY + "\" : \"jdbc:derby:memory:test;create=true;\"\n," //
-                + "            \"" + USERNAME_PROPERTY + "\" : \"\"\n," //
-                + "            \"" + PASSWORD_PROPERTY + "\" : \"\"\n" //
+                + "            \"" + CONNECTION_NAME_PROPERTY + "\" : \"DERBY_CONNECTION\"\n" //
                 + "        }\n" //
                 + "    }\n" //
                 + "}";

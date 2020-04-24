@@ -33,9 +33,9 @@ class BaseColumnMetadataReaderTest {
                         IdentifierCaseHandling.INTERPRET_CASE_SENSITIVE));
     }
 
-    @ValueSource(ints = { Types.OTHER, Types.BLOB, Types.NCLOB, Types.LONGVARBINARY, Types.VARBINARY, Types.JAVA_OBJECT,
-            Types.DISTINCT, Types.STRUCT, Types.ARRAY, Types.REF, Types.DATALINK, Types.SQLXML, Types.NULL,
-            Types.REF_CURSOR })
+    @ValueSource(ints = { Types.BINARY, Types.CLOB, Types.OTHER, Types.BLOB, Types.NCLOB, Types.LONGVARBINARY,
+            Types.VARBINARY, Types.JAVA_OBJECT, Types.DISTINCT, Types.STRUCT, Types.ARRAY, Types.REF, Types.DATALINK,
+            Types.SQLXML, Types.NULL, Types.REF_CURSOR })
     @ParameterizedTest
     void testMappingUnsupportedTypesReturnsUnsupportedType(final int jdbcType) {
         final JdbcTypeDescription jdbcTypeDescription = new JdbcTypeDescription(jdbcType, 0, 0, 0, null);

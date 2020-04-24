@@ -37,65 +37,20 @@ class AbstractSqlDialectTest {
     }
 
     @Test
-    void testNoCredentials() {
+    void testNoConnectionName() {
         this.rawProperties.put(SQL_DIALECT_PROPERTY, "GENERIC");
         this.rawProperties.put(SCHEMA_NAME_PROPERTY, "MY_SCHEMA");
         final AdapterProperties adapterProperties = new AdapterProperties(this.rawProperties);
         final SqlDialect sqlDialect = new DummySqlDialect(null, adapterProperties);
         final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
                 sqlDialect::validateProperties);
-        assertThat(exception.getMessage(), containsString(
-                "You did not specify a connection using the property CONNECTION_NAME and therefore have to specify the "
-                        + "property " + "CONNECTION_STRING"));
-    }
-
-    @Test
-    void testUserNamePasswordOptional() throws PropertyValidationException {
-        getMinimumMandatory();
-        final AdapterProperties adapterProperties = new AdapterProperties(this.rawProperties);
-        final SqlDialect sqlDialect = new DummySqlDialect(null, adapterProperties);
-        sqlDialect.validateProperties();
+        assertThat(exception.getMessage(),
+                containsString("Please specify a connection using the property \"" + CONNECTION_NAME_PROPERTY + "\"."));
     }
 
     private void getMinimumMandatory() {
         this.rawProperties.put(SQL_DIALECT_PROPERTY, "GENERIC");
         this.rawProperties.put(CONNECTION_NAME_PROPERTY, "MY_CONN");
-    }
-
-    @Test
-    void testRedundantCredentialsUserName() {
-        getMinimumMandatory();
-        this.rawProperties.put(USERNAME_PROPERTY, "MY_USER");
-        final AdapterProperties adapterProperties = new AdapterProperties(this.rawProperties);
-        final SqlDialect sqlDialect = new DummySqlDialect(null, adapterProperties);
-        final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
-                sqlDialect::validateProperties);
-        assertThat(exception.getMessage(), containsString(
-                "You specified a connection using the property CONNECTION_NAME and therefore should not specify"));
-    }
-
-    @Test
-    void testRedundantCredentialsPassword() {
-        getMinimumMandatory();
-        this.rawProperties.put(PASSWORD_PROPERTY, "MY_PASSWORD");
-        final AdapterProperties adapterProperties = new AdapterProperties(this.rawProperties);
-        final SqlDialect sqlDialect = new DummySqlDialect(null, adapterProperties);
-        final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
-                sqlDialect::validateProperties);
-        assertThat(exception.getMessage(), containsString(
-                "You specified a connection using the property CONNECTION_NAME and therefore should not specify"));
-    }
-
-    @Test
-    void testRedundantCredentialsConnectionString() {
-        getMinimumMandatory();
-        this.rawProperties.put(CONNECTION_STRING_PROPERTY, "MY_CONN");
-        final AdapterProperties adapterProperties = new AdapterProperties(this.rawProperties);
-        final SqlDialect sqlDialect = new DummySqlDialect(null, adapterProperties);
-        final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
-                sqlDialect::validateProperties);
-        assertThat(exception.getMessage(), containsString(
-                "You specified a connection using the property CONNECTION_NAME and therefore should not specify"));
     }
 
     @Test
@@ -186,7 +141,7 @@ class AbstractSqlDialectTest {
     @Test
     void testGetSqlGenerationVisitor() {
         final SqlDialect sqlDialect = new DummySqlDialect(null, AdapterProperties.emptyProperties());
-        SqlGenerationContext context = new SqlGenerationContext("catalogName", "schemaName", false);
+        final SqlGenerationContext context = new SqlGenerationContext("catalogName", "schemaName", false);
         assertThat(sqlDialect.getSqlGenerationVisitor(context), instanceOf(SqlGenerationVisitor.class));
     }
 

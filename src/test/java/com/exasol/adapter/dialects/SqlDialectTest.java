@@ -128,7 +128,7 @@ class SqlDialectTest {
         public AliasesSqlDialect(final Map<AggregateFunction, String> aggregationAliases,
                 final Map<ScalarFunction, String> scalarAliases, final Map<ScalarFunction, String> infixAliases,
                 final Map<ScalarFunction, String> prefixAliases) {
-            super(null, AdapterProperties.emptyProperties());
+            super(null, AdapterProperties.emptyProperties(), Collections.emptySet());
 
             this.aggregationAliases = aggregationAliases;
             this.scalarAliases = scalarAliases;
@@ -183,11 +183,6 @@ class SqlDialectTest {
             } else {
                 return this.prefixAliases;
             }
-        }
-
-        @Override
-        protected List<String> getSupportedProperties() {
-            return null;
         }
 
         @Override

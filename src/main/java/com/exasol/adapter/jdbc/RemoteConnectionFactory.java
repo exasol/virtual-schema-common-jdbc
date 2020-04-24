@@ -1,5 +1,7 @@
 package com.exasol.adapter.jdbc;
 
+import static com.exasol.adapter.AdapterProperties.CONNECTION_NAME_PROPERTY;
+
 import java.sql.*;
 import java.util.Properties;
 import java.util.logging.Logger;
@@ -35,33 +37,11 @@ public final class RemoteConnectionFactory implements ConnectionFactory {
             if ((connectionName != null) && !connectionName.isEmpty()) {
                 this.cachedConnection = createConnection(connectionName, this.exaMetadata);
             } else {
-                this.cachedConnection = createConnectionWithUserCredentials(this.properties.getUsername(),
-                        this.properties.getPassword(), this.properties.getConnectionString());
+                throw new RemoteConnectionException("\"" + CONNECTION_NAME_PROPERTY
+                        + "\" property is missing or empty. Please, check the property and try to connect again.");
             }
         }
         return this.cachedConnection;
-    }
-
-    private Connection createConnectionWithUserCredentials(final String username, final String password,
-            final String connectionString) throws SQLException {
-        logConnectionAttempt(username, password);
-        final long start = System.currentTimeMillis();
-        final Connection connection = DriverManager.getConnection(connectionString, username, password);
-        logRemoteDatabaseDetails(connection, System.currentTimeMillis() - start);
-        return connection;
-    }
-
-    protected void logConnectionAttempt(final String address, final String username) {
-        LOGGER.fine(
-                () -> "Connecting to \"" + address + "\" as user \"" + username + "\" using password authentication.");
-    }
-
-    protected void logRemoteDatabaseDetails(final Connection connection, final long connectionTime)
-            throws SQLException {
-        final String databaseProductName = connection.getMetaData().getDatabaseProductName();
-        final String databaseProductVersion = connection.getMetaData().getDatabaseProductVersion();
-        LOGGER.info(() -> "Connected to " + databaseProductName + " " + databaseProductVersion + " in " + connectionTime
-                + " milliseconds.");
     }
 
     private Connection createConnection(final String connectionName, final ExaMetadata exaMetadata)
@@ -101,6 +81,14 @@ public final class RemoteConnectionFactory implements ConnectionFactory {
                 () -> "Connecting to \"" + address + "\" as user \"" + username + "\" using Kerberos authentication.");
     }
 
+    protected void logRemoteDatabaseDetails(final Connection connection, final long connectionTime)
+            throws SQLException {
+        final String databaseProductName = connection.getMetaData().getDatabaseProductName();
+        final String databaseProductVersion = connection.getMetaData().getDatabaseProductVersion();
+        LOGGER.info(() -> "Connected to " + databaseProductName + " " + databaseProductVersion + " in " + connectionTime
+                + " milliseconds.");
+    }
+
     private Connection establishConnectionWithRegularCredentials(final String password, final String username,
             final String address) throws SQLException {
         logConnectionAttempt(address, username);
@@ -108,5 +96,10 @@ public final class RemoteConnectionFactory implements ConnectionFactory {
         final Connection connection = DriverManager.getConnection(address, username, password);
         logRemoteDatabaseDetails(connection, System.currentTimeMillis() - start);
         return connection;
+    }
+
+    protected void logConnectionAttempt(final String address, final String username) {
+        LOGGER.fine(
+                () -> "Connecting to \"" + address + "\" as user \"" + username + "\" using password authentication.");
     }
 }
