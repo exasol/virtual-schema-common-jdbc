@@ -98,10 +98,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
 
     @Override
     public Map<AggregateFunction, String> getAggregateFunctionAliases() {
-        final Map<AggregateFunction, String> aliases = new EnumMap<>(AggregateFunction.class);
-        aliases.put(AggregateFunction.GEO_INTERSECTION_AGGREGATE, "ST_INTERSECTION");
-        aliases.put(AggregateFunction.GEO_UNION_AGGREGATE, "ST_UNION");
-        return aliases;
+        return new EnumMap<>(AggregateFunction.class);
     }
 
     @Override

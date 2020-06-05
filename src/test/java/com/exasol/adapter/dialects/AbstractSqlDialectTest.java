@@ -153,17 +153,6 @@ class AbstractSqlDialectTest {
     }
 
     @Test
-    void testGetAggregateFunctionAliases() {
-        final SqlDialect sqlDialect = new DummySqlDialect(null, AdapterProperties.emptyProperties());
-        assertAll(
-                () -> assertThat(
-                        sqlDialect.getAggregateFunctionAliases().get(AggregateFunction.GEO_INTERSECTION_AGGREGATE),
-                        equalTo("ST_INTERSECTION")), //
-                () -> assertThat(sqlDialect.getAggregateFunctionAliases().get(AggregateFunction.GEO_UNION_AGGREGATE),
-                        equalTo("ST_UNION")));
-    }
-
-    @Test
     void testGetBinaryInfixFunctionAliases() {
         final SqlDialect sqlDialect = new DummySqlDialect(null, AdapterProperties.emptyProperties());
         assertAll(() -> assertThat(sqlDialect.getBinaryInfixFunctionAliases().get(ScalarFunction.ADD), equalTo("+")), //
