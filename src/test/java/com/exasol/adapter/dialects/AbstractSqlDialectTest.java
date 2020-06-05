@@ -17,6 +17,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.dialects.dummy.DummySqlDialect;
+import com.exasol.adapter.sql.AggregateFunction;
 import com.exasol.adapter.sql.ScalarFunction;
 import com.exasol.logging.CapturingLogHandler;
 
@@ -149,6 +150,17 @@ class AbstractSqlDialectTest {
     void testGetScalarFunctionAliases() {
         final SqlDialect sqlDialect = new DummySqlDialect(null, AdapterProperties.emptyProperties());
         assertThat(sqlDialect.getScalarFunctionAliases(), anEmptyMap());
+    }
+
+    @Test
+    void testGetAggregateFunctionAliases() {
+        final SqlDialect sqlDialect = new DummySqlDialect(null, AdapterProperties.emptyProperties());
+        assertAll(
+                () -> assertThat(
+                        sqlDialect.getAggregateFunctionAliases().get(AggregateFunction.GEO_INTERSECTION_AGGREGATE),
+                        equalTo("ST_INTERSECTION")), //
+                () -> assertThat(sqlDialect.getAggregateFunctionAliases().get(AggregateFunction.GEO_UNION_AGGREGATE),
+                        equalTo("ST_UNION")));
     }
 
     @Test
