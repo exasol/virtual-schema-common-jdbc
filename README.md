@@ -1,6 +1,7 @@
 # Virtual Schema Common Module for JDBC-based Data Access
 
 [![Build Status](https://travis-ci.com/exasol/virtual-schema-common-jdbc.svg?branch=master)](https://travis-ci.com/exasol/virtual-schema-common-jdbc)
+[![Maven Central](https://img.shields.io/maven-central/v/com.exasol/virtual-schema-common-jdbc)](https://search.maven.org/artifact/com.exasol/virtual-schema-common-jdbc)
 
 SonarCloud results:
 
@@ -24,6 +25,10 @@ This module contains common parts for Virtual Schema Adapters that use JDBC to a
 
 This is an open source project which is officially supported by Exasol. For any question, you can contact our support team.
 
+## Information for Users
+
+* [Changelog](doc/changes/changelog.md)
+
 ## Information for Developers 
 
 Please refer to the [documentation in the main Virtual Schema project](https://github.com/exasol/virtual-schemas/blob/master/README.md).
@@ -34,36 +39,51 @@ Please refer to the [documentation in the main Virtual Schema project](https://g
 
 Running the Virtual Schema requires a Java Runtime version 11 or later.
 
-| Dependency                                                                          | Purpose                                                | License                       |
-|-------------------------------------------------------------------------------------|--------------------------------------------------------|-------------------------------|
-| [JSON-P](https://javaee.github.io/jsonp/)                                           | JSON Processing                                        | CDDL-1.0                      |
-| [Exasol Script API](https://docs.exasol.com/database_concepts/udf_scripts.htm)      | Accessing Exasol features                              | MIT License                   |
-| JDBC driver(s), depending on data source                                            | Connecting to the data source                          | Check driver documentation    |
+| Dependency                                                               | Purpose                                                | License                       |
+|--------------------------------------------------------------------------|--------------------------------------------------------|-------------------------------|
+| [JAXB][jaxb]                                                             | Java Architecture for XML Binding                      | CDDL-1.0                      |
+| [JSON-P](https://javaee.github.io/jsonp/)                                | JSON Processing                                        | CDDL-1.0                      |
+| [Exasol Util Logging Testng][exasol-util-logging-testing]                | Test Utilities for java.util.logging                   | MIT License                   |
+| [Exasol Script API][exasol-script-api]                                   | Accessing Exasol features                              | MIT License                   |
+| [Exasol Virtual Schema Common Java][exasol-virtual-schema-common-java]   | Common module of Exasol Virtual Schemas adapters       | MIT License                   |
 
 ### Test Dependencies
 
-| Dependency                                                                          | Purpose                                                | License                       |
-|-------------------------------------------------------------------------------------|--------------------------------------------------------|-------------------------------|
-| [Apache Derby](https://db.apache.org/derby/)                                        | Pure-Java embedded database                            | Apache License 2.0            |
-| [Apache HTTP Components](http://hc.apache.org/)                                     | HTTP communication                                     | Apache License 2.0            |
-| [Apache Maven](https://maven.apache.org/)                                           | Build tool                                             | Apache License 2.0            |
-| [Equals Verifier](https://jqno.nl/equalsverifier/)                                  | Testing `equals(...)` and `hashCode()` contracts       | Apache License 2.0            |
-| [Exasol Virtual Schema Common](https://github.com/exasol/virtual-schema-common-java)| Common module of Exasol Virtual Schemas adapters       | MIT License                   |
-| [Exec Maven Plugin](https://www.mojohaus.org/exec-maven-plugin/)                    | Helps execute system and Java programs.                | Apache License 2.0            |
-| [Java Hamcrest](http://hamcrest.org/JavaHamcrest/)                                  | Checking for conditions in code via matchers           | BSD License                   |
-| [JSONassert](http://jsonassert.skyscreamer.org/)                                    | Compare JSON documents for semantic equality           | Apache License 2.0            |
-| [JUnit](https://junit.org/junit5)                                                   | Unit testing framework                                 | Eclipse Public License 1.0    |
-| [Mockito](http://site.mockito.org/)                                                 | Mocking framework                                      | MIT License                   |
-| [SnakeYaml](https://bitbucket.org/asomov/snakeyaml/src/default/)                    | YAML parsing                                           | Apache License 2.0            |
+| Dependency                                                               | Purpose                                                | License                       |
+|--------------------------------------------------------------------------|--------------------------------------------------------|-------------------------------|
+| [Apache Derby](https://db.apache.org/derby/)                             | Pure-Java embedded database                            | Apache License 2.0            |
+| [Apache Maven](https://maven.apache.org/)                                | Build tool                                             | Apache License 2.0            |
+| [Equals Verifier](https://jqno.nl/equalsverifier/)                       | Testing `equals(...)` and `hashCode()` contracts       | Apache License 2.0            |
+| [Java Hamcrest](http://hamcrest.org/JavaHamcrest/)                       | Checking for conditions in code via matchers           | BSD License                   |
+| [JSONassert](http://jsonassert.skyscreamer.org/)                         | Compare JSON documents for semantic equality           | Apache License 2.0            |
+| [JUnit](https://junit.org/junit5)                                        | Unit testing framework                                 | Eclipse Public License 1.0    |
+| [Mockito](http://site.mockito.org/)                                      | Mocking framework                                      | MIT License                   |
 
 ### Maven Plug-ins
 
-| Plug-in                                                                             | Purpose                                                | License                       |
-|-------------------------------------------------------------------------------------|--------------------------------------------------------|-------------------------------|
-| [Maven Compiler Plugin](https://maven.apache.org/plugins/maven-compiler-plugin/)    | Setting required Java version                          | Apache License 2.0            |
-| [Maven GPG Plugin](https://maven.apache.org/plugins/maven-gpg-plugin/)              | Code signing                                           | Apache License 2.0            |
-| [Maven Javadoc Plugin](https://maven.apache.org/plugins/maven-javadoc-plugin/)      | Creating a Javadoc JAR                                 | Apache License 2.0            |
-| [Maven Jacoco Plugin](https://www.eclemma.org/jacoco/trunk/doc/maven.html)          | Code coverage metering                                 | Eclipse Public License 2.0    |
-| [Maven JAR Plugin](https://maven.apache.org/plugins/maven-jar-plugin)               | Creating an additional JAR with test classes           | Apache License 2.0            |
-| [Maven Source Plugin](https://maven.apache.org/plugins/maven-source-plugin/)        | Creating a source code JAR                             | Apache License 2.0            |
-| [Maven Surefire Plugin](https://maven.apache.org/surefire/maven-surefire-plugin/)   | Unit testing                                           | Apache License 2.0            |
+| Plug-in                                                                  | Purpose                                                | License                       |
+|--------------------------------------------------------------------------|--------------------------------------------------------|-------------------------------|
+| [Maven Compiler Plugin][maven-compiler-plugin]                           | Setting required Java version                          | Apache License 2.0            |
+| [Maven Enforcer Plugin][maven-enforcer-plugin]                           | Controlling environment constants                      | Apache License 2.0            |
+| [Maven GPG Plugin](https://maven.apache.org/plugins/maven-gpg-plugin/)   | Code signing                                           | Apache License 2.0            |
+| [Maven Jacoco Plugin][maven-jacoco-plugin]                               | Code coverage metering                                 | Eclipse Public License 2.0    |
+| [Maven Javadoc Plugin][maven-javadoc-plugin]                             | Creating a Javadoc JAR                                 | Apache License 2.0            |
+| [Maven JAR Plugin](https://maven.apache.org/plugins/maven-jar-plugin)    | Creating an additional JAR with test classes           | Apache License 2.0            |
+| [Maven Source Plugin][maven-source-plugin]                               | Creating a source code JAR                             | Apache License 2.0            |
+| [Maven Surefire Plugin][maven-surefire-plugin]                           | Unit testing                                           | Apache License 2.0            |
+| [Sonatype OSS Index Maven Plugin][sonatype-oss-index-maven-plugin]       | Checking Dependencies Vulnerability                    | ASL2                          |
+| [Versions Maven Plugin][versions-maven-plugin]                           | Checking if dependencies updates are available         | Apache License 2.0            |
+
+
+[exasol-script-api]: https://docs.exasol.com/database_concepts/udf_scripts.htm
+[exasol-util-logging-testing]: https://github.com/exasol/java-util-logging-testing
+[exasol-virtual-schema-common-java]: https://github.com/exasol/virtual-schema-common-java
+[jaxb]: https://javaee.github.io/jaxb-v2/
+[maven-compiler-plugin]: https://maven.apache.org/plugins/maven-compiler-plugin/
+[maven-enforcer-plugin]: http://maven.apache.org/enforcer/maven-enforcer-plugin/
+[maven-jacoco-plugin]: https://www.eclemma.org/jacoco/trunk/doc/maven.html
+[maven-javadoc-plugin]: https://maven.apache.org/plugins/maven-javadoc-plugin/
+[maven-source-plugin]: https://maven.apache.org/plugins/maven-source-plugin/
+[maven-surefire-plugin]: https://maven.apache.org/surefire/maven-surefire-plugin/
+[sonatype-oss-index-maven-plugin]: https://sonatype.github.io/ossindex-maven/maven-plugin/
+[versions-maven-plugin]: https://www.mojohaus.org/versions-maven-plugin/
