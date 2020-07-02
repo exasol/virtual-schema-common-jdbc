@@ -43,7 +43,6 @@ Running the Virtual Schema requires a Java Runtime version 11 or later.
 |--------------------------------------------------------------------------|--------------------------------------------------------|-------------------------------|
 | [JAXB][jaxb]                                                             | Java Architecture for XML Binding                      | CDDL-1.0                      |
 | [JSON-P](https://javaee.github.io/jsonp/)                                | JSON Processing                                        | CDDL-1.0                      |
-| [Exasol Util Logging Testng][exasol-util-logging-testing]                | Test Utilities for java.util.logging                   | MIT License                   |
 | [Exasol Script API][exasol-script-api]                                   | Accessing Exasol features                              | MIT License                   |
 | [Exasol Virtual Schema Common Java][exasol-virtual-schema-common-java]   | Common module of Exasol Virtual Schemas adapters       | MIT License                   |
 
@@ -54,6 +53,7 @@ Running the Virtual Schema requires a Java Runtime version 11 or later.
 | [Apache Derby](https://db.apache.org/derby/)                             | Pure-Java embedded database                            | Apache License 2.0            |
 | [Apache Maven](https://maven.apache.org/)                                | Build tool                                             | Apache License 2.0            |
 | [Equals Verifier](https://jqno.nl/equalsverifier/)                       | Testing `equals(...)` and `hashCode()` contracts       | Apache License 2.0            |
+| [Exasol Util Logging Testng][exasol-util-logging-testing]                | Test Utilities for java.util.logging                   | MIT License                   |
 | [Java Hamcrest](http://hamcrest.org/JavaHamcrest/)                       | Checking for conditions in code via matchers           | BSD License                   |
 | [JSONassert](http://jsonassert.skyscreamer.org/)                         | Compare JSON documents for semantic equality           | Apache License 2.0            |
 | [JUnit](https://junit.org/junit5)                                        | Unit testing framework                                 | Eclipse Public License 1.0    |

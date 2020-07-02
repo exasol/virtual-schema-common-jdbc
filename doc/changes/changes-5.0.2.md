@@ -1,4 +1,4 @@
-# Virtual Schema Common JDBC 5.0.2, released 30.06.2020
+# Virtual Schema Common JDBC 5.0.2, released 2020-07-02
 
 ## Features / Enhancements
 
