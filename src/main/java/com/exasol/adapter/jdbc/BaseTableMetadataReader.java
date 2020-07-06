@@ -47,8 +47,9 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
             } while (remoteTables.next());
         } else {
             LOGGER.warning(() -> "Table scan did not find any tables. This can mean that either" //
-                    + " a) the source does not contain tables (yet)," + " b) the table type is not supported or" //
-                    + " c) the table scan filter criteria is incorrect." //
+                    + " a) the source does not contain tables (yet)," + " b) the table type is not supported" //
+                    + " c) the table scan filter criteria is incorrect or" //
+                    + " d) the user does not have access permissions." //
                     + " Please check that the source actually contains tables. " //
                     + " Also check the spelling and exact case of any catalog or schema name you provided.");
         }
