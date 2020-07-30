@@ -1,9 +1,11 @@
 package com.exasol.adapter.adapternotes;
 
+import java.io.StringReader;
+import java.util.Collections;
+
 import javax.json.*;
 
 import com.exasol.adapter.AdapterException;
-import com.exasol.utils.JsonHelper;
 
 /**
  * Converts schema adapter Notes into JSON format and back.
@@ -24,6 +26,7 @@ public final class SchemaAdapterNotesJsonConverter {
     private static final String NULLS_ARE_SORTED_HIGH = "areNullsSortedHigh";
     private static final String NULLS_ARE_SORTED_LOW = "areNullsSortedLow";
     private static final SchemaAdapterNotesJsonConverter SCHEMA_ADAPTER_NOTES_JSON_CONVERTER = new SchemaAdapterNotesJsonConverter();
+    private final JsonBuilderFactory factory = Json.createBuilderFactory(Collections.emptyMap());
 
     /**
      * Returns instance of {@link SchemaAdapterNotesJsonConverter} singleton class.
@@ -45,7 +48,6 @@ public final class SchemaAdapterNotesJsonConverter {
      * @return string representation of a JSON Object
      */
     public String convertToJson(final SchemaAdapterNotes schemaAdapterNotes) {
-        final JsonBuilderFactory factory = JsonHelper.getBuilderFactory();
         final JsonObjectBuilder builder = factory.createObjectBuilder()
                 .add(CATALOG_SEPARATOR, schemaAdapterNotes.getCatalogSeparator())
                 .add(IDENTIFIER_QUOTE_STRING, schemaAdapterNotes.getIdentifierQuoteString())
@@ -79,8 +81,8 @@ public final class SchemaAdapterNotesJsonConverter {
                     + "Please refresh the virtual schema.");
         }
         final JsonObject root;
-        try {
-            root = JsonHelper.getJsonObject(adapterNotes);
+        try (final JsonReader jr = Json.createReader(new StringReader(adapterNotes))) {
+            root = jr.readObject();
         } catch (final Exception exception) {
             throw new AdapterException("Could not parse the schema adapter notes of virtual schema \"" + schemaName
                     + "\". Please refresh the virtual schema.", exception);

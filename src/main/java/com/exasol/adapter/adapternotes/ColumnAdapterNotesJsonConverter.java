@@ -1,17 +1,20 @@
 package com.exasol.adapter.adapternotes;
 
+import java.io.StringReader;
+import java.util.Collections;
+
 import javax.json.*;
 
 import com.exasol.adapter.AdapterException;
-import com.exasol.utils.JsonHelper;
 
 /**
  * Converts column adapter Notes into JSON format and back.
  */
 public final class ColumnAdapterNotesJsonConverter {
+    protected static final String JDBC_DATA_TYPE = "jdbcDataType";
+    protected static final String TYPE_NAME = "typeName";
     private static final ColumnAdapterNotesJsonConverter COLUMN_ADAPTER_NOTES_JSON_CONVERTER = new ColumnAdapterNotesJsonConverter();
-    static final String JDBC_DATA_TYPE = "jdbcDataType";
-    public static final String TYPE_NAME = "typeName";
+    private final JsonBuilderFactory factory = Json.createBuilderFactory(Collections.emptyMap());
 
     /**
      * Returns instance of {@link ColumnAdapterNotesJsonConverter} singleton class.
@@ -33,8 +36,7 @@ public final class ColumnAdapterNotesJsonConverter {
      * @return string representation of a JSON Object
      */
     public String convertToJson(final ColumnAdapterNotes columnAdapterNotes) {
-        final JsonBuilderFactory factory = JsonHelper.getBuilderFactory();
-        final JsonObjectBuilder builder = factory.createObjectBuilder() //
+        final JsonObjectBuilder builder = this.factory.createObjectBuilder() //
                 .add(JDBC_DATA_TYPE, columnAdapterNotes.getJdbcDataType());
         final String typeName = columnAdapterNotes.getTypeName();
         if (typeName != null) {
@@ -58,8 +60,8 @@ public final class ColumnAdapterNotesJsonConverter {
                     + "Please refresh the virtual schema.");
         }
         final JsonObject root;
-        try {
-            root = JsonHelper.getJsonObject(adapterNotes);
+        try (final JsonReader jr = Json.createReader(new StringReader(adapterNotes))) {
+            root = jr.readObject();
         } catch (final Exception exception) {
             throw new AdapterException("Could not parse the column adapter notes of column \"" + columnName + "\"." //
                     + "Please refresh the virtual schema.", exception);
