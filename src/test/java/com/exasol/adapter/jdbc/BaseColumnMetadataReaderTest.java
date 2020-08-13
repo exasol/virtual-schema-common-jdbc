@@ -1,5 +1,6 @@
 package com.exasol.adapter.jdbc;
 
+import static com.exasol.adapter.metadata.DataType.ExaCharset.UTF8;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -20,7 +21,6 @@ import com.exasol.adapter.dialects.BaseIdentifierConverter;
 import com.exasol.adapter.dialects.IdentifierCaseHandling;
 import com.exasol.adapter.metadata.ColumnMetadata;
 import com.exasol.adapter.metadata.DataType;
-import com.exasol.adapter.metadata.DataType.ExaCharset;
 import com.exasol.adapter.metadata.DataType.ExaDataType;
 
 class BaseColumnMetadataReaderTest {
@@ -40,6 +40,19 @@ class BaseColumnMetadataReaderTest {
     void testMappingUnsupportedTypesReturnsUnsupportedType(final int jdbcType) {
         final JdbcTypeDescription jdbcTypeDescription = new JdbcTypeDescription(jdbcType, 0, 0, 0, null);
         assertThat(this.reader.mapJdbcType(jdbcTypeDescription).getExaDataType(), equalTo(ExaDataType.UNSUPPORTED));
+    }
+
+    @Test
+    void testMappingNumericToMaxSizeVarchar() {
+        final JdbcTypeDescription jdbcTypeDescription = new JdbcTypeDescription(Types.NUMERIC, 0, 0, 0, null);
+        assertThat(this.reader.mapJdbcType(jdbcTypeDescription), equalTo(DataType.createMaximumSizeVarChar(UTF8)));
+    }
+
+    @ValueSource(ints = { Types.TIME, Types.TIMESTAMP_WITH_TIMEZONE })
+    @ParameterizedTest
+    void testMappingDateTimeToVarchar(final int jdbcType) {
+        final JdbcTypeDescription jdbcTypeDescription = new JdbcTypeDescription(jdbcType, 0, 0, 0, null);
+        assertThat(this.reader.mapJdbcType(jdbcTypeDescription), equalTo(DataType.createVarChar(100, UTF8)));
     }
 
     @Test
@@ -78,14 +91,13 @@ class BaseColumnMetadataReaderTest {
     @ParameterizedTest
     void mapLongVarchar(final int size) {
         final JdbcTypeDescription typeDescription = new JdbcTypeDescription(Types.LONGVARCHAR, 0, size, 0, "VARCHAR");
-        assertThat(this.reader.mapJdbcType(typeDescription), equalTo(DataType.createVarChar(size, ExaCharset.UTF8)));
+        assertThat(this.reader.mapJdbcType(typeDescription), equalTo(DataType.createVarChar(size, UTF8)));
     }
 
     @ValueSource(ints = { 2000001, 16777216 }) // max + 1, 2 pow 24
     @ParameterizedTest
     void mapLongVarcharToUnsupportedIfTooLarge(final int size) {
         final JdbcTypeDescription typeDescription = new JdbcTypeDescription(Types.LONGVARCHAR, 0, size, 0, "VARCHAR");
-        assertThat(this.reader.mapJdbcType(typeDescription),
-                equalTo(DataType.createMaximumSizeVarChar(ExaCharset.UTF8)));
+        assertThat(this.reader.mapJdbcType(typeDescription), equalTo(DataType.createMaximumSizeVarChar(UTF8)));
     }
 }

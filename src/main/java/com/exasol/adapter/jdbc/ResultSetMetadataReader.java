@@ -48,8 +48,9 @@ public class ResultSetMetadataReader {
             return columnsDescription;
         } catch (final SQLException exception) {
             throw new RemoteMetadataReaderException(
-                    "Unable to read remote metadata for push-down query trying to generate result column description. Caused by: "
-                            + exception.getMessage(),
+                    "Unable to read remote metadata for push-down query trying to generate result column description. "
+                            + "Please, make sure that you provided valid CATALOG_NAME and SCHEMA_NAME properties if required. "
+                            + "Caused by: " + exception.getMessage(),
                     exception);
         }
     }
@@ -66,7 +67,7 @@ public class ResultSetMetadataReader {
         if (!illegalColumns.isEmpty()) {
             throw new RemoteMetadataReaderException("Unsupported data type(s) in column(s) "
                     + illegalColumns.stream().map(String::valueOf).collect(Collectors.joining(", "))
-                    + " in query. Please remove those colums from your query:\n" + query);
+                    + " in query. Please remove those columns from your query:\n" + query);
         }
     }
 

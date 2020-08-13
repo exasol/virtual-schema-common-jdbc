@@ -1,6 +1,8 @@
 package com.exasol.adapter.jdbc;
 
 import static com.exasol.adapter.jdbc.RemoteMetadataReaderConstants.*;
+import static com.exasol.adapter.metadata.DataType.ExaCharset.ASCII;
+import static com.exasol.adapter.metadata.DataType.ExaCharset.UTF8;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -229,25 +231,10 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
         case Types.BOOLEAN:
             return DataType.createBool();
         case Types.TIME:
-            return DataType.createVarChar(100, DataType.ExaCharset.UTF8);
+        case Types.TIMESTAMP_WITH_TIMEZONE:
+            return DataType.createVarChar(100, UTF8);
         case Types.NUMERIC:
             return fallBackToMaximumSizeVarChar();
-        case Types.BINARY:
-        case Types.CLOB:
-        case Types.OTHER:
-        case Types.BLOB:
-        case Types.NCLOB:
-        case Types.LONGVARBINARY:
-        case Types.VARBINARY:
-        case Types.JAVA_OBJECT:
-        case Types.DISTINCT:
-        case Types.STRUCT:
-        case Types.ARRAY:
-        case Types.REF:
-        case Types.DATALINK:
-        case Types.SQLXML:
-        case Types.NULL:
-        case Types.REF_CURSOR:
         default:
             LOGGER.finer("Found unsupported type: " + jdbcTypeDescription.getJdbcType());
             return DataType.createUnsupported();
@@ -294,13 +281,12 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
     }
 
     private static DataType fallBackToMaximumSizeVarChar() {
-        return DataType.createMaximumSizeVarChar(DataType.ExaCharset.UTF8);
+        return DataType.createMaximumSizeVarChar(UTF8);
     }
 
     private static DataType convertVarChar(final int size, final int octetLength) {
         final DataType colType;
-        final DataType.ExaCharset charset = (octetLength == size) ? DataType.ExaCharset.ASCII
-                : DataType.ExaCharset.UTF8;
+        final DataType.ExaCharset charset = (octetLength == size) ? ASCII : UTF8;
         if (size <= DataType.MAX_EXASOL_VARCHAR_SIZE) {
             final int precision = size == 0 ? DataType.MAX_EXASOL_VARCHAR_SIZE : size;
             colType = DataType.createVarChar(precision, charset);
@@ -312,8 +298,7 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
 
     private static DataType convertChar(final int size, final int octetLength) {
         final DataType colType;
-        final DataType.ExaCharset charset = (octetLength == size) ? DataType.ExaCharset.ASCII
-                : DataType.ExaCharset.UTF8;
+        final DataType.ExaCharset charset = (octetLength == size) ? ASCII : UTF8;
         if (size <= DataType.MAX_EXASOL_CHAR_SIZE) {
             colType = DataType.createChar(size, charset);
         } else {
