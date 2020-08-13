@@ -1,6 +1,7 @@
 package com.exasol.adapter.jdbc;
 
 import static com.exasol.adapter.jdbc.RemoteMetadataReaderConstants.*;
+import static com.exasol.adapter.metadata.DataType.ExaCharset.ASCII;
 import static com.exasol.adapter.metadata.DataType.ExaCharset.UTF8;
 
 import java.sql.*;
@@ -285,7 +286,7 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
 
     private static DataType convertVarChar(final int size, final int octetLength) {
         final DataType colType;
-        final DataType.ExaCharset charset = (octetLength == size) ? DataType.ExaCharset.ASCII : UTF8;
+        final DataType.ExaCharset charset = (octetLength == size) ? ASCII : UTF8;
         if (size <= DataType.MAX_EXASOL_VARCHAR_SIZE) {
             final int precision = size == 0 ? DataType.MAX_EXASOL_VARCHAR_SIZE : size;
             colType = DataType.createVarChar(precision, charset);
@@ -297,7 +298,7 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
 
     private static DataType convertChar(final int size, final int octetLength) {
         final DataType colType;
-        final DataType.ExaCharset charset = (octetLength == size) ? DataType.ExaCharset.ASCII : UTF8;
+        final DataType.ExaCharset charset = (octetLength == size) ? ASCII : UTF8;
         if (size <= DataType.MAX_EXASOL_CHAR_SIZE) {
             colType = DataType.createChar(size, charset);
         } else {
