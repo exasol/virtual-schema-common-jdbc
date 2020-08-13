@@ -42,6 +42,21 @@ class BaseColumnMetadataReaderTest {
         assertThat(this.reader.mapJdbcType(jdbcTypeDescription).getExaDataType(), equalTo(ExaDataType.UNSUPPORTED));
     }
 
+    @ValueSource(ints = { Types.NUMERIC })
+    @ParameterizedTest
+    void testMappingToMaxSizeVarchar(final int jdbcType) {
+        final JdbcTypeDescription jdbcTypeDescription = new JdbcTypeDescription(jdbcType, 0, 0, 0, null);
+        assertThat(this.reader.mapJdbcType(jdbcTypeDescription),
+                equalTo(DataType.createMaximumSizeVarChar(DataType.ExaCharset.UTF8)));
+    }
+
+    @ValueSource(ints = { Types.TIME, Types.TIMESTAMP_WITH_TIMEZONE })
+    @ParameterizedTest
+    void testMappingDateTimeToVarchar(final int jdbcType) {
+        final JdbcTypeDescription jdbcTypeDescription = new JdbcTypeDescription(jdbcType, 0, 0, 0, null);
+        assertThat(this.reader.mapJdbcType(jdbcTypeDescription), equalTo(DataType.createVarChar(100, ExaCharset.UTF8)));
+    }
+
     @Test
     void testGetColumnsFromResultSetSkipsUnsupportedColumns() throws SQLException {
         final ResultSet remoteColumnsMock = mock(ResultSet.class);
