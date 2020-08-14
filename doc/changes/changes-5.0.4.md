@@ -1,4 +1,4 @@
-# Virtual Schema Common JDBC 5.0.4, released 2020-08-13
+# Virtual Schema Common JDBC 5.0.4, released 2020-08-14
 
 ## Refactoring
 
