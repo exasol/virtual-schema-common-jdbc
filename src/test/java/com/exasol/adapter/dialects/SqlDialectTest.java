@@ -55,13 +55,13 @@ class SqlDialectTest {
         final SqlTable fromClause = new SqlTable("TEST", clicksMeta);
         final SqlColumn col1 = new SqlColumn(1, clicksMeta.getColumns().get(0));
         final SqlSelectList selectList = SqlSelectList
-                .createRegularSelectList(List.of(new SqlFunctionScalar(ScalarFunction.ABS, List.of(col1), false, false),
+                .createRegularSelectList(List.of(new SqlFunctionScalar(ScalarFunction.ABS, List.of(col1)),
                         new SqlFunctionScalar(ScalarFunction.ADD,
-                                List.of(col1, new SqlLiteralExactnumeric(new BigDecimal(100))), true, false),
+                                List.of(col1, new SqlLiteralExactnumeric(new BigDecimal(100)))),
                         new SqlFunctionScalar(ScalarFunction.SUB,
-                                List.of(col1, new SqlLiteralExactnumeric(new BigDecimal(100))), true, false),
-                        new SqlFunctionScalar(ScalarFunction.TO_CHAR, List.of(col1), true, false),
-                        new SqlFunctionScalar(ScalarFunction.NEG, List.of(col1), false, false)));
+                                List.of(col1, new SqlLiteralExactnumeric(new BigDecimal(100)))),
+                        new SqlFunctionScalar(ScalarFunction.TO_CHAR, List.of(col1)),
+                        new SqlFunctionScalar(ScalarFunction.NEG, List.of(col1))));
         final SqlNode node = SqlStatementSelect.builder().selectList(selectList).fromClause(fromClause).build();
 
         final String schemaName = "SCHEMA";

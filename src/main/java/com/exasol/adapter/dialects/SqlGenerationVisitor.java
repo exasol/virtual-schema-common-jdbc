@@ -320,13 +320,13 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
     @Override
     public String visit(final SqlFunctionScalarCast function) throws AdapterException {
         final String expression = function.getArguments().get(0).accept(this);
-        return function.toSimpleSql() + "(" + expression + " AS " + function.getDataType() + ")";
+        return "CAST(" + expression + " AS " + function.getDataType() + ")";
     }
 
     @Override
     public String visit(final SqlFunctionScalarExtract function) throws AdapterException {
         final String expression = function.getArguments().get(0).accept(this);
-        return function.toSimpleSql() + "(" + function.getToExtract() + " FROM " + expression + ")";
+        return "EXTRACT(" + function.getToExtract() + " FROM " + expression + ")";
     }
 
     @Override
@@ -360,7 +360,11 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
 
     @Override
     public String visit(final SqlLimit limit) {
-        return limit.toSimpleSql();
+        String query = "LIMIT " + limit.getLimit();
+        if (limit.getOffset() != 0) {
+            query += " OFFSET " + limit.getOffset();
+        }
+        return query;
     }
 
     @Override
@@ -489,18 +493,20 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
 
     @Override
     public String visit(final SqlPredicateIsJson function) throws AdapterException {
-        return visitSqlPredicateJson(function.getExpression(), function.toSimpleSql(), function.getTypeConstraint(),
+        return visitSqlPredicateJson(function.getExpression(), "IS JSON", function.getTypeConstraint(),
                 function.getKeyUniquenessConstraint());
     }
 
     // We remove KEYS keyword from the query, because Exasol database can't parse it correctly in some cases.
     // According to the SQL standard, KEYS is optional.
-    private String visitSqlPredicateJson(final SqlNode expression, final String functionToSimpleSql,
+    private String visitSqlPredicateJson(final SqlNode expression, final String functionName,
             final String typeConstraint, final String keyUniquenessConstraint) throws AdapterException {
         final StringBuilder stringBuilder = new StringBuilder();
         final String expressionString = expression.accept(this);
         stringBuilder.append(expressionString);
-        stringBuilder.append(functionToSimpleSql);
+        stringBuilder.append(" ");
+        stringBuilder.append(functionName);
+        stringBuilder.append(" ");
         stringBuilder.append(typeConstraint);
         stringBuilder.append(" ");
         stringBuilder.append(keyUniquenessConstraint.replace(" KEYS", ""));
@@ -509,7 +515,7 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
 
     @Override
     public String visit(final SqlPredicateIsNotJson function) throws AdapterException {
-        return visitSqlPredicateJson(function.getExpression(), function.toSimpleSql(), function.getTypeConstraint(),
+        return visitSqlPredicateJson(function.getExpression(), "IS NOT JSON", function.getTypeConstraint(),
                 function.getKeyUniquenessConstraint());
     }
 
