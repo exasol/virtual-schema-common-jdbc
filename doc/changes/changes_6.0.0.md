@@ -4,7 +4,7 @@ Code name: Updated to virtual-schema-common-java 12.0.0
 
 ## Refactoring
 
-* #58: Updated to the new major version of virtual-schema-common-java.
+* #58: Updated to the new major version of `virtual-schema-common-java`.
 
 
 ## Dependency updates
