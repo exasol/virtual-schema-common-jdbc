@@ -215,9 +215,9 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
         final Behavior overflowBehavior = sqlFunctionAggregateListagg.getOverflowBehavior();
         builder.append(overflowBehavior.getBehaviorType());
         if (overflowBehavior.getBehaviorType() == BehaviorType.TRUNCATE) {
-            if (overflowBehavior.hasTruncationFilter()) {
+            if (overflowBehavior.hasTruncationFiller()) {
                 builder.append(" '");
-                builder.append(overflowBehavior.getTruncationFilter());
+                builder.append(overflowBehavior.getTruncationFiller());
                 builder.append("'");
             }
             builder.append(" ");
@@ -255,21 +255,21 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
         for (final SqlNode node : function.getArguments()) {
             renderedArguments.add(node.accept(this));
         }
-        boolean countFunction = function.getFunctionName().equals("COUNT");
-        if (countFunction && renderedArguments.size() > 1) {
-            builder.append("(");
-        }
+        final boolean countFunction = function.getFunctionName().equals("COUNT");
         if (function.hasDistinct()) {
             builder.append("DISTINCT ");
+        }
+        if (countFunction && renderedArguments.size() > 1) {
+            builder.append("(");
         }
         if (countFunction && renderedArguments.isEmpty()) {
             renderedArguments.add(SqlConstants.ASTERISK);
         }
         builder.append(String.join(", ", renderedArguments));
-        builder.append(")");
         if (countFunction && renderedArguments.size() > 1) {
             builder.append(")");
         }
+        builder.append(")");
         return builder.toString();
     }
 

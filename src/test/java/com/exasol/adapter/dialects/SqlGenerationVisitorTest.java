@@ -89,11 +89,11 @@ class SqlGenerationVisitorTest {
         final SqlFunctionAggregateListagg.Behavior overflowBehavior = new SqlFunctionAggregateListagg.Behavior(
                 SqlFunctionAggregateListagg.BehaviorType.TRUNCATE);
         overflowBehavior.setTruncationType("WITHOUT COUNT");
-        overflowBehavior.setTruncationFilter("filter");
+        overflowBehavior.setTruncationFiller("filler");
         final SqlFunctionAggregateListagg listagg = SqlFunctionAggregateListagg.builder(arguments, overflowBehavior)
                 .build();
         assertThat(sqlGenerationVisitor.visit(listagg),
-                equalTo("LISTAGG(\"a\" ON OVERFLOW TRUNCATE 'filter' WITHOUT COUNT)"));
+                equalTo("LISTAGG(\"a\" ON OVERFLOW TRUNCATE 'filler' WITHOUT COUNT)"));
     }
 
     @Test
@@ -118,14 +118,14 @@ class SqlGenerationVisitorTest {
         final SqlFunctionAggregateListagg.Behavior overflowBehavior = new SqlFunctionAggregateListagg.Behavior(
                 SqlFunctionAggregateListagg.BehaviorType.TRUNCATE);
         overflowBehavior.setTruncationType("WITH COUNT");
-        overflowBehavior.setTruncationFilter("filter");
+        overflowBehavior.setTruncationFiller("filler");
         final List<SqlNode> expressions = new ArrayList<>();
         expressions.add(new SqlColumn(1, ColumnMetadata.builder().name("b").type(DataType.createBool()).build()));
         final SqlOrderBy orderBy = new SqlOrderBy(expressions, List.of(false), List.of(true));
         final SqlFunctionAggregateListagg listagg = SqlFunctionAggregateListagg.builder(arguments, overflowBehavior)
                 .orderBy(orderBy).distinct(true).separator(", ").build();
         assertThat(sqlGenerationVisitor.visit(listagg), equalTo(
-                "LISTAGG(DISTINCT \"a\", ', ' ON OVERFLOW TRUNCATE 'filter' WITH COUNT) WITHIN GROUP (ORDER BY \"b\" DESC)"));
+                "LISTAGG(DISTINCT \"a\", ', ' ON OVERFLOW TRUNCATE 'filler' WITH COUNT) WITHIN GROUP (ORDER BY \"b\" DESC)"));
     }
 
     @Test
@@ -135,6 +135,15 @@ class SqlGenerationVisitorTest {
         arguments.add(new SqlColumn(2, ColumnMetadata.builder().name("b").type(DataType.createBool()).build()));
         final SqlFunctionAggregate count = new SqlFunctionAggregate(AggregateFunction.COUNT, arguments, false);
         assertThat(sqlGenerationVisitor.visit(count), equalTo("COUNT((\"a\", \"b\"))"));
+    }
+
+    @Test
+    void testCountWithMultipleArgumentsAndDistinct() throws AdapterException {
+        final List<SqlNode> arguments = new ArrayList<>();
+        arguments.add(new SqlColumn(1, ColumnMetadata.builder().name("a").type(DataType.createBool()).build()));
+        arguments.add(new SqlColumn(2, ColumnMetadata.builder().name("b").type(DataType.createBool()).build()));
+        final SqlFunctionAggregate count = new SqlFunctionAggregate(AggregateFunction.COUNT, arguments, true);
+        assertThat(sqlGenerationVisitor.visit(count), equalTo("COUNT(DISTINCT (\"a\", \"b\"))"));
     }
 
     @Test
