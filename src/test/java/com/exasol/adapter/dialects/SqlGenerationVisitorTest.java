@@ -14,6 +14,7 @@ import org.mockito.Mockito;
 import com.exasol.adapter.AdapterException;
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.dialects.dummy.DummySqlDialect;
+import com.exasol.adapter.metadata.ColumnMetadata;
 import com.exasol.adapter.metadata.DataType;
 import com.exasol.adapter.sql.*;
 
@@ -45,6 +46,110 @@ class SqlGenerationVisitorTest {
         final SqlFunctionScalarExtract sqlFunctionScalarExtract = new SqlFunctionScalarExtract("SECOND", arguments);
         assertThat(sqlGenerationVisitor.visit(sqlFunctionScalarExtract),
                 equalTo("EXTRACT(SECOND FROM TIMESTAMP '2019-02-12 12:07:00')"));
+    }
+
+    @Test
+    void testVisitSqlFunctionAggregateListaggOnOverflowError() throws AdapterException {
+        final List<SqlNode> arguments = new ArrayList<>();
+        arguments.add(new SqlColumn(1, ColumnMetadata.builder().name("a").type(DataType.createBool()).build()));
+        final SqlFunctionAggregateListagg.Behavior overflowBehavior = new SqlFunctionAggregateListagg.Behavior(
+                SqlFunctionAggregateListagg.BehaviorType.ERROR);
+        final SqlFunctionAggregateListagg listagg = SqlFunctionAggregateListagg.builder(arguments, overflowBehavior)
+                .distinct(true).build();
+        assertThat(sqlGenerationVisitor.visit(listagg), equalTo("LISTAGG(DISTINCT \"a\" ON OVERFLOW ERROR)"));
+    }
+
+    @Test
+    void testVisitSqlFunctionAggregateListaggWithSeparator() throws AdapterException {
+        final List<SqlNode> arguments = new ArrayList<>();
+        arguments.add(new SqlColumn(1, ColumnMetadata.builder().name("a").type(DataType.createBool()).build()));
+        final SqlFunctionAggregateListagg.Behavior overflowBehavior = new SqlFunctionAggregateListagg.Behavior(
+                SqlFunctionAggregateListagg.BehaviorType.ERROR);
+        final SqlFunctionAggregateListagg listagg = SqlFunctionAggregateListagg.builder(arguments, overflowBehavior)
+                .separator(", ").build();
+        assertThat(sqlGenerationVisitor.visit(listagg), equalTo("LISTAGG(\"a\", ', ' ON OVERFLOW ERROR)"));
+    }
+
+    @Test
+    void testVisitSqlFunctionAggregateListaggOnOverflowTruncate() throws AdapterException {
+        final List<SqlNode> arguments = new ArrayList<>();
+        arguments.add(new SqlColumn(1, ColumnMetadata.builder().name("a").type(DataType.createBool()).build()));
+        final SqlFunctionAggregateListagg.Behavior overflowBehavior = new SqlFunctionAggregateListagg.Behavior(
+                SqlFunctionAggregateListagg.BehaviorType.TRUNCATE);
+        overflowBehavior.setTruncationType("WITH COUNT");
+        final SqlFunctionAggregateListagg listagg = SqlFunctionAggregateListagg.builder(arguments, overflowBehavior)
+                .build();
+        assertThat(sqlGenerationVisitor.visit(listagg), equalTo("LISTAGG(\"a\" ON OVERFLOW TRUNCATE WITH COUNT)"));
+    }
+
+    @Test
+    void testVisitSqlFunctionAggregateListaggOnOverflowTruncateWithFilter() throws AdapterException {
+        final List<SqlNode> arguments = new ArrayList<>();
+        arguments.add(new SqlColumn(1, ColumnMetadata.builder().name("a").type(DataType.createBool()).build()));
+        final SqlFunctionAggregateListagg.Behavior overflowBehavior = new SqlFunctionAggregateListagg.Behavior(
+                SqlFunctionAggregateListagg.BehaviorType.TRUNCATE);
+        overflowBehavior.setTruncationType("WITHOUT COUNT");
+        overflowBehavior.setTruncationFilter("filter");
+        final SqlFunctionAggregateListagg listagg = SqlFunctionAggregateListagg.builder(arguments, overflowBehavior)
+                .build();
+        assertThat(sqlGenerationVisitor.visit(listagg),
+                equalTo("LISTAGG(\"a\" ON OVERFLOW TRUNCATE 'filter' WITHOUT COUNT)"));
+    }
+
+    @Test
+    void testVisitSqlFunctionAggregateListaggWithOrderBy() throws AdapterException {
+        final List<SqlNode> arguments = new ArrayList<>();
+        arguments.add(new SqlColumn(1, ColumnMetadata.builder().name("a").type(DataType.createBool()).build()));
+        final SqlFunctionAggregateListagg.Behavior overflowBehavior = new SqlFunctionAggregateListagg.Behavior(
+                SqlFunctionAggregateListagg.BehaviorType.ERROR);
+        final List<SqlNode> expressions = new ArrayList<>();
+        expressions.add(new SqlColumn(1, ColumnMetadata.builder().name("b").type(DataType.createBool()).build()));
+        final SqlOrderBy orderBy = new SqlOrderBy(expressions, List.of(true), List.of(true));
+        final SqlFunctionAggregateListagg listagg = SqlFunctionAggregateListagg.builder(arguments, overflowBehavior)
+                .orderBy(orderBy).build();
+        assertThat(sqlGenerationVisitor.visit(listagg),
+                equalTo("LISTAGG(\"a\" ON OVERFLOW ERROR) WITHIN GROUP (ORDER BY \"b\" NULLS LAST)"));
+    }
+
+    @Test
+    void testVisitSqlFunctionAggregateListaggFull() throws AdapterException {
+        final List<SqlNode> arguments = new ArrayList<>();
+        arguments.add(new SqlColumn(1, ColumnMetadata.builder().name("a").type(DataType.createBool()).build()));
+        final SqlFunctionAggregateListagg.Behavior overflowBehavior = new SqlFunctionAggregateListagg.Behavior(
+                SqlFunctionAggregateListagg.BehaviorType.TRUNCATE);
+        overflowBehavior.setTruncationType("WITH COUNT");
+        overflowBehavior.setTruncationFilter("filter");
+        final List<SqlNode> expressions = new ArrayList<>();
+        expressions.add(new SqlColumn(1, ColumnMetadata.builder().name("b").type(DataType.createBool()).build()));
+        final SqlOrderBy orderBy = new SqlOrderBy(expressions, List.of(false), List.of(true));
+        final SqlFunctionAggregateListagg listagg = SqlFunctionAggregateListagg.builder(arguments, overflowBehavior)
+                .orderBy(orderBy).distinct(true).separator(", ").build();
+        assertThat(sqlGenerationVisitor.visit(listagg), equalTo(
+                "LISTAGG(DISTINCT \"a\", ', ' ON OVERFLOW TRUNCATE 'filter' WITH COUNT) WITHIN GROUP (ORDER BY \"b\" DESC)"));
+    }
+
+    @Test
+    void testCountWithMultipleArguments() throws AdapterException {
+        final List<SqlNode> arguments = new ArrayList<>();
+        arguments.add(new SqlColumn(1, ColumnMetadata.builder().name("a").type(DataType.createBool()).build()));
+        arguments.add(new SqlColumn(2, ColumnMetadata.builder().name("b").type(DataType.createBool()).build()));
+        final SqlFunctionAggregate count = new SqlFunctionAggregate(AggregateFunction.COUNT, arguments, false);
+        assertThat(sqlGenerationVisitor.visit(count), equalTo("COUNT((\"a\", \"b\"))"));
+    }
+
+    @Test
+    void testCountAll() throws AdapterException {
+        final SqlFunctionAggregate count = new SqlFunctionAggregate(AggregateFunction.COUNT, Collections.emptyList(),
+                false);
+        assertThat(sqlGenerationVisitor.visit(count), equalTo("COUNT(*)"));
+    }
+
+    @Test
+    void testCountDistinct() throws AdapterException {
+        final List<SqlNode> arguments = new ArrayList<>();
+        arguments.add(new SqlColumn(1, ColumnMetadata.builder().name("a").type(DataType.createBool()).build()));
+        final SqlFunctionAggregate count = new SqlFunctionAggregate(AggregateFunction.COUNT, arguments, true);
+        assertThat(sqlGenerationVisitor.visit(count), equalTo("COUNT(DISTINCT \"a\")"));
     }
 
     @Test
@@ -94,17 +199,15 @@ class SqlGenerationVisitorTest {
 
     @Test
     void testVisitSqlPredicateIsNull() throws AdapterException {
-        final SqlPredicateIsNull sqlPredicateIsNull =
-                new SqlPredicateIsNull(new SqlPredicateLess(new SqlLiteralExactnumeric(
-                        BigDecimal.ONE), new SqlLiteralNull()));
+        final SqlPredicateIsNull sqlPredicateIsNull = new SqlPredicateIsNull(
+                new SqlPredicateLess(new SqlLiteralExactnumeric(BigDecimal.ONE), new SqlLiteralNull()));
         assertThat(sqlGenerationVisitor.visit(sqlPredicateIsNull), equalTo("(1 < NULL) IS NULL"));
     }
 
     @Test
     void testVisitSqlPredicateIsNotNull() throws AdapterException {
-        final SqlPredicateIsNotNull sqlPredicateIsNotNull =
-                new SqlPredicateIsNotNull(new SqlPredicateLess(new SqlLiteralExactnumeric(
-                        BigDecimal.ONE), new SqlLiteralNull()));
+        final SqlPredicateIsNotNull sqlPredicateIsNotNull = new SqlPredicateIsNotNull(
+                new SqlPredicateLess(new SqlLiteralExactnumeric(BigDecimal.ONE), new SqlLiteralNull()));
         assertThat(sqlGenerationVisitor.visit(sqlPredicateIsNotNull), equalTo("(1 < NULL) IS NOT NULL"));
     }
 

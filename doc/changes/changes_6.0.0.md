@@ -6,7 +6,6 @@ Code name: Updated to virtual-schema-common-java 12.0.0
 
 * #58: Updated to the new major version of `virtual-schema-common-java`.
 
-
 ## Dependency updates
 
 * Updated com.exasol:virtual-schema-common-java:jar:11.0.0 to version 12.0.0
