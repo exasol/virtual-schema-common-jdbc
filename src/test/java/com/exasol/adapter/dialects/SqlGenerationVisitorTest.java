@@ -14,17 +14,18 @@ import org.mockito.Mockito;
 import com.exasol.adapter.AdapterException;
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.dialects.dummy.DummySqlDialect;
-import com.exasol.adapter.metadata.ColumnMetadata;
-import com.exasol.adapter.metadata.DataType;
+import com.exasol.adapter.jdbc.ConnectionFactory;
+import com.exasol.adapter.metadata.*;
 import com.exasol.adapter.sql.*;
 
 class SqlGenerationVisitorTest {
     private static SqlGenerationVisitor sqlGenerationVisitor;
+    private static AdapterProperties adapterProperties;
 
     @BeforeAll
-    static void setUp() {
+    static void beforeAll() {
         final Map<String, String> rawProperties = new HashMap<>();
-        final AdapterProperties adapterProperties = new AdapterProperties(rawProperties);
+        adapterProperties = new AdapterProperties(rawProperties);
         final SqlDialect sqlDialect = new DummySqlDialect(null, adapterProperties);
         final SqlGenerationContext context = new SqlGenerationContext("", "TEXT_SCHEMA_NAME", false);
         sqlGenerationVisitor = new SqlGenerationVisitor(sqlDialect, context);
@@ -224,5 +225,127 @@ class SqlGenerationVisitorTest {
     void testVisitSqlLiteralDate() {
         final SqlLiteralDate sqlLiteralDate = new SqlLiteralDate("2015-12-01");
         assertThat(sqlGenerationVisitor.visit(sqlLiteralDate), equalTo("DATE '2015-12-01'"));
+    }
+
+    @Test
+    void testVisitSqlFunctionAggregateListaggQuoting() throws AdapterException {
+        final List<SqlNode> arguments = new ArrayList<>();
+        arguments.add(new SqlColumn(1, ColumnMetadata.builder().name("a \"'").type(DataType.createBool()).build()));
+        final SqlFunctionAggregateListagg.Behavior overflowBehavior = new SqlFunctionAggregateListagg.Behavior(
+                SqlFunctionAggregateListagg.BehaviorType.TRUNCATE);
+        overflowBehavior.setTruncationType("WITH COUNT");
+        overflowBehavior.setTruncationFiller("\" filler '");
+        final List<SqlNode> expressions = new ArrayList<>();
+        expressions.add(new SqlColumn(1, ColumnMetadata.builder().name("b \"'").type(DataType.createBool()).build()));
+        final SqlOrderBy orderBy = new SqlOrderBy(expressions, List.of(false), List.of(true));
+        final SqlFunctionAggregateListagg listagg = SqlFunctionAggregateListagg.builder(arguments, overflowBehavior)
+                .orderBy(orderBy).separator(", ").build();
+        assertThat(sqlGenerationVisitor.visit(listagg), equalTo(
+                "LISTAGG(\"a \"\"'\", ', ' ON OVERFLOW TRUNCATE '\" filler ''' WITH COUNT) WITHIN GROUP (ORDER BY \"b \"\"'\" DESC)"));
+    }
+
+    @Test
+    void testVisitSqlFunctionGroupConcatQuoting() throws AdapterException {
+        final List<SqlNode> arguments = new ArrayList<>();
+        arguments.add(new SqlColumn(1, ColumnMetadata.builder().name("a \"'").type(DataType.createBool()).build()));
+        final SqlFunctionAggregateGroupConcat groupConcat = new SqlFunctionAggregateGroupConcat(
+                AggregateFunction.GROUP_CONCAT, arguments, null, false, "this string \" contains a ' character");
+        assertThat(sqlGenerationVisitor.visit(groupConcat),
+                equalTo("GROUP_CONCAT(\"a \"\"'\" SEPARATOR 'this string \" contains a '' character')"));
+    }
+
+    @Test
+    void testVisitSqlLiteralDateQuoting() {
+        final SqlLiteralDate sqlLiteralDate = new SqlLiteralDate("2015-12-01 \" '");
+        assertThat(sqlGenerationVisitor.visit(sqlLiteralDate), equalTo("DATE '2015-12-01 \" '''"));
+    }
+
+    @Test
+    void testVisitSqlLiteralTimestampQuoting() {
+        final SqlLiteralTimestamp sqlLiteralTimestamp = new SqlLiteralTimestamp("2019-02-12 12:07:00 \" '");
+        assertThat(sqlGenerationVisitor.visit(sqlLiteralTimestamp), equalTo("TIMESTAMP '2019-02-12 12:07:00 \" '''"));
+    }
+
+    @Test
+    void testVisitSqlLiteralTimestampUtcQuoting() {
+        final SqlLiteralTimestampUtc sqlLiteralTimestampUtc = new SqlLiteralTimestampUtc("2019-02-07 23:59:00 \" '");
+        assertThat(sqlGenerationVisitor.visit(sqlLiteralTimestampUtc),
+                equalTo("TIMESTAMP '2019-02-07 23:59:00 \" '''"));
+    }
+
+    @Test
+    void testVisitSqlLiteralStringQuoting() {
+        final SqlLiteralString sqlLiteralString = new SqlLiteralString("some string \" ' ");
+        assertThat(sqlGenerationVisitor.visit(sqlLiteralString), equalTo("'some string \" '' '"));
+    }
+
+    @Test
+    void testVisitSqlLiteralIntervalYearToMonthQuoting() {
+        final SqlLiteralInterval sqlLiteralString = new SqlLiteralInterval("100-1 \" ' ",
+                DataType.createIntervalYearMonth(3));
+        assertThat(sqlGenerationVisitor.visit(sqlLiteralString), equalTo("INTERVAL '100-1 \" '' ' YEAR (3) TO MONTH"));
+    }
+
+    @Test
+    void testVisitSqlLiteralIntervalDayToSecondQuoting() {
+        final SqlLiteralInterval sqlLiteralString = new SqlLiteralInterval("2 23:10:59 \" ' ",
+                DataType.createIntervalDaySecond(3, 2));
+        assertThat(sqlGenerationVisitor.visit(sqlLiteralString),
+                equalTo("INTERVAL '2 23:10:59 \" '' ' DAY (3) TO SECOND (2)"));
+    }
+
+    @Test
+    void testVisitSelectListQuoting() throws AdapterException {
+        final List<SqlNode> arguments = new ArrayList<>();
+        arguments.add(new SqlColumn(1, ColumnMetadata.builder().name("a \"'").type(DataType.createBool()).build()));
+        final SqlSelectList sqlSelectList = SqlSelectList.createRegularSelectList(arguments);
+        assertThat(sqlGenerationVisitor.visit(sqlSelectList), equalTo("\"a \"\"'\""));
+    }
+
+    @Test
+    void testVisitSqlColumnQuoting() throws AdapterException {
+        final SqlColumn sqlColumn = new SqlColumn(1,
+                ColumnMetadata.builder().name("a \"'").type(DataType.createBool()).build(), "t \" '");
+        assertThat(sqlGenerationVisitor.visit(sqlColumn), equalTo("\"t \"\" '\".\"a \"\"'\""));
+    }
+
+    @Test
+    void testVisitSqlColumnWithAliasQuoting() throws AdapterException {
+        final SqlColumn sqlColumn = new SqlColumn(1,
+                ColumnMetadata.builder().name("a \"'").type(DataType.createBool()).build(), "t", "alias \" '");
+        assertThat(sqlGenerationVisitor.visit(sqlColumn), equalTo("\"alias \"\" '\".\"a \"\"'\""));
+    }
+
+    @Test
+    void testVisitSqlTableQuoting() {
+        final SqlTable sqlTable = new SqlTable("t \" '", new TableMetadata("t", "", Collections.emptyList(), ""));
+        assertThat(sqlGenerationVisitor.visit(sqlTable), equalTo("\"t \"\" '\""));
+    }
+
+    @Test
+    void testVisitSqlTableCatalogAndSchemaQualifiedQuoting() {
+        final SqlDialect sqlDialect = new TestDialect(null, adapterProperties);
+        final SqlGenerationContext context = new SqlGenerationContext("catalog \" '", "schema \" '", false);
+        final SqlGenerationVisitor sqlGenerationVisitor = new SqlGenerationVisitor(sqlDialect, context);
+        final SqlTable sqlTable = new SqlTable("t \" '", "alias \" '",
+                new TableMetadata("t", "", Collections.emptyList(), ""));
+        assertThat(sqlGenerationVisitor.visit(sqlTable),
+                equalTo("\"catalog \"\" '\".\"schema \"\" '\".\"t \"\" '\" \"alias \"\" '\""));
+    }
+
+    private static class TestDialect extends DummySqlDialect {
+        public TestDialect(final ConnectionFactory connectionFactory, final AdapterProperties properties) {
+            super(connectionFactory, properties);
+        }
+
+        @Override
+        public boolean requiresCatalogQualifiedTableNames(final SqlGenerationContext context) {
+            return true;
+        }
+
+        @Override
+        public boolean requiresSchemaQualifiedTableNames(final SqlGenerationContext context) {
+            return true;
+        }
     }
 }

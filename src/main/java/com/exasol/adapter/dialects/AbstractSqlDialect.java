@@ -153,6 +153,11 @@ public abstract class AbstractSqlDialect implements SqlDialect {
     }
 
     @Override
+    public String applyQuote(final String identifier) {
+        return "\"" + identifier.replace("\"", "\"\"") + "\"";
+    }
+
+    @Override
     public void validateProperties() throws PropertyValidationException {
         validateSupportedPropertiesList();
         validateConnectionNameProperty();

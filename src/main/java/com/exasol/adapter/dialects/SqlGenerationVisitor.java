@@ -147,7 +147,7 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
      *
      * @param selectList list of columns (or expressions) in the <code>SELECT</code> part
      * @return string representing the <code>SELECT</code> list
-     * @throws AdapterException in case the expressions in the list can't be rendered to SQL
+     * @throws AdapterException in case the expressions in the list cannot be rendered to SQL
      */
     protected String createExplicitColumnsSelectList(final SqlSelectList selectList) throws AdapterException {
         final List<SqlNode> expressions = selectList.getExpressions();
@@ -207,18 +207,16 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
         }
         builder.append(sqlFunctionAggregateListagg.getArguments().get(0).accept(this));
         if (sqlFunctionAggregateListagg.hasSeparator()) {
-            builder.append(", '");
-            builder.append(sqlFunctionAggregateListagg.getSeparator());
-            builder.append("'");
+            builder.append(", ");
+            builder.append(getDialect().getStringLiteral(sqlFunctionAggregateListagg.getSeparator()));
         }
         builder.append(" ON OVERFLOW ");
         final Behavior overflowBehavior = sqlFunctionAggregateListagg.getOverflowBehavior();
         builder.append(overflowBehavior.getBehaviorType());
         if (overflowBehavior.getBehaviorType() == BehaviorType.TRUNCATE) {
             if (overflowBehavior.hasTruncationFiller()) {
-                builder.append(" '");
-                builder.append(overflowBehavior.getTruncationFiller());
-                builder.append("'");
+                builder.append(" ");
+                builder.append(getDialect().getStringLiteral(overflowBehavior.getTruncationFiller()));
             }
             builder.append(" ");
             builder.append(overflowBehavior.getTruncationType());
@@ -234,9 +232,6 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
 
     @Override
     public String visit(final SqlGroupBy groupBy) throws AdapterException {
-        if ((groupBy.getExpressions() == null) || groupBy.getExpressions().isEmpty()) {
-            throw new IllegalStateException("Unexpected internal state (empty group by)");
-        }
         final List<String> selectElement = new ArrayList<>();
         for (final SqlNode node : groupBy.getExpressions()) {
             selectElement.add(node.accept(this));
@@ -275,7 +270,6 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
 
     @Override
     public String visit(final SqlFunctionAggregateGroupConcat function) throws AdapterException {
-        validateSingleArgumentFunctionParameter(function.getArguments(), "AGGREGATE GROUP CONCAT");
         final StringBuilder builder = new StringBuilder();
         builder.append(function.getFunctionName());
         builder.append("(");
@@ -290,19 +284,10 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
         }
         if (function.getSeparator() != null) {
             builder.append(" SEPARATOR ");
-            builder.append("'");
-            builder.append(function.getSeparator());
-            builder.append("'");
+            builder.append(getDialect().getStringLiteral(function.getSeparator()));
         }
         builder.append(")");
         return builder.toString();
-    }
-
-    private void validateSingleArgumentFunctionParameter(final List<SqlNode> arguments, final String functionName) {
-        if ((arguments.size() != 1) || (arguments.get(0) == null)) {
-            throw new IllegalArgumentException(
-                    "Function " + functionName + " must have exactly one non-NULL parameter.");
-        }
     }
 
     @Override
@@ -424,7 +409,7 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
 
     @Override
     public String visit(final SqlLiteralDate literal) {
-        return "DATE '" + literal.getValue() + "'"; // This gets always executed as TO_DATE('2015-02-01','YYYY-MM-DD')
+        return "DATE " + getDialect().getStringLiteral(literal.getValue());
     }
 
     @Override
@@ -449,21 +434,23 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
 
     @Override
     public String visit(final SqlLiteralTimestamp literal) {
-        return "TIMESTAMP '" + literal.getValue() + "'";
+        return "TIMESTAMP " + getDialect().getStringLiteral(literal.getValue());
     }
 
     @Override
     public String visit(final SqlLiteralTimestampUtc literal) {
-        return "TIMESTAMP '" + literal.getValue() + "'";
+        return "TIMESTAMP " + getDialect().getStringLiteral(literal.getValue());
     }
 
     @Override
     public String visit(final SqlLiteralInterval literal) {
         if (literal.getDataType().getIntervalType() == DataType.IntervalType.YEAR_TO_MONTH) {
-            return "INTERVAL '" + literal.getValue() + "' YEAR (" + literal.getDataType().getPrecision() + ") TO MONTH";
+            return "INTERVAL " + getDialect().getStringLiteral(literal.getValue()) + " YEAR ("
+                    + literal.getDataType().getPrecision() + ") TO MONTH";
         } else {
-            return "INTERVAL '" + literal.getValue() + "' DAY (" + literal.getDataType().getPrecision()
-                    + ") TO SECOND (" + literal.getDataType().getIntervalFraction() + ")";
+            return "INTERVAL " + getDialect().getStringLiteral(literal.getValue()) + " DAY ("
+                    + literal.getDataType().getPrecision() + ") TO SECOND ("
+                    + literal.getDataType().getIntervalFraction() + ")";
         }
     }
 
@@ -543,7 +530,7 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
                 function.getKeyUniquenessConstraint());
     }
 
-    // We remove KEYS keyword from the query, because Exasol database can't parse it correctly in some cases.
+    // We remove KEYS keyword from the query, because Exasol database cannot parse it correctly in some cases.
     // According to the SQL standard, KEYS is optional.
     private String visitSqlPredicateJson(final SqlNode expression, final String functionName,
             final String typeConstraint, final String keyUniquenessConstraint) throws AdapterException {
