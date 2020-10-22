@@ -1,15 +1,17 @@
 package com.exasol.adapter.dialects;
 
+import static com.exasol.adapter.sql.SqlFunctionAggregateListagg.Behavior.TruncationType.WITHOUT_COUNT;
+import static com.exasol.adapter.sql.SqlFunctionAggregateListagg.Behavior.TruncationType.WITH_COUNT;
+import static com.exasol.adapter.sql.SqlFunctionScalarExtract.ExtractParameter.SECOND;
+import static com.exasol.adapter.sql.SqlFunctionScalarExtract.ExtractParameter.YEAR;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.util.*;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import com.exasol.adapter.AdapterException;
 import com.exasol.adapter.AdapterProperties;
@@ -17,6 +19,8 @@ import com.exasol.adapter.dialects.dummy.DummySqlDialect;
 import com.exasol.adapter.jdbc.ConnectionFactory;
 import com.exasol.adapter.metadata.*;
 import com.exasol.adapter.sql.*;
+import com.exasol.adapter.sql.SqlFunctionScalarJsonValue.Behavior;
+import com.exasol.adapter.sql.SqlFunctionScalarJsonValue.BehaviorType;
 
 class SqlGenerationVisitorTest {
     private static SqlGenerationVisitor sqlGenerationVisitor;
@@ -44,7 +48,7 @@ class SqlGenerationVisitorTest {
     void testVisitSqlFunctionScalarExtract() throws AdapterException {
         final List<SqlNode> arguments = new ArrayList<>();
         arguments.add(new SqlLiteralTimestamp("2019-02-12 12:07:00"));
-        final SqlFunctionScalarExtract sqlFunctionScalarExtract = new SqlFunctionScalarExtract("SECOND", arguments);
+        final SqlFunctionScalarExtract sqlFunctionScalarExtract = new SqlFunctionScalarExtract(SECOND, arguments);
         assertThat(sqlGenerationVisitor.visit(sqlFunctionScalarExtract),
                 equalTo("EXTRACT(SECOND FROM TIMESTAMP '2019-02-12 12:07:00')"));
     }
@@ -77,7 +81,7 @@ class SqlGenerationVisitorTest {
         arguments.add(new SqlColumn(1, ColumnMetadata.builder().name("a").type(DataType.createBool()).build()));
         final SqlFunctionAggregateListagg.Behavior overflowBehavior = new SqlFunctionAggregateListagg.Behavior(
                 SqlFunctionAggregateListagg.BehaviorType.TRUNCATE);
-        overflowBehavior.setTruncationType("WITH COUNT");
+        overflowBehavior.setTruncationType(WITH_COUNT);
         final SqlFunctionAggregateListagg listagg = SqlFunctionAggregateListagg.builder(arguments, overflowBehavior)
                 .build();
         assertThat(sqlGenerationVisitor.visit(listagg), equalTo("LISTAGG(\"a\" ON OVERFLOW TRUNCATE WITH COUNT)"));
@@ -89,7 +93,7 @@ class SqlGenerationVisitorTest {
         arguments.add(new SqlColumn(1, ColumnMetadata.builder().name("a").type(DataType.createBool()).build()));
         final SqlFunctionAggregateListagg.Behavior overflowBehavior = new SqlFunctionAggregateListagg.Behavior(
                 SqlFunctionAggregateListagg.BehaviorType.TRUNCATE);
-        overflowBehavior.setTruncationType("WITHOUT COUNT");
+        overflowBehavior.setTruncationType(WITHOUT_COUNT);
         overflowBehavior.setTruncationFiller("filler");
         final SqlFunctionAggregateListagg listagg = SqlFunctionAggregateListagg.builder(arguments, overflowBehavior)
                 .build();
@@ -118,7 +122,7 @@ class SqlGenerationVisitorTest {
         arguments.add(new SqlColumn(1, ColumnMetadata.builder().name("a").type(DataType.createBool()).build()));
         final SqlFunctionAggregateListagg.Behavior overflowBehavior = new SqlFunctionAggregateListagg.Behavior(
                 SqlFunctionAggregateListagg.BehaviorType.TRUNCATE);
-        overflowBehavior.setTruncationType("WITH COUNT");
+        overflowBehavior.setTruncationType(WITH_COUNT);
         overflowBehavior.setTruncationFiller("filler");
         final List<SqlNode> expressions = new ArrayList<>();
         expressions.add(new SqlColumn(1, ColumnMetadata.builder().name("b").type(DataType.createBool()).build()));
@@ -186,25 +190,34 @@ class SqlGenerationVisitorTest {
     }
 
     @Test
+    void testVisitSqlLiteralBoolTrue() {
+        final SqlLiteralBool sqlLiteralBool = new SqlLiteralBool(true);
+        assertThat(sqlGenerationVisitor.visit(sqlLiteralBool), equalTo("true"));
+    }
+
+    @Test
+    void testVisitSqlLiteralBoolFalse() {
+        final SqlLiteralBool sqlLiteralBool = new SqlLiteralBool(false);
+        assertThat(sqlGenerationVisitor.visit(sqlLiteralBool), equalTo("false"));
+    }
+
+    @Test
     void testVisitSqlPredicateIsJson() throws AdapterException {
-        final SqlNode expressionMock = Mockito.mock(SqlNode.class);
-        when(expressionMock.accept(sqlGenerationVisitor)).thenReturn("SELECT '{\"a\": 1}'");
-        final SqlPredicateIsJson sqlPredicateIsJson = new SqlPredicateIsJson(expressionMock,
+        final SqlNode expression = new SqlLiteralString("{\"a\": 1}");
+        final SqlPredicateIsJson sqlPredicateIsJson = new SqlPredicateIsJson(expression,
                 AbstractSqlPredicateJson.TypeConstraints.OBJECT,
                 AbstractSqlPredicateJson.KeyUniquenessConstraint.WITH_UNIQUE_KEYS);
-        assertThat(sqlGenerationVisitor.visit(sqlPredicateIsJson),
-                equalTo("SELECT '{\"a\": 1}' IS JSON OBJECT WITH UNIQUE"));
+        assertThat(sqlGenerationVisitor.visit(sqlPredicateIsJson), equalTo("'{\"a\": 1}' IS JSON OBJECT WITH UNIQUE"));
     }
 
     @Test
     void testVisitSqlPredicateIsNotJson() throws AdapterException {
-        final SqlNode expressionMock = Mockito.mock(SqlNode.class);
-        when(expressionMock.accept(sqlGenerationVisitor)).thenReturn("SELECT '{\"a\": 1}'");
-        final SqlPredicateIsNotJson sqlPredicateIsNotJson = new SqlPredicateIsNotJson(expressionMock,
+        final SqlNode expression = new SqlLiteralString("{\"a\": 1}");
+        final SqlPredicateIsNotJson sqlPredicateIsNotJson = new SqlPredicateIsNotJson(expression,
                 AbstractSqlPredicateJson.TypeConstraints.OBJECT,
                 AbstractSqlPredicateJson.KeyUniquenessConstraint.WITH_UNIQUE_KEYS);
         assertThat(sqlGenerationVisitor.visit(sqlPredicateIsNotJson),
-                equalTo("SELECT '{\"a\": 1}' IS NOT JSON OBJECT WITH UNIQUE"));
+                equalTo("'{\"a\": 1}' IS NOT JSON OBJECT WITH UNIQUE"));
     }
 
     @Test
@@ -228,30 +241,82 @@ class SqlGenerationVisitorTest {
     }
 
     @Test
+    void testVisitSqlLiteralDouble() {
+        final SqlLiteralDouble sqlLiteralDouble = new SqlLiteralDouble(20.3);
+        assertThat(sqlGenerationVisitor.visit(sqlLiteralDouble), equalTo("20.3"));
+    }
+
+    @Test
+    void testVisitSqlLiteralExactnumeric() {
+        final SqlLiteralExactnumeric sqlLiteralExactnumeric = new SqlLiteralExactnumeric(BigDecimal.TEN);
+        assertThat(sqlGenerationVisitor.visit(sqlLiteralExactnumeric), equalTo("10"));
+    }
+
+    @Test
+    void testVisitSqlLiteralNull() {
+        final SqlLiteralNull sqlLiteralNull = new SqlLiteralNull();
+        assertThat(sqlGenerationVisitor.visit(sqlLiteralNull), equalTo("NULL"));
+    }
+
+    // Quoting tests
+    @Test
+    void testSelectQuoting() throws AdapterException {
+        final SqlNode from = new SqlTable("\" t1 '", new TableMetadata("t", "", Collections.emptyList(), ""));
+        final SqlNode column = new SqlColumn(1,
+                ColumnMetadata.builder().name("\" a '").type(DataType.createBool()).build());
+        final SqlNode whereRight = new SqlLiteralString("\" right '");
+        final SqlNode where = new SqlPredicateLess(column, whereRight);
+        final SqlLimit sqlLimit = new SqlLimit(5, 10);
+        final List<SqlNode> orderByExpressions = new ArrayList<>();
+        orderByExpressions.add(from);
+        final SqlOrderBy orderBy = new SqlOrderBy(orderByExpressions, List.of(false), List.of(true));
+        final SqlStatementSelect select = SqlStatementSelect.builder()
+                .selectList(SqlSelectList.createSelectStarSelectList()).fromClause(from).whereClause(where)
+                .limit(sqlLimit).orderBy(orderBy).build();
+        assertThat(sqlGenerationVisitor.visit(select), equalTo(
+                "SELECT * FROM \"\"\" t1 '\" WHERE \"\"\" a '\" < '\" right ''' ORDER BY \"\"\" t1 '\" DESC LIMIT 5 OFFSET 10"));
+    }
+
+    @Test
+    void testVisitSqlJoinQuoting() throws AdapterException {
+        final SqlNode left = new SqlTable("\" t1 '", new TableMetadata("t", "", Collections.emptyList(), ""));
+        final SqlNode right = new SqlTable("\" t2 '", new TableMetadata("t", "", Collections.emptyList(), ""));
+        final SqlNode conditionLeft = new SqlColumn(1,
+                ColumnMetadata.builder().name("\" a '").type(DataType.createBool()).build());
+        final SqlNode conditionRight = new SqlColumn(1,
+                ColumnMetadata.builder().name("\" b '").type(DataType.createBool()).build());
+        final SqlNode condition = new SqlPredicateEqual(conditionLeft, conditionRight);
+        final SqlJoin sqlJoin = new SqlJoin(left, right, condition, JoinType.INNER);
+        assertThat(sqlGenerationVisitor.visit(sqlJoin),
+                equalTo("\"\"\" t1 '\" INNER JOIN \"\"\" t2 '\" ON \"\"\" a '\" = \"\"\" b '\""));
+    }
+
+    @Test
     void testVisitSqlFunctionAggregateListaggQuoting() throws AdapterException {
         final List<SqlNode> arguments = new ArrayList<>();
         arguments.add(new SqlColumn(1, ColumnMetadata.builder().name("a \"'").type(DataType.createBool()).build()));
         final SqlFunctionAggregateListagg.Behavior overflowBehavior = new SqlFunctionAggregateListagg.Behavior(
                 SqlFunctionAggregateListagg.BehaviorType.TRUNCATE);
-        overflowBehavior.setTruncationType("WITH COUNT");
+        overflowBehavior.setTruncationType(WITH_COUNT);
         overflowBehavior.setTruncationFiller("\" filler '");
         final List<SqlNode> expressions = new ArrayList<>();
         expressions.add(new SqlColumn(1, ColumnMetadata.builder().name("b \"'").type(DataType.createBool()).build()));
         final SqlOrderBy orderBy = new SqlOrderBy(expressions, List.of(false), List.of(true));
         final SqlFunctionAggregateListagg listagg = SqlFunctionAggregateListagg.builder(arguments, overflowBehavior)
-                .orderBy(orderBy).separator(", ").build();
+                .orderBy(orderBy).separator("\" separator '").build();
         assertThat(sqlGenerationVisitor.visit(listagg), equalTo(
-                "LISTAGG(\"a \"\"'\", ', ' ON OVERFLOW TRUNCATE '\" filler ''' WITH COUNT) WITHIN GROUP (ORDER BY \"b \"\"'\" DESC)"));
+                "LISTAGG(\"a \"\"'\", '\" separator ''' ON OVERFLOW TRUNCATE '\" filler ''' WITH COUNT) WITHIN GROUP (ORDER BY \"b \"\"'\" DESC)"));
     }
 
     @Test
     void testVisitSqlFunctionGroupConcatQuoting() throws AdapterException {
         final List<SqlNode> arguments = new ArrayList<>();
-        arguments.add(new SqlColumn(1, ColumnMetadata.builder().name("a \"'").type(DataType.createBool()).build()));
+        arguments.add(new SqlColumn(1, ColumnMetadata.builder().name("\" a '").type(DataType.createBool()).build()));
+        final SqlOrderBy orderBy = new SqlOrderBy(arguments, List.of(false), List.of(true));
         final SqlFunctionAggregateGroupConcat groupConcat = new SqlFunctionAggregateGroupConcat(
-                AggregateFunction.GROUP_CONCAT, arguments, null, false, "this string \" contains a ' character");
-        assertThat(sqlGenerationVisitor.visit(groupConcat),
-                equalTo("GROUP_CONCAT(\"a \"\"'\" SEPARATOR 'this string \" contains a '' character')"));
+                AggregateFunction.GROUP_CONCAT, arguments, orderBy, false, "this string \" contains a ' character");
+        assertThat(sqlGenerationVisitor.visit(groupConcat), equalTo(
+                "GROUP_CONCAT(\"\"\" a '\" ORDER BY \"\"\" a '\" DESC SEPARATOR 'this string \" contains a '' character')"));
     }
 
     @Test
@@ -331,6 +396,220 @@ class SqlGenerationVisitorTest {
                 new TableMetadata("t", "", Collections.emptyList(), ""));
         assertThat(sqlGenerationVisitor.visit(sqlTable),
                 equalTo("\"catalog \"\" '\".\"schema \"\" '\".\"t \"\" '\" \"alias \"\" '\""));
+    }
+
+    @Test
+    void testVisitGroupByQuoting() throws AdapterException {
+        final List<SqlNode> expressions = new ArrayList<>();
+        expressions.add(new SqlColumn(1, ColumnMetadata.builder().name("\" a '").type(DataType.createBool()).build()));
+        expressions.add(new SqlColumn(2, ColumnMetadata.builder().name("\" b '").type(DataType.createBool()).build()));
+        final SqlGroupBy groupBy = new SqlGroupBy(expressions);
+        assertThat(sqlGenerationVisitor.visit(groupBy), equalTo("\"\"\" a '\", \"\"\" b '\""));
+    }
+
+    @Test
+    void testVisitSqlFunctionAggregateQuoting() throws AdapterException {
+        final List<SqlNode> arguments = new ArrayList<>();
+        arguments.add(new SqlColumn(1, ColumnMetadata.builder().name("\" a '").type(DataType.createBool()).build()));
+        arguments.add(new SqlColumn(2, ColumnMetadata.builder().name("\" b '").type(DataType.createBool()).build()));
+        final SqlFunctionAggregate function = new SqlFunctionAggregate(AggregateFunction.COUNT, arguments, true);
+        assertThat(sqlGenerationVisitor.visit(function), equalTo("COUNT(DISTINCT (\"\"\" a '\", \"\"\" b '\"))"));
+    }
+
+    @Test
+    void testVisitSqlFunctionScalarQuoting() throws AdapterException {
+        final List<SqlNode> arguments = new ArrayList<>();
+        arguments.add(new SqlColumn(1, ColumnMetadata.builder().name("\" a '").type(DataType.createBool()).build()));
+        arguments.add(new SqlColumn(2, ColumnMetadata.builder().name("\" b '").type(DataType.createBool()).build()));
+        final SqlFunctionScalar function = new SqlFunctionScalar(ScalarFunction.ADD, arguments);
+        assertThat(sqlGenerationVisitor.visit(function), equalTo("(\"\"\" a '\" + \"\"\" b '\")"));
+    }
+
+    @Test
+    void testVisitSqlFunctionScalarCastQuoting() throws AdapterException {
+        final List<SqlNode> arguments = new ArrayList<>();
+        arguments.add(new SqlColumn(1, ColumnMetadata.builder().name("\" a '").type(DataType.createBool()).build()));
+        final SqlFunctionScalarCast function = new SqlFunctionScalarCast(DataType.createBool(), arguments);
+        assertThat(sqlGenerationVisitor.visit(function), equalTo("CAST(\"\"\" a '\" AS BOOLEAN)"));
+    }
+
+    @Test
+    void testVisitSqlFunctionScalarCaseQuoting() throws AdapterException {
+        final List<SqlNode> arguments = new ArrayList<>();
+        arguments.add(new SqlLiteralExactnumeric(BigDecimal.ONE));
+        arguments.add(new SqlLiteralExactnumeric(BigDecimal.TEN));
+        final List<SqlNode> results = new ArrayList<>();
+        results.add(new SqlLiteralString("\" one '"));
+        results.add(new SqlLiteralString("\" ten '"));
+        results.add(new SqlLiteralString("\" more '"));
+        final SqlColumn basis = new SqlColumn(1,
+                ColumnMetadata.builder().name("\" a '").type(DataType.createBool()).build());
+        final SqlFunctionScalarCase function = new SqlFunctionScalarCase(arguments, results, basis);
+        assertThat(sqlGenerationVisitor.visit(function),
+                equalTo("CASE \"\"\" a '\" WHEN 1 THEN '\" one ''' WHEN 10 THEN '\" ten ''' ELSE '\" more ''' END"));
+    }
+
+    @Test
+    void testVisitSqlFunctionScalaExtractQuoting() throws AdapterException {
+        final List<SqlNode> arguments = new ArrayList<>();
+        arguments.add(new SqlColumn(1, ColumnMetadata.builder().name("\" a '").type(DataType.createBool()).build()));
+        final SqlFunctionScalarExtract function = new SqlFunctionScalarExtract(YEAR, arguments);
+        assertThat(sqlGenerationVisitor.visit(function), equalTo("EXTRACT(YEAR FROM \"\"\" a '\")"));
+    }
+
+    @Test
+    void testVisitSqlFunctionScalarJsonValueQuoting() throws AdapterException {
+        final List<SqlNode> arguments = new ArrayList<>();
+        arguments.add(new SqlLiteralString("\" {} '"));
+        arguments.add(new SqlLiteralString("\" $.a '"));
+        final Behavior emptyBehavior = new Behavior(BehaviorType.DEFAULT,
+                Optional.of(new SqlLiteralString("\" *** error *** '")));
+        final Behavior errorBehavior = new Behavior(BehaviorType.DEFAULT,
+                Optional.of(new SqlLiteralString("\" *** error *** '")));
+        final SqlFunctionScalarJsonValue sqlFunctionScalarJsonValue = new SqlFunctionScalarJsonValue(
+                ScalarFunction.JSON_VALUE, arguments, DataType.createVarChar(1000, DataType.ExaCharset.UTF8),
+                emptyBehavior, errorBehavior);
+        assertThat(sqlGenerationVisitor.visit(sqlFunctionScalarJsonValue),
+                equalTo("JSON_VALUE('\" {} ''', '\" $.a ''' RETURNING VARCHAR(1000) UTF8 "
+                        + "DEFAULT '\" *** error *** ''' ON EMPTY DEFAULT '\" *** error *** ''' ON ERROR)"));
+    }
+
+    @Test
+    void testVisitSqlPredicateAndQuoting() throws AdapterException {
+        final List<SqlNode> arguments = new ArrayList<>();
+        arguments.add(new SqlColumn(1, ColumnMetadata.builder().name("\" a '").type(DataType.createBool()).build()));
+        arguments.add(new SqlColumn(2, ColumnMetadata.builder().name("\" b '").type(DataType.createBool()).build()));
+        final SqlPredicateAnd sqlPredicateAnd = new SqlPredicateAnd(arguments);
+        assertThat(sqlGenerationVisitor.visit(sqlPredicateAnd), equalTo("(\"\"\" a '\" AND \"\"\" b '\")"));
+    }
+
+    @Test
+    void testVisitSqlPredicateBetweenQuoting() throws AdapterException {
+        final SqlNode expression = new SqlColumn(1,
+                ColumnMetadata.builder().name("\" a '").type(DataType.createBool()).build());
+        final SqlNode betweenLeft = new SqlLiteralString("\" left '");
+        final SqlNode betweenRight = new SqlLiteralString("\" right '");
+        final SqlPredicateBetween sqlPredicateBetween = new SqlPredicateBetween(expression, betweenLeft, betweenRight);
+        assertThat(sqlGenerationVisitor.visit(sqlPredicateBetween),
+                equalTo("\"\"\" a '\" BETWEEN '\" left ''' AND '\" right '''"));
+    }
+
+    @Test
+    void testVisitSqlPredicateEqualQuoting() throws AdapterException {
+        final SqlNode left = new SqlColumn(1,
+                ColumnMetadata.builder().name("\" a '").type(DataType.createBool()).build());
+        final SqlNode right = new SqlLiteralString("\" right '");
+        final SqlPredicateEqual sqlPredicateEqual = new SqlPredicateEqual(left, right);
+        assertThat(sqlGenerationVisitor.visit(sqlPredicateEqual), equalTo("\"\"\" a '\" = '\" right '''"));
+    }
+
+    @Test
+    void testVisitSqlPredicateInConstListQuoting() throws AdapterException {
+        final SqlNode expression = new SqlColumn(1,
+                ColumnMetadata.builder().name("\" a '").type(DataType.createBool()).build());
+        final List<SqlNode> arguments = new ArrayList<>();
+        arguments.add(new SqlLiteralString("\" one '"));
+        arguments.add(new SqlLiteralString("\" two '"));
+        final SqlPredicateInConstList predicateInConstList = new SqlPredicateInConstList(expression, arguments);
+        assertThat(sqlGenerationVisitor.visit(predicateInConstList),
+                equalTo("\"\"\" a '\" IN ('\" one ''', '\" two ''')"));
+    }
+
+    @Test
+    void testVisitSqlPredicateIsJsonQuoting() throws AdapterException {
+        final SqlNode expression = new SqlLiteralString("\" {\"a\": 1} '");
+        final SqlPredicateIsJson sqlPredicateIsJson = new SqlPredicateIsJson(expression,
+                AbstractSqlPredicateJson.TypeConstraints.OBJECT,
+                AbstractSqlPredicateJson.KeyUniquenessConstraint.WITH_UNIQUE_KEYS);
+        assertThat(sqlGenerationVisitor.visit(sqlPredicateIsJson),
+                equalTo("'\" {\"a\": 1} ''' IS JSON OBJECT WITH UNIQUE"));
+    }
+
+    @Test
+    void testVisitSqlPredicateIsNotJsonQuoting() throws AdapterException {
+        final SqlNode expression = new SqlLiteralString("\" {\"a\": 1} '");
+        final SqlPredicateIsNotJson sqlPredicateIsNotJson = new SqlPredicateIsNotJson(expression,
+                AbstractSqlPredicateJson.TypeConstraints.OBJECT,
+                AbstractSqlPredicateJson.KeyUniquenessConstraint.WITH_UNIQUE_KEYS);
+        assertThat(sqlGenerationVisitor.visit(sqlPredicateIsNotJson),
+                equalTo("'\" {\"a\": 1} ''' IS NOT JSON OBJECT WITH UNIQUE"));
+    }
+
+    @Test
+    void testVisitSqlPredicateLessQuoting() throws AdapterException {
+        final SqlNode left = new SqlColumn(1,
+                ColumnMetadata.builder().name("\" a '").type(DataType.createBool()).build());
+        final SqlNode right = new SqlLiteralString("\" right '");
+        final SqlPredicateLess sqlPredicateLess = new SqlPredicateLess(left, right);
+        assertThat(sqlGenerationVisitor.visit(sqlPredicateLess), equalTo("\"\"\" a '\" < '\" right '''"));
+    }
+
+    @Test
+    void testVisitSqlPredicateLessEqualQuoting() throws AdapterException {
+        final SqlNode left = new SqlColumn(1,
+                ColumnMetadata.builder().name("\" a '").type(DataType.createBool()).build());
+        final SqlNode right = new SqlLiteralString("\" right '");
+        final SqlPredicateLessEqual sqlPredicateLessEqual = new SqlPredicateLessEqual(left, right);
+        assertThat(sqlGenerationVisitor.visit(sqlPredicateLessEqual), equalTo("\"\"\" a '\" <= '\" right '''"));
+    }
+
+    @Test
+    void testVisitSqlPredicateLikeQuoting() throws AdapterException {
+        final SqlNode left = new SqlColumn(1,
+                ColumnMetadata.builder().name("\" a '").type(DataType.createBool()).build());
+        final SqlNode pattern = new SqlLiteralString("\" pattern '");
+        final SqlNode escapeChar = new SqlLiteralString("\" escape '");
+        final SqlPredicateLike sqlPredicateLike = new SqlPredicateLike(left, pattern, escapeChar);
+        assertThat(sqlGenerationVisitor.visit(sqlPredicateLike),
+                equalTo("\"\"\" a '\" LIKE '\" pattern ''' ESCAPE '\" escape '''"));
+    }
+
+    @Test
+    void testVisitSqlPredicateLikeRegexpQuoting() throws AdapterException {
+        final SqlNode left = new SqlColumn(1,
+                ColumnMetadata.builder().name("\" a '").type(DataType.createBool()).build());
+        final SqlNode pattern = new SqlLiteralString("\" pattern '");
+        final SqlPredicateLikeRegexp sqlPredicateLike = new SqlPredicateLikeRegexp(left, pattern);
+        assertThat(sqlGenerationVisitor.visit(sqlPredicateLike), equalTo("\"\"\" a '\" REGEXP_LIKE '\" pattern '''"));
+    }
+
+    @Test
+    void testVisitSqlPredicateNotQuoting() throws AdapterException {
+        final SqlNode expression = new SqlLiteralString("\" value '");
+        final SqlPredicateNot sqlPredicateNot = new SqlPredicateNot(expression);
+        assertThat(sqlGenerationVisitor.visit(sqlPredicateNot), equalTo("NOT ('\" value ''')"));
+    }
+
+    @Test
+    void testVisitSqlPredicateNotEqualQuoting() throws AdapterException {
+        final SqlNode left = new SqlColumn(1,
+                ColumnMetadata.builder().name("\" a '").type(DataType.createBool()).build());
+        final SqlNode right = new SqlLiteralString("\" right '");
+        final SqlPredicateNotEqual sqlPredicateNotEqual = new SqlPredicateNotEqual(left, right);
+        assertThat(sqlGenerationVisitor.visit(sqlPredicateNotEqual), equalTo("\"\"\" a '\" <> '\" right '''"));
+    }
+
+    @Test
+    void testVisitSqlPredicateOrQuoting() throws AdapterException {
+        final List<SqlNode> arguments = new ArrayList<>();
+        arguments.add(new SqlColumn(1, ColumnMetadata.builder().name("\" a '").type(DataType.createBool()).build()));
+        arguments.add(new SqlColumn(2, ColumnMetadata.builder().name("\" b '").type(DataType.createBool()).build()));
+        final SqlPredicateOr sqlPredicateOr = new SqlPredicateOr(arguments);
+        assertThat(sqlGenerationVisitor.visit(sqlPredicateOr), equalTo("(\"\"\" a '\" OR \"\"\" b '\")"));
+    }
+
+    @Test
+    void testVisitSqlPredicateIsNullQuoting() throws AdapterException {
+        final SqlNode expression = new SqlLiteralString("\" value '");
+        final SqlPredicateIsNull sqlPredicateIsNull = new SqlPredicateIsNull(expression);
+        assertThat(sqlGenerationVisitor.visit(sqlPredicateIsNull), equalTo("('\" value ''') IS NULL"));
+    }
+
+    @Test
+    void testVisitSqlPredicateIsNotNullQuoting() throws AdapterException {
+        final SqlNode expression = new SqlLiteralString("\" value '");
+        final SqlPredicateIsNotNull sqlPredicateIsNull = new SqlPredicateIsNotNull(expression);
+        assertThat(sqlGenerationVisitor.visit(sqlPredicateIsNull), equalTo("('\" value ''') IS NOT NULL"));
     }
 
     private static class TestDialect extends DummySqlDialect {
