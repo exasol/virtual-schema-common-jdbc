@@ -436,8 +436,8 @@ class SqlGenerationVisitorTest {
     @Test
     void testVisitSqlFunctionScalarCaseQuoting() throws AdapterException {
         final List<SqlNode> arguments = new ArrayList<>();
-        arguments.add(new SqlLiteralExactnumeric(BigDecimal.ONE));
-        arguments.add(new SqlLiteralExactnumeric(BigDecimal.TEN));
+        arguments.add(new SqlLiteralString("\" 1 '"));
+        arguments.add(new SqlLiteralString("\" 10 '"));
         final List<SqlNode> results = new ArrayList<>();
         results.add(new SqlLiteralString("\" one '"));
         results.add(new SqlLiteralString("\" ten '"));
@@ -446,7 +446,7 @@ class SqlGenerationVisitorTest {
                 ColumnMetadata.builder().name("\" a '").type(DataType.createBool()).build());
         final SqlFunctionScalarCase function = new SqlFunctionScalarCase(arguments, results, basis);
         assertThat(sqlGenerationVisitor.visit(function),
-                equalTo("CASE \"\"\" a '\" WHEN 1 THEN '\" one ''' WHEN 10 THEN '\" ten ''' ELSE '\" more ''' END"));
+                equalTo("CASE \"\"\" a '\" WHEN '\" 1 ''' THEN '\" one ''' WHEN '\" 10 ''' THEN '\" ten ''' ELSE '\" more ''' END"));
     }
 
     @Test
