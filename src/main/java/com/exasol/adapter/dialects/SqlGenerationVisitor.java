@@ -202,13 +202,13 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
     public String visit(final SqlFunctionAggregateListagg sqlFunctionAggregateListagg) throws AdapterException {
         final StringBuilder builder = new StringBuilder();
         builder.append("LISTAGG(");
-        if (sqlFunctionAggregateListagg.isDistinct()) {
+        if (sqlFunctionAggregateListagg.hasDistinct()) {
             builder.append("DISTINCT ");
         }
-        builder.append(sqlFunctionAggregateListagg.getArguments().get(0).accept(this));
+        builder.append(sqlFunctionAggregateListagg.getArgument().accept(this));
         if (sqlFunctionAggregateListagg.hasSeparator()) {
             builder.append(", ");
-            builder.append(getDialect().getStringLiteral(sqlFunctionAggregateListagg.getSeparator()));
+            builder.append(sqlFunctionAggregateListagg.getSeparator().accept(this));
         }
         builder.append(" ON OVERFLOW ");
         final Behavior overflowBehavior = sqlFunctionAggregateListagg.getOverflowBehavior();
@@ -216,7 +216,7 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
         if (overflowBehavior.getBehaviorType() == BehaviorType.TRUNCATE) {
             if (overflowBehavior.hasTruncationFiller()) {
                 builder.append(" ");
-                builder.append(getDialect().getStringLiteral(overflowBehavior.getTruncationFiller()));
+                builder.append(overflowBehavior.getTruncationFiller().accept(this));
             }
             builder.append(" ");
             builder.append(overflowBehavior.getTruncationType());
@@ -276,7 +276,7 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
         if (function.hasDistinct()) {
             builder.append("DISTINCT ");
         }
-        builder.append(function.getArguments().get(0).accept(this));
+        builder.append(function.getArgument().accept(this));
         if (function.hasOrderBy()) {
             builder.append(" ");
             final String orderByString = function.getOrderBy().accept(this);
@@ -284,7 +284,7 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
         }
         if (function.getSeparator() != null) {
             builder.append(" SEPARATOR ");
-            builder.append(getDialect().getStringLiteral(function.getSeparator()));
+            builder.append(function.getSeparator().accept(this));
         }
         builder.append(")");
         return builder.toString();
@@ -350,13 +350,13 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
 
     @Override
     public String visit(final SqlFunctionScalarCast function) throws AdapterException {
-        final String expression = function.getArguments().get(0).accept(this);
+        final String expression = function.getArgument().accept(this);
         return "CAST(" + expression + " AS " + function.getDataType() + ")";
     }
 
     @Override
     public String visit(final SqlFunctionScalarExtract function) throws AdapterException {
-        final String expression = function.getArguments().get(0).accept(this);
+        final String expression = function.getArgument().accept(this);
         return "EXTRACT(" + function.getToExtract() + " FROM " + expression + ")";
     }
 
