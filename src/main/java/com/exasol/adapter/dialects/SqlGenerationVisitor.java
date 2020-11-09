@@ -256,8 +256,7 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
         }
         if (countFunction && renderedArguments.size() > 1) {
             builder.append("(");
-        }
-        if (countFunction && renderedArguments.isEmpty()) {
+        } else if (countFunction && renderedArguments.isEmpty()) {
             renderedArguments.add(SqlConstants.ASTERISK);
         }
         builder.append(String.join(", ", renderedArguments));
