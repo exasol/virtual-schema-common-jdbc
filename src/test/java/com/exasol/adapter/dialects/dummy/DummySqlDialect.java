@@ -43,6 +43,11 @@ public class DummySqlDialect extends AbstractSqlDialect {
     }
 
     @Override
+    public String applyQuote(final String identifier) {
+        return super.quoteIdentifierWithDoubleQuotes(identifier);
+    }
+
+    @Override
     public boolean requiresCatalogQualifiedTableNames(final SqlGenerationContext context) {
         return false;
     }
@@ -55,6 +60,11 @@ public class DummySqlDialect extends AbstractSqlDialect {
     @Override
     public NullSorting getDefaultNullSorting() {
         return null;
+    }
+
+    @Override
+    public String getStringLiteral(final String value) {
+        return super.quoteLiteralStringWithSingleQuote(value);
     }
 
     @Override

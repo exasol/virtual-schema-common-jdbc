@@ -134,7 +134,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
     }
 
     @Override
-    public SchemaMetadata readSchemaMetadata() throws SQLException {
+    public SchemaMetadata readSchemaMetadata() {
         return createRemoteMetadataReader().readRemoteSchemaMetadata();
     }
 
@@ -143,8 +143,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
         return createRemoteMetadataReader().readRemoteSchemaMetadata(tables);
     }
 
-    @Override
-    public String getStringLiteral(final String value) {
+    public String quoteLiteralStringWithSingleQuote(final String value) {
         if (value == null) {
             return "NULL";
         } else {
@@ -152,8 +151,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
         }
     }
 
-    @Override
-    public String applyQuote(final String identifier) {
+    protected String quoteIdentifierWithDoubleQuotes(final String identifier) {
         return "\"" + identifier.replace("\"", "\"\"") + "\"";
     }
 
