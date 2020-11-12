@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.exasol</groupId>
     <artifactId>virtual-schema-common-jdbc</artifactId>
-    <version>6.1.0</version>
+    <version>7.0.0</version>
     <name>Virtual Schema Common JDBC</name>
     <description>Common module for JDBC-based data access from Virtual Schemas.</description>
     <url>https://github.com/exasol/virtual-schema-common-jdbc</url>

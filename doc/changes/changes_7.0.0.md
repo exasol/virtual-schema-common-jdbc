@@ -1,6 +1,6 @@
-# Virtual Schema Common JDBC 6.1.0, released 2020-10-??
+# Virtual Schema Common JDBC 7.0.0, released 2020-11-12
 
-Code name: Updated to virtual-schema-common-java 12.1.0
+Code name: Updated to virtual-schema-common-java 13.0.0
 
 ## Refactoring
 
