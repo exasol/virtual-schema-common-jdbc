@@ -42,4 +42,13 @@ class BaseConnectionDefinitionBuilderTest extends AbstractConnectionDefinitionBu
         assertThat(baseConnectionDefinitionBuilder.getConnectionDefinition("localhost:6666", "username", "password"),
                 equalTo("AT 'localhost:6666' USER 'username' IDENTIFIED BY 'password'"));
     }
+
+    @Test
+    void testGetConnectionDefinitionQuoting() {
+        final BaseConnectionDefinitionBuilder baseConnectionDefinitionBuilder = new BaseConnectionDefinitionBuilder();
+        assertThat(
+                baseConnectionDefinitionBuilder.getConnectionDefinition("localhost:6666 \" ' ", "username \" ' ",
+                        "password \" ' "),
+                equalTo("AT 'localhost:6666 \" '' ' USER 'username \" '' ' IDENTIFIED BY 'password \" '' '"));
+    }
 }

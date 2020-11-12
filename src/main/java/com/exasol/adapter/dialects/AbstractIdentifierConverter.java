@@ -21,7 +21,7 @@ public abstract class AbstractIdentifierConverter implements IdentifierConverter
         this.unquotedIdentifierHandling = unquotedIdentifierHandling;
         this.quotedIdentifierHandling = quotedIdentifierHandling;
         LOGGER.fine(
-                () -> "Creating identifier converter with unqoted handling \"" + unquotedIdentifierHandling.toString()
+                () -> "Creating identifier converter with unquoted handling \"" + unquotedIdentifierHandling.toString()
                         + "\" and quoted handling \"" + quotedIdentifierHandling + "\".");
     }
 

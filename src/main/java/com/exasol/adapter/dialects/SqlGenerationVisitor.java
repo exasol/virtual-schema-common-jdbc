@@ -1,5 +1,8 @@
 package com.exasol.adapter.dialects;
 
+import static com.exasol.adapter.sql.SqlFunctionAggregateListagg.Behavior;
+import static com.exasol.adapter.sql.SqlFunctionAggregateListagg.BehaviorType;
+
 import java.util.*;
 
 import com.exasol.adapter.AdapterException;
@@ -144,7 +147,7 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
      *
      * @param selectList list of columns (or expressions) in the <code>SELECT</code> part
      * @return string representing the <code>SELECT</code> list
-     * @throws AdapterException in case the expressions in the list can't be rendered to SQL
+     * @throws AdapterException in case the expressions in the list cannot be rendered to SQL
      */
     protected String createExplicitColumnsSelectList(final SqlSelectList selectList) throws AdapterException {
         final List<SqlNode> expressions = selectList.getExpressions();
@@ -196,10 +199,39 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
     }
 
     @Override
-    public String visit(final SqlGroupBy groupBy) throws AdapterException {
-        if ((groupBy.getExpressions() == null) || groupBy.getExpressions().isEmpty()) {
-            throw new IllegalStateException("Unexpected internal state (empty group by)");
+    public String visit(final SqlFunctionAggregateListagg sqlFunctionAggregateListagg) throws AdapterException {
+        final StringBuilder builder = new StringBuilder();
+        builder.append("LISTAGG(");
+        if (sqlFunctionAggregateListagg.hasDistinct()) {
+            builder.append("DISTINCT ");
         }
+        builder.append(sqlFunctionAggregateListagg.getArgument().accept(this));
+        if (sqlFunctionAggregateListagg.hasSeparator()) {
+            builder.append(", ");
+            builder.append(sqlFunctionAggregateListagg.getSeparator().accept(this));
+        }
+        builder.append(" ON OVERFLOW ");
+        final Behavior overflowBehavior = sqlFunctionAggregateListagg.getOverflowBehavior();
+        builder.append(overflowBehavior.getBehaviorType());
+        if (overflowBehavior.getBehaviorType() == BehaviorType.TRUNCATE) {
+            if (overflowBehavior.hasTruncationFiller()) {
+                builder.append(" ");
+                builder.append(overflowBehavior.getTruncationFiller().accept(this));
+            }
+            builder.append(" ");
+            builder.append(overflowBehavior.getTruncationType());
+        }
+        builder.append(")");
+        if (sqlFunctionAggregateListagg.hasOrderBy()) {
+            builder.append(" WITHIN GROUP (");
+            builder.append(sqlFunctionAggregateListagg.getOrderBy().accept(this));
+            builder.append(")");
+        }
+        return builder.toString();
+    }
+
+    @Override
+    public String visit(final SqlGroupBy groupBy) throws AdapterException {
         final List<String> selectElement = new ArrayList<>();
         for (final SqlNode node : groupBy.getExpressions()) {
             selectElement.add(node.accept(this));
@@ -209,34 +241,41 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
 
     @Override
     public String visit(final SqlFunctionAggregate function) throws AdapterException {
-        final List<String> argumentsSql = new ArrayList<>();
+        final StringBuilder builder = new StringBuilder();
+        final String functionNameInSourceSystem = this.dialect.getAggregateFunctionAliases()
+                .getOrDefault(function.getFunction(), function.getFunctionName());
+        builder.append(functionNameInSourceSystem);
+        builder.append("(");
+        final List<String> renderedArguments = new ArrayList<>();
         for (final SqlNode node : function.getArguments()) {
-            argumentsSql.add(node.accept(this));
+            renderedArguments.add(node.accept(this));
         }
-        if (function.getFunctionName().equalsIgnoreCase("count") && argumentsSql.isEmpty()) {
-            argumentsSql.add(SqlConstants.ASTERISK);
-        }
-        String distinctSql = "";
+        final boolean countFunction = function.getFunctionName().equals("COUNT");
         if (function.hasDistinct()) {
-            distinctSql = "DISTINCT ";
+            builder.append("DISTINCT ");
         }
-        String functionNameInSourceSystem = function.getFunctionName();
-        if (this.dialect.getAggregateFunctionAliases().containsKey(function.getFunction())) {
-            functionNameInSourceSystem = this.dialect.getAggregateFunctionAliases().get(function.getFunction());
+        if (countFunction && renderedArguments.size() > 1) {
+            builder.append("(");
+        } else if (countFunction && renderedArguments.isEmpty()) {
+            renderedArguments.add(SqlConstants.ASTERISK);
         }
-        return functionNameInSourceSystem + "(" + distinctSql + String.join(", ", argumentsSql) + ")";
+        builder.append(String.join(", ", renderedArguments));
+        if (countFunction && renderedArguments.size() > 1) {
+            builder.append(")");
+        }
+        builder.append(")");
+        return builder.toString();
     }
 
     @Override
     public String visit(final SqlFunctionAggregateGroupConcat function) throws AdapterException {
-        validateSingleArgumentFunctionParameter(function.getArguments(), "AGGREGATE GROUP CONCAT");
         final StringBuilder builder = new StringBuilder();
         builder.append(function.getFunctionName());
         builder.append("(");
         if (function.hasDistinct()) {
             builder.append("DISTINCT ");
         }
-        builder.append(function.getArguments().get(0).accept(this));
+        builder.append(function.getArgument().accept(this));
         if (function.hasOrderBy()) {
             builder.append(" ");
             final String orderByString = function.getOrderBy().accept(this);
@@ -244,19 +283,10 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
         }
         if (function.getSeparator() != null) {
             builder.append(" SEPARATOR ");
-            builder.append("'");
-            builder.append(function.getSeparator());
-            builder.append("'");
+            builder.append(function.getSeparator().accept(this));
         }
         builder.append(")");
         return builder.toString();
-    }
-
-    private void validateSingleArgumentFunctionParameter(final List<SqlNode> arguments, final String functionName) {
-        if ((arguments.size() != 1) || (arguments.get(0) == null)) {
-            throw new IllegalArgumentException(
-                    "Function " + functionName + " must have exactly one non-NULL parameter.");
-        }
     }
 
     @Override
@@ -319,13 +349,13 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
 
     @Override
     public String visit(final SqlFunctionScalarCast function) throws AdapterException {
-        final String expression = function.getArguments().get(0).accept(this);
+        final String expression = function.getArgument().accept(this);
         return "CAST(" + expression + " AS " + function.getDataType() + ")";
     }
 
     @Override
     public String visit(final SqlFunctionScalarExtract function) throws AdapterException {
-        final String expression = function.getArguments().get(0).accept(this);
+        final String expression = function.getArgument().accept(this);
         return "EXTRACT(" + function.getToExtract() + " FROM " + expression + ")";
     }
 
@@ -378,7 +408,7 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
 
     @Override
     public String visit(final SqlLiteralDate literal) {
-        return "DATE '" + literal.getValue() + "'"; // This gets always executed as TO_DATE('2015-02-01','YYYY-MM-DD')
+        return "DATE " + getDialect().getStringLiteral(literal.getValue());
     }
 
     @Override
@@ -403,21 +433,23 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
 
     @Override
     public String visit(final SqlLiteralTimestamp literal) {
-        return "TIMESTAMP '" + literal.getValue() + "'";
+        return "TIMESTAMP " + getDialect().getStringLiteral(literal.getValue());
     }
 
     @Override
     public String visit(final SqlLiteralTimestampUtc literal) {
-        return "TIMESTAMP '" + literal.getValue() + "'";
+        return "TIMESTAMP " + getDialect().getStringLiteral(literal.getValue());
     }
 
     @Override
     public String visit(final SqlLiteralInterval literal) {
         if (literal.getDataType().getIntervalType() == DataType.IntervalType.YEAR_TO_MONTH) {
-            return "INTERVAL '" + literal.getValue() + "' YEAR (" + literal.getDataType().getPrecision() + ") TO MONTH";
+            return "INTERVAL " + getDialect().getStringLiteral(literal.getValue()) + " YEAR ("
+                    + literal.getDataType().getPrecision() + ") TO MONTH";
         } else {
-            return "INTERVAL '" + literal.getValue() + "' DAY (" + literal.getDataType().getPrecision()
-                    + ") TO SECOND (" + literal.getDataType().getIntervalFraction() + ")";
+            return "INTERVAL " + getDialect().getStringLiteral(literal.getValue()) + " DAY ("
+                    + literal.getDataType().getPrecision() + ") TO SECOND ("
+                    + literal.getDataType().getIntervalFraction() + ")";
         }
     }
 
@@ -446,7 +478,7 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
      * @param isAscending        true if the desired sort order is ascending, false if descending
      * @param defaultNullSorting default null sorting of dialect
      * @return true, if the data source would position nulls at end of the resultset if NULLS FIRST/LAST is not
-     * specified explicitly.
+     *         specified explicitly.
      */
     private boolean nullsAreAtEndByDefault(final boolean isAscending, final SqlDialect.NullSorting defaultNullSorting) {
         if (defaultNullSorting == SqlDialect.NullSorting.NULLS_SORTED_AT_END) {
@@ -497,7 +529,7 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
                 function.getKeyUniquenessConstraint());
     }
 
-    // We remove KEYS keyword from the query, because Exasol database can't parse it correctly in some cases.
+    // We remove KEYS keyword from the query, because Exasol database cannot parse it correctly in some cases.
     // According to the SQL standard, KEYS is optional.
     private String visitSqlPredicateJson(final SqlNode expression, final String functionName,
             final String typeConstraint, final String keyUniquenessConstraint) throws AdapterException {
@@ -576,6 +608,6 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
     protected String getTypeNameFromColumn(final SqlColumn column) throws AdapterException {
         final ColumnAdapterNotesJsonConverter converter = ColumnAdapterNotesJsonConverter.getInstance();
         return converter.convertFromJsonToColumnAdapterNotes(column.getMetadata().getAdapterNotes(), column.getName())
-                        .getTypeName();
+                .getTypeName();
     }
 }

@@ -53,7 +53,7 @@ public class StubSqlDialect extends AbstractSqlDialect {
 
     @Override
     public String applyQuote(final String identifier) {
-        return "\"" + identifier + "\"";
+        return super.quoteIdentifierWithDoubleQuotes(identifier);
     }
 
     @Override
@@ -69,5 +69,10 @@ public class StubSqlDialect extends AbstractSqlDialect {
     @Override
     public NullSorting getDefaultNullSorting() {
         return NullSorting.NULLS_SORTED_AT_START;
+    }
+
+    @Override
+    public String getStringLiteral(final String value) {
+        return super.quoteLiteralStringWithSingleQuote(value);
     }
 }
