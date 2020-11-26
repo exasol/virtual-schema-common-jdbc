@@ -16,7 +16,7 @@ import com.exasol.adapter.dialects.dummy.DummySqlDialect;
 import com.exasol.adapter.jdbc.BaseRemoteMetadataReader;
 import com.exasol.adapter.sql.TestSqlStatementFactory;
 
-public class ImportFromJDBCQueryRewriterTest extends AbstractQueryRewriterTestBase {
+class ImportFromJDBCQueryRewriterTest extends AbstractQueryRewriterTestBase {
 
     @Test
     void testRewriteWithJdbcConnection() throws AdapterException, SQLException, ExaConnectionAccessException {

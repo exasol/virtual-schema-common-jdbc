@@ -22,7 +22,7 @@ import com.exasol.adapter.jdbc.ConnectionFactory;
 import com.exasol.adapter.sql.TestSqlStatementFactory;
 
 @ExtendWith(MockitoExtension.class)
-public class ImportIntoQueryRewriterTest extends AbstractQueryRewriterTestBase {
+class ImportIntoQueryRewriterTest extends AbstractQueryRewriterTestBase {
 
     @Test
     void testRewriteWithJdbcConnection(@Mock final ConnectionFactory connectionFactoryMock)

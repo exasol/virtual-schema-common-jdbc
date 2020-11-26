@@ -25,7 +25,7 @@ public abstract class BaseQueryRewriter implements QueryRewriter {
      * @param dialect              dialect
      * @param remoteMetadataReader remote metadata reader
      */
-    public BaseQueryRewriter(final SqlDialect dialect, final RemoteMetadataReader remoteMetadataReader) {
+    protected BaseQueryRewriter(final SqlDialect dialect, final RemoteMetadataReader remoteMetadataReader) {
         this.dialect = dialect;
         this.remoteMetadataReader = remoteMetadataReader;
         this.connectionDefinitionBuilder = createConnectionDefinitionBuilder();
