@@ -13,11 +13,10 @@ import com.exasol.adapter.sql.SqlStatement;
 /**
  * Base implementation of {@link QueryRewriter}.
  */
-public class BaseQueryRewriter implements QueryRewriter {
+public abstract class BaseQueryRewriter implements QueryRewriter {
     private static final Logger LOGGER = Logger.getLogger(BaseQueryRewriter.class.getName());
     protected final SqlDialect dialect;
     protected final RemoteMetadataReader remoteMetadataReader;
-    protected final ConnectionFactory connectionFactory;
     protected final ConnectionDefinitionBuilder connectionDefinitionBuilder;
 
     /**
@@ -25,13 +24,10 @@ public class BaseQueryRewriter implements QueryRewriter {
      *
      * @param dialect              dialect
      * @param remoteMetadataReader remote metadata reader
-     * @param connectionFactory    JDBC connection to remote data source
      */
-    public BaseQueryRewriter(final SqlDialect dialect, final RemoteMetadataReader remoteMetadataReader,
-            final ConnectionFactory connectionFactory) {
+    public BaseQueryRewriter(final SqlDialect dialect, final RemoteMetadataReader remoteMetadataReader) {
         this.dialect = dialect;
         this.remoteMetadataReader = remoteMetadataReader;
-        this.connectionFactory = connectionFactory;
         this.connectionDefinitionBuilder = createConnectionDefinitionBuilder();
     }
 
@@ -50,11 +46,10 @@ public class BaseQueryRewriter implements QueryRewriter {
     public String rewrite(final SqlStatement statement, final ExaMetadata exaMetadata,
             final AdapterProperties properties) throws AdapterException, SQLException {
         final String query = createPushdownQuery(statement, properties);
-        final String columnDescription = createImportColumnsDescription(query);
         final ExaConnectionInformation exaConnectionInformation = getConnectionInformation(exaMetadata, properties);
         final String connectionDefinition = this.connectionDefinitionBuilder.buildConnectionDefinition(properties,
                 exaConnectionInformation);
-        final String importFromPushdownQuery = generatePushdownSql(columnDescription, connectionDefinition, query);
+        final String importFromPushdownQuery = generatePushdownSql(connectionDefinition, query);
         LOGGER.finer(() -> "Import from push-down query:\n" + importFromPushdownQuery);
         return importFromPushdownQuery;
     }
@@ -68,15 +63,6 @@ public class BaseQueryRewriter implements QueryRewriter {
         LOGGER.finer(() -> "Push-down query generated with " + sqlGeneratorVisitor.getClass().getSimpleName() + ":\n"
                 + pushdownQuery);
         return pushdownQuery;
-    }
-
-    private String createImportColumnsDescription(final String query) throws SQLException {
-        final ColumnMetadataReader columnMetadataReader = this.remoteMetadataReader.getColumnMetadataReader();
-        final ResultSetMetadataReader resultSetMetadataReader = new ResultSetMetadataReader(
-                this.connectionFactory.getConnection(), columnMetadataReader);
-        final String columnsDescription = resultSetMetadataReader.describeColumns(query);
-        LOGGER.finer(() -> "Import columns: " + columnsDescription);
-        return columnsDescription;
     }
 
     protected ExaConnectionInformation getConnectionInformation(final ExaMetadata exaMetadata,
@@ -97,9 +83,15 @@ public class BaseQueryRewriter implements QueryRewriter {
         return exaConnectionInformation;
     }
 
-    private String generatePushdownSql(final String columnDescription, final String connectionDefinition,
-            final String pushdownSql) {
-        return "IMPORT INTO (" + columnDescription + ") FROM JDBC " + connectionDefinition + " STATEMENT '"
-                + pushdownSql.replace("'", "''") + "'";
-    }
+    /**
+     * Generate the query to be execute in the Exasol database to fetch data from an external data source
+     *
+     * @param connectionDefinition the connection definition to be used when connecting to the external datasource
+     * @param query                the query to be executed in the external data source
+     * @return the query to be executed in the Exasol database
+     * @throws SQLException if any problem occurs
+     */
+    protected abstract String generatePushdownSql(final String connectionDefinition, final String query)
+            throws SQLException;
+
 }
