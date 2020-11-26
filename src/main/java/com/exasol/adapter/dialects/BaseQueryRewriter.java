@@ -84,7 +84,8 @@ public abstract class BaseQueryRewriter implements QueryRewriter {
     }
 
     /**
-     * Generate the query to be execute in the Exasol database to fetch data from an external data source
+     * Generate a query to be execute in the Exasol database, that wraps the passed query to be executed in an external
+     * source.
      *
      * @param connectionDefinition the connection definition to be used when connecting to the external datasource
      * @param query                the query to be executed in the external data source
