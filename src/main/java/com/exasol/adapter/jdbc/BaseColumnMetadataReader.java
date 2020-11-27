@@ -311,6 +311,10 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
         return colType;
     }
 
+    protected String mapColumnName(final String columnName) {
+        return columnName;
+    }
+
     /**
      * Map a <code>NUMERIC</code> column to an Exasol <code>DECIMAL</code>
      * <p>
