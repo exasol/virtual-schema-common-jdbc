@@ -8,7 +8,6 @@ import com.exasol.adapter.jdbc.RemoteMetadataReader;
  * Implementation of {@link AbstractQueryRewriter} to generate {@code IMPORT FROM JDBC} queries.
  */
 public class ImportFromJDBCQueryRewriter extends AbstractQueryRewriter {
-
     /**
      * Construct a new instance of {@link ImportFromJDBCQueryRewriter}.
      *
