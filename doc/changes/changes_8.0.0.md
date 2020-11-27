@@ -1,6 +1,10 @@
-# Virtual Schema Common JDBC 8.0.0, released 2020-??-??
+# Virtual Schema Common JDBC 8.0.0, released 2020-11-30
 
-Code name: ??
+Code name: Refactor the `QueryRewriter` abstract implementations to make it more convenient to extend.
+
+## Features / Enhancements
+
+* #66: Allow mapping of column names when reading metadata from the external source.
 
 ## Bugfixes
 
