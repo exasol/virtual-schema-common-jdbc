@@ -4,5 +4,5 @@ Code name: ??
 
 ## Refactoring
 
-* #64: Refactored the `BaseQueryRewriter` for make it more convenient to extend.
+* #64: Refactored the `BaseQueryRewriter` to make it more convenient to extend.
 * #66: Allow mapping of column names when reading metadata from the external source.
