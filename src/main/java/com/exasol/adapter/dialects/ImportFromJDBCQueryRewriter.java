@@ -24,5 +24,4 @@ public class ImportFromJDBCQueryRewriter extends AbstractQueryRewriter {
             throws SQLException {
         return "IMPORT FROM JDBC " + connectionDefinition + " STATEMENT '" + pushdownQuery.replace("'", "''") + "'";
     }
-
 }
