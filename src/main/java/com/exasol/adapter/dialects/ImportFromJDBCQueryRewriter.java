@@ -5,9 +5,9 @@ import java.sql.SQLException;
 import com.exasol.adapter.jdbc.RemoteMetadataReader;
 
 /**
- * Implementation of {@link BaseQueryRewriter} to generate `IMPORT FROM JDBC` queries.
+ * Implementation of {@link AbstractQueryRewriter} to generate {@code IMPORT FROM JDBC} queries.
  */
-public class ImportFromJDBCQueryRewriter extends BaseQueryRewriter {
+public class ImportFromJDBCQueryRewriter extends AbstractQueryRewriter {
 
     /**
      * Construct a new instance of {@link ImportFromJDBCQueryRewriter}.
@@ -20,8 +20,9 @@ public class ImportFromJDBCQueryRewriter extends BaseQueryRewriter {
     }
 
     @Override
-    protected String generatePushdownSql(final String connectionDefinition, final String query) throws SQLException {
-        return "IMPORT FROM JDBC " + connectionDefinition + " STATEMENT '" + query.replace("'", "''") + "'";
+    protected String generateImportStatement(final String connectionDefinition, final String pushdownQuery)
+            throws SQLException {
+        return "IMPORT FROM JDBC " + connectionDefinition + " STATEMENT '" + pushdownQuery.replace("'", "''") + "'";
     }
 
 }

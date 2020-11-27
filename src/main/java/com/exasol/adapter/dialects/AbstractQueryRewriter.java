@@ -11,21 +11,21 @@ import com.exasol.adapter.sql.SqlNodeVisitor;
 import com.exasol.adapter.sql.SqlStatement;
 
 /**
- * Base implementation of {@link QueryRewriter}.
+ * Abstract implementation of {@link QueryRewriter}.
  */
-public abstract class BaseQueryRewriter implements QueryRewriter {
-    private static final Logger LOGGER = Logger.getLogger(BaseQueryRewriter.class.getName());
+public abstract class AbstractQueryRewriter implements QueryRewriter {
+    private static final Logger LOGGER = Logger.getLogger(AbstractQueryRewriter.class.getName());
     protected final SqlDialect dialect;
     protected final RemoteMetadataReader remoteMetadataReader;
     protected final ConnectionDefinitionBuilder connectionDefinitionBuilder;
 
     /**
-     * Create a new instance of a {@link BaseQueryRewriter}.
+     * Create a new instance of a {@link AbstractQueryRewriter}.
      *
      * @param dialect              dialect
      * @param remoteMetadataReader remote metadata reader
      */
-    protected BaseQueryRewriter(final SqlDialect dialect, final RemoteMetadataReader remoteMetadataReader) {
+    protected AbstractQueryRewriter(final SqlDialect dialect, final RemoteMetadataReader remoteMetadataReader) {
         this.dialect = dialect;
         this.remoteMetadataReader = remoteMetadataReader;
         this.connectionDefinitionBuilder = createConnectionDefinitionBuilder();
@@ -45,13 +45,13 @@ public abstract class BaseQueryRewriter implements QueryRewriter {
     @Override
     public String rewrite(final SqlStatement statement, final ExaMetadata exaMetadata,
             final AdapterProperties properties) throws AdapterException, SQLException {
-        final String query = createPushdownQuery(statement, properties);
+        final String pushdownQuery = createPushdownQuery(statement, properties);
         final ExaConnectionInformation exaConnectionInformation = getConnectionInformation(exaMetadata, properties);
         final String connectionDefinition = this.connectionDefinitionBuilder.buildConnectionDefinition(properties,
                 exaConnectionInformation);
-        final String importFromPushdownQuery = generatePushdownSql(connectionDefinition, query);
-        LOGGER.finer(() -> "Import from push-down query:\n" + importFromPushdownQuery);
-        return importFromPushdownQuery;
+        final String importStatement = generateImportStatement(connectionDefinition, pushdownQuery);
+        LOGGER.finer(() -> "Import push-down statement:\n" + importStatement);
+        return importStatement;
     }
 
     private String createPushdownQuery(final SqlStatement statement, final AdapterProperties properties)
@@ -84,15 +84,15 @@ public abstract class BaseQueryRewriter implements QueryRewriter {
     }
 
     /**
-     * Generate a query to be execute in the Exasol database, that wraps the passed query to be executed in an external
-     * source.
+     * Generate an IMPORT statement to be executed in the Exasol database, using the passed pushdown query to be
+     * executed in the external source be as source data.
      *
-     * @param connectionDefinition the connection definition to be used when connecting to the external datasource
-     * @param query                the query to be executed in the external data source
-     * @return the query to be executed in the Exasol database
+     * @param connectionDefinition connection definition to be used when connecting to the external source
+     * @param pushdownQuery        source data for the `IMPORT...FROM` statement
+     * @return IMPORT statement to be executed on the Exasol database
      * @throws SQLException if any problem occurs
      */
-    protected abstract String generatePushdownSql(final String connectionDefinition, final String query)
+    protected abstract String generateImportStatement(final String connectionDefinition, final String pushdownQuery)
             throws SQLException;
 
 }

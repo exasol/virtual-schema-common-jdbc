@@ -17,16 +17,17 @@ import com.exasol.adapter.jdbc.BaseRemoteMetadataReader;
 import com.exasol.adapter.sql.TestSqlStatementFactory;
 
 class ImportFromJDBCQueryRewriterTest extends AbstractQueryRewriterTestBase {
-
     @Test
     void testRewriteWithJdbcConnection() throws AdapterException, SQLException, ExaConnectionAccessException {
-        final Connection connectionMock = mockConnection();
         final AdapterProperties properties = new AdapterProperties(Map.of("CONNECTION_NAME", CONNECTION_NAME));
-        final SqlDialect dialect = new DummySqlDialect(null, properties);
-        final BaseRemoteMetadataReader metadataReader = new BaseRemoteMetadataReader(connectionMock, properties);
-
-        final QueryRewriter queryRewriter = new ImportFromJDBCQueryRewriter(dialect, metadataReader);
+        final QueryRewriter queryRewriter = this.getQueryRewriter(mockConnection(), properties);
         assertThat(queryRewriter.rewrite(TestSqlStatementFactory.createSelectOneFromDual(), EXA_METADATA, properties),
                 equalTo("IMPORT FROM JDBC AT " + CONNECTION_NAME + " STATEMENT 'SELECT 1 FROM \"DUAL\"'"));
+    }
+
+    private QueryRewriter getQueryRewriter(final Connection connection, final AdapterProperties properties) {
+        final SqlDialect dialect = new DummySqlDialect(null, properties);
+        final BaseRemoteMetadataReader metadataReader = new BaseRemoteMetadataReader(connection, properties);
+        return new ImportFromJDBCQueryRewriter(dialect, metadataReader);
     }
 }

@@ -6,9 +6,9 @@ import java.util.logging.Logger;
 import com.exasol.adapter.jdbc.*;
 
 /**
- * Implementation of {@link BaseQueryRewriter} to generate `IMPORT INTO FROM JDBC` queries.
+ * Implementation of {@link AbstractQueryRewriter} to generate {@code IMPORT INTO FROM JDBC} queries.
  */
-public class ImportIntoQueryRewriter extends BaseQueryRewriter {
+public class ImportIntoQueryRewriter extends AbstractQueryRewriter {
     private static final Logger LOGGER = Logger.getLogger(ImportIntoQueryRewriter.class.getName());
     protected final ConnectionFactory connectionFactory;
 
@@ -26,10 +26,11 @@ public class ImportIntoQueryRewriter extends BaseQueryRewriter {
     }
 
     @Override
-    protected String generatePushdownSql(final String connectionDefinition, final String query) throws SQLException {
-        final String columnDescription = this.createImportColumnsDescription(query);
+    protected String generateImportStatement(final String connectionDefinition, final String pushdownQuery)
+            throws SQLException {
+        final String columnDescription = this.createImportColumnsDescription(pushdownQuery);
         return "IMPORT INTO (" + columnDescription + ") FROM JDBC " + connectionDefinition + " STATEMENT '"
-                + query.replace("'", "''") + "'";
+                + pushdownQuery.replace("'", "''") + "'";
     }
 
     private String createImportColumnsDescription(final String query) throws SQLException {
