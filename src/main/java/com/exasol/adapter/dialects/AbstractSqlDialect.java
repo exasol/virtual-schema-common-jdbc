@@ -14,7 +14,11 @@ import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.jdbc.ConnectionFactory;
 import com.exasol.adapter.jdbc.RemoteMetadataReader;
 import com.exasol.adapter.metadata.SchemaMetadata;
-import com.exasol.adapter.sql.*;
+import com.exasol.adapter.sql.AggregateFunction;
+import com.exasol.adapter.sql.ScalarFunction;
+import com.exasol.adapter.sql.SqlNodeVisitor;
+import com.exasol.adapter.sql.SqlStatement;
+import com.exasol.errorreporting.ExaError;
 
 /**
  * Abstract implementation of a dialect. We recommend that every dialect should extend this abstract class.
@@ -50,7 +54,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
     /**
      * Add additional dialect-specific supported properties that are not in the
      * {@link com.exasol.adapter.dialects.AbstractSqlDialect#COMMON_SUPPORTED_PROPERTIES} set.
-     * 
+     *
      * @param additionalPropertiesToSupport list of properties names
      */
     protected void addAdditionalSupportedProperties(final List<String> additionalPropertiesToSupport) {
@@ -280,10 +284,10 @@ public abstract class AbstractSqlDialect implements SqlDialect {
             final String precisionAndScale = this.properties.get(castNumberToDecimalProperty);
             final Matcher matcher = pattern.matcher(precisionAndScale);
             if (!matcher.matches()) {
-                throw new PropertyValidationException("Unable to parse adapter property " + castNumberToDecimalProperty
-                        + " value \"" + precisionAndScale
-                        + " into a number's precision and scale. The required format is \"<precision>.<scale>\", where "
-                        + "both are integer numbers.");
+                throw new PropertyValidationException(ExaError.messageBuilder("E-VSJ-1").message(
+                        "Unable to parse adapter property {{propertyName}} value {{value}} into a number's precision and scale. The required format is '<precision>,<scale>', where both are integer numbers.")
+                        .parameter("propertyName", castNumberToDecimalProperty).parameter("value", precisionAndScale)
+                        .toString());
             }
         }
     }
