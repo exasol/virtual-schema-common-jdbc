@@ -74,7 +74,6 @@ Running the Virtual Schema requires a Java Runtime version 11 or later.
 | [Maven Surefire Plugin][maven-surefire-plugin]                           | Unit testing                                           | Apache License 2.0            |
 | [Sonatype OSS Index Maven Plugin][sonatype-oss-index-maven-plugin]       | Checking Dependencies Vulnerability                    | ASL2                          |
 | [Versions Maven Plugin][versions-maven-plugin]                           | Checking if dependencies updates are available         | Apache License 2.0            |
-| [Exasol Project Keeper][project-keeper]                                  | Unifying project structure                             | MIT License                   |
 
 
 [exasol-script-api]: https://docs.exasol.com/database_concepts/udf_scripts.htm
@@ -90,4 +89,3 @@ Running the Virtual Schema requires a Java Runtime version 11 or later.
 [sonatype-oss-index-maven-plugin]: https://sonatype.github.io/ossindex-maven/maven-plugin/
 [versions-maven-plugin]: https://www.mojohaus.org/versions-maven-plugin/
 [error-reporting-java]: https://github.com/exasol/error-reporting-java/
-[project-keeper]: https://github.com/exasol/project-keeper-maven-plugin/

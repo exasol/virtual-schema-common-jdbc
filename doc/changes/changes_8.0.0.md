@@ -14,4 +14,3 @@ Code name: ??
 ## Dependency Updates:
 
 * Added `com.exasol:error-reporting-java:0.2.0`
-* Added `com.exasol:project-keeper-maven-plugin:0.4.0`
