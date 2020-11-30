@@ -14,10 +14,7 @@ import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.jdbc.ConnectionFactory;
 import com.exasol.adapter.jdbc.RemoteMetadataReader;
 import com.exasol.adapter.metadata.SchemaMetadata;
-import com.exasol.adapter.sql.AggregateFunction;
-import com.exasol.adapter.sql.ScalarFunction;
-import com.exasol.adapter.sql.SqlNodeVisitor;
-import com.exasol.adapter.sql.SqlStatement;
+import com.exasol.adapter.sql.*;
 import com.exasol.errorreporting.ExaError;
 
 /**
@@ -30,10 +27,10 @@ public abstract class AbstractSqlDialect implements SqlDialect {
     private static final Set<String> COMMON_SUPPORTED_PROPERTIES = Set.of(SQL_DIALECT_PROPERTY,
             CONNECTION_NAME_PROPERTY, TABLE_FILTER_PROPERTY, EXCLUDED_CAPABILITIES_PROPERTY, DEBUG_ADDRESS_PROPERTY,
             LOG_LEVEL_PROPERTY);
-    protected Set<ScalarFunction> omitParenthesesMap = EnumSet.noneOf(ScalarFunction.class);
-    protected AdapterProperties properties;
     protected final ConnectionFactory connectionFactory;
     private final Set<String> supportedProperties;
+    protected Set<ScalarFunction> omitParenthesesMap = EnumSet.noneOf(ScalarFunction.class);
+    protected AdapterProperties properties;
 
     /**
      * Create a new instance of an {@link AbstractSqlDialect}.
