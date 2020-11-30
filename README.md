@@ -45,6 +45,7 @@ Running the Virtual Schema requires a Java Runtime version 11 or later.
 | [JSON-P](https://javaee.github.io/jsonp/)                                | JSON Processing                                        | CDDL-1.0                      |
 | [Exasol Script API][exasol-script-api]                                   | Accessing Exasol features                              | MIT License                   |
 | [Exasol Virtual Schema Common Java][exasol-virtual-schema-common-java]   | Common module of Exasol Virtual Schemas adapters       | MIT License                   |
+| [Exasol Error Reporting Java][error-reporting-java]                      | Unified error messages.                                | MIT License                   |
 
 ### Test Dependencies
 
@@ -87,3 +88,4 @@ Running the Virtual Schema requires a Java Runtime version 11 or later.
 [maven-surefire-plugin]: https://maven.apache.org/surefire/maven-surefire-plugin/
 [sonatype-oss-index-maven-plugin]: https://sonatype.github.io/ossindex-maven/maven-plugin/
 [versions-maven-plugin]: https://www.mojohaus.org/versions-maven-plugin/
+[error-reporting-java]: https://github.com/exasol/error-reporting-java/
