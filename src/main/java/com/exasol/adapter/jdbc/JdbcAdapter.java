@@ -76,21 +76,24 @@ public class JdbcAdapter implements VirtualSchemaAdapter {
 
     @Override
     public RefreshResponse refresh(final ExaMetadata metadata, final RefreshRequest request) throws AdapterException {
-        final SchemaMetadataInfo schemaMetadataInfo = request.getSchemaMetadataInfo();
-        final AdapterProperties properties = getPropertiesFromRequest(request);
-        final SchemaMetadata remoteMeta;
         try {
-            if (request.refreshesOnlySelectedTables()) {
-                final List<String> tables = request.getTables();
-                remoteMeta = readMetadata(properties, tables, metadata);
-            } else {
-                remoteMeta = readMetadata(properties, metadata);
-            }
-            return RefreshResponse.builder().schemaMetadata(remoteMeta).build();
-        } catch (final SQLException exception) {
+            final SchemaMetadata remoteMetadata = this.getRemoteMetadata(metadata, request);
+            return RefreshResponse.builder().schemaMetadata(remoteMetadata).build();
+        } catch (final SQLException | PropertyValidationException exception) {
             throw new AdapterException("Unable refresh metadata of Virtual Schema \""
-                    + schemaMetadataInfo.getSchemaName() + "\". Cause: " + exception.getMessage(), exception);
+                    + request.getSchemaMetadataInfo().getSchemaName() + "\". Cause: " + exception.getMessage(),
+                    exception);
         }
+    }
+
+    private SchemaMetadata getRemoteMetadata(final ExaMetadata metadata, final RefreshRequest request)
+            throws PropertyValidationException, SQLException {
+        final AdapterProperties properties = getPropertiesFromRequest(request);
+        if (request.refreshesOnlySelectedTables()) {
+            final List<String> tables = request.getTables();
+            return readMetadata(properties, tables, metadata);
+        }
+        return readMetadata(properties, metadata);
     }
 
     protected SchemaMetadata readMetadata(final AdapterProperties properties,
