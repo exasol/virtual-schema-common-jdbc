@@ -102,20 +102,29 @@ public abstract class AbstractRemoteMetadataReader extends AbstractMetadataReade
 
     private SchemaMetadata readRemoteSchemaMetadataForSelectedTables(final List<String> selectedTables) {
         try {
-            final DatabaseMetaData remoteMetadata = this.connection.getMetaData();
-            final String adapterNotes = SchemaAdapterNotesJsonConverter.getInstance()
-                    .convertToJson(getSchemaAdapterNotes());
-            final List<TableMetadata> tables = extractTableMetadata(remoteMetadata, selectedTables);
-            return new SchemaMetadata(adapterNotes, tables);
+            return this.getSchemaMetadata(selectedTables);
         } catch (final SQLException exception) {
             throw new RemoteMetadataReaderException("Unable to read remote schema metadata.", exception);
         }
     }
 
+    private SchemaMetadata getSchemaMetadata(final List<String> selectedTables) throws SQLException {
+        return new SchemaMetadata(this.getJsonAdapterNotes(), this.getTableMetadata(selectedTables));
+    }
+
+    private String getJsonAdapterNotes() {
+        return SchemaAdapterNotesJsonConverter.getInstance().convertToJson(getSchemaAdapterNotes());
+    }
+
+    private List<TableMetadata> getTableMetadata(final List<String> selectedTables) throws SQLException {
+        final DatabaseMetaData remoteMetadata = this.connection.getMetaData();
+        return this.extractTableMetadata(remoteMetadata, selectedTables);
+    }
+
     private List<TableMetadata> extractTableMetadata(final DatabaseMetaData remoteMetadata,
             final List<String> selectedTables) throws SQLException {
-        final String catalogName = getCatalogNameFilter();
-        final String schemaName = getSchemaNameFilter();
+        final String catalogName = this.getCatalogNameFilter();
+        final String schemaName = this.getSchemaNameFilter();
         logTablesScan(catalogName, schemaName);
         try (final ResultSet remoteTables = remoteMetadata.getTables(catalogName, schemaName, ANY_TABLE,
                 getTableTypeFilter())) {
