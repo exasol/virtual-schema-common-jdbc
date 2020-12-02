@@ -54,18 +54,8 @@ public class JdbcAdapter implements VirtualSchemaAdapter {
         dialect.validateProperties();
         if (tables.isEmpty()) {
             return dialect.readSchemaMetadata();
-        } else {
-            return dialect.readSchemaMetadata(tables);
         }
-    }
-
-    protected SchemaMetadata readMetadata(final AdapterProperties properties,
-            final List<String> whiteListedRemoteTables, final ExaMetadata exasolMetadata)
-            throws PropertyValidationException {
-        final ConnectionFactory connectionFactory = new RemoteConnectionFactory(exasolMetadata, properties);
-        final SqlDialect dialect = createDialect(connectionFactory, properties);
-        dialect.validateProperties();
-        return dialect.readSchemaMetadata(whiteListedRemoteTables);
+        return dialect.readSchemaMetadata(tables);
     }
 
     private SqlDialect createDialect(final ConnectionFactory connectionFactory, final AdapterProperties properties) {
@@ -101,6 +91,15 @@ public class JdbcAdapter implements VirtualSchemaAdapter {
             throw new AdapterException("Unable refresh metadata of Virtual Schema \""
                     + schemaMetadataInfo.getSchemaName() + "\". Cause: " + exception.getMessage(), exception);
         }
+    }
+
+    protected SchemaMetadata readMetadata(final AdapterProperties properties,
+            final List<String> whiteListedRemoteTables, final ExaMetadata exasolMetadata)
+            throws PropertyValidationException {
+        final ConnectionFactory connectionFactory = new RemoteConnectionFactory(exasolMetadata, properties);
+        final SqlDialect dialect = createDialect(connectionFactory, properties);
+        dialect.validateProperties();
+        return dialect.readSchemaMetadata(whiteListedRemoteTables);
     }
 
     @Override

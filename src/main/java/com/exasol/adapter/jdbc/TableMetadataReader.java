@@ -3,7 +3,6 @@ package com.exasol.adapter.jdbc;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Optional;
 
 import com.exasol.adapter.metadata.TableMetadata;
 
@@ -19,8 +18,7 @@ public interface TableMetadataReader {
      * @return list of {@link TableMetadata}
      * @throws SQLException if either mapping the table or its columns produces an SQL error
      */
-    public List<TableMetadata> mapTables(ResultSet remoteTables, Optional<List<String>> selectedTables)
-            throws SQLException;
+    public List<TableMetadata> mapTables(ResultSet remoteTables, List<String> selectedTables) throws SQLException;
 
     /**
      * Returns true if the metadata reader includes the table with the given name when the remote metadata gets mapped

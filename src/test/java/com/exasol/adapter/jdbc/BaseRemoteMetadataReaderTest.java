@@ -1,8 +1,8 @@
 package com.exasol.adapter.jdbc;
 
 import static com.exasol.adapter.jdbc.TableMetadataMockUtils.*;
-import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -251,14 +251,5 @@ class BaseRemoteMetadataReaderTest {
     void testGetSupportedTableTypes() {
         assertThat(new BaseRemoteMetadataReader(null, AdapterProperties.emptyProperties()).getSupportedTableTypes(),
                 containsInAnyOrder("TABLE", "VIEW", "SYSTEM TABLE"));
-    }
-
-    @Test
-    void testConvertToOptional() {
-        final BaseRemoteMetadataReader reader = new BaseRemoteMetadataReader(null, AdapterProperties.emptyProperties());
-        assertAll(() -> assertThat(reader.convertToOptional(Collections.emptyList()), equalTo(Optional.empty())),
-                () -> assertThat(reader.convertToOptional(null), equalTo(Optional.empty())),
-                () -> assertThat(reader.convertToOptional(Arrays.asList("T1")),
-                        equalTo(Optional.of(Arrays.asList("T1")))));
     }
 }

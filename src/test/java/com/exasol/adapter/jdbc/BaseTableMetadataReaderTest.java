@@ -1,14 +1,13 @@
 package com.exasol.adapter.jdbc;
 
 import static com.exasol.adapter.jdbc.TableMetadataMockUtils.*;
-import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.Mockito.when;
 
 import java.sql.*;
 import java.util.List;
-import java.util.Optional;
 import java.util.logging.Logger;
 
 import org.junit.jupiter.api.Test;
@@ -45,8 +44,7 @@ class BaseTableMetadataReaderTest {
         mockTableComment(this.tablesMock, TABLE_A_COMMENT, TABLE_B_COMMENT);
         mockTableWithColumnsOfType(this.tablesMock, this.columnMetadataReaderMock, TABLE_A, DataType.createBool());
         mockTableWithColumnsOfType(this.tablesMock, this.columnMetadataReaderMock, TABLE_B, DataType.createDate());
-        final List<TableMetadata> tables = createDefaultTableMetadataReader().mapTables(this.tablesMock,
-                Optional.empty());
+        final List<TableMetadata> tables = createDefaultTableMetadataReader().mapTables(this.tablesMock, List.of());
         final TableMetadata tableA = tables.get(0);
         final TableMetadata tableB = tables.get(1);
         assertAll(() -> assertThat(tables, iterableWithSize(2)), //
@@ -77,8 +75,7 @@ class BaseTableMetadataReaderTest {
         mockTableName(this.tablesMock, TABLE_A, TABLE_B);
         mockTableComment(this.tablesMock, TABLE_A_COMMENT, TABLE_B_COMMENT);
         mockTableWithColumnsOfType(this.tablesMock, this.columnMetadataReaderMock, TABLE_A, DataType.createBool());
-        final List<TableMetadata> tables = createDefaultTableMetadataReader().mapTables(this.tablesMock,
-                Optional.empty());
+        final List<TableMetadata> tables = createDefaultTableMetadataReader().mapTables(this.tablesMock, List.of());
         final TableMetadata tableA = tables.get(0);
         assertAll(() -> assertThat(tables, iterableWithSize(1)), //
                 () -> assertThat(tableA.getName(), equalTo(TABLE_A)));
@@ -89,7 +86,7 @@ class BaseTableMetadataReaderTest {
         mockTableCount(this.tablesMock, 0);
         final CapturingLogHandler capturingLogHandler = new CapturingLogHandler();
         Logger.getLogger("com.exasol").addHandler(capturingLogHandler);
-        createDefaultTableMetadataReader().mapTables(this.tablesMock, Optional.empty());
+        createDefaultTableMetadataReader().mapTables(this.tablesMock, List.of());
         assertThat(capturingLogHandler.getCapturedData(), containsString("Table scan did not find any tables."));
     }
 }
