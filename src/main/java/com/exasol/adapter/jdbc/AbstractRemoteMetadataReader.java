@@ -92,7 +92,7 @@ public abstract class AbstractRemoteMetadataReader extends AbstractMetadataReade
 
     @Override
     public SchemaMetadata readRemoteSchemaMetadata() {
-        return readRemoteSchemaMetadataForSelectedTables(List.of());
+        return readRemoteSchemaMetadataForSelectedTables(Collections.emptyList());
     }
 
     @Override
