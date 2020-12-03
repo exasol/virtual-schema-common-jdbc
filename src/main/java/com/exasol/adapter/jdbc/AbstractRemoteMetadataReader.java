@@ -3,8 +3,7 @@ package com.exasol.adapter.jdbc;
 import static com.exasol.adapter.jdbc.RemoteMetadataReaderConstants.ANY_TABLE;
 
 import java.sql.*;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Logger;
 
 import com.exasol.adapter.AdapterProperties;
