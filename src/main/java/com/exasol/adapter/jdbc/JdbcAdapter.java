@@ -93,7 +93,9 @@ public class JdbcAdapter implements VirtualSchemaAdapter {
             final List<String> tables = request.getTables();
             return readMetadata(properties, tables, metadata);
         }
-        return readMetadata(properties, metadata);
+        else {
+            return readMetadata(properties, metadata);
+        }
     }
 
     protected SchemaMetadata readMetadata(final AdapterProperties properties,
