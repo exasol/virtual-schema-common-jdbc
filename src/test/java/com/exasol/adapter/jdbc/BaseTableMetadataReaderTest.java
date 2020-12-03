@@ -86,7 +86,7 @@ class BaseTableMetadataReaderTest {
         mockTableCount(this.tablesMock, 0);
         final CapturingLogHandler capturingLogHandler = new CapturingLogHandler();
         Logger.getLogger("com.exasol").addHandler(capturingLogHandler);
-        createDefaultTableMetadataReader().mapTables(this.tablesMock, List.of());
+        createDefaultTableMetadataReader().mapTables(this.tablesMock, Collections.emptyList());
         assertThat(capturingLogHandler.getCapturedData(), containsString("Table scan did not find any tables."));
     }
 }
