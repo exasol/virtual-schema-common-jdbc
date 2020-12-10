@@ -38,7 +38,7 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
     }
 
     @Override
-    public List<TableMetadata> mapTables(final ResultSet remoteTables, final Optional<List<String>> selectedTables)
+    public List<TableMetadata> mapTables(final ResultSet remoteTables, final List<String> selectedTables)
             throws SQLException {
         final List<TableMetadata> translatedTables = new ArrayList<>();
         if (remoteTables.next()) {
@@ -57,7 +57,7 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
     }
 
     protected void mapOrSkipTable(final ResultSet remoteTables, final List<TableMetadata> translatedTables,
-            final Optional<List<String>> selectedTables) throws SQLException {
+            final List<String> selectedTables) throws SQLException {
         final String tableName = readTableName(remoteTables);
         if (isTableIncludedByMapping(tableName)) {
             mapSupportedTables(remoteTables, translatedTables, selectedTables, tableName);
@@ -67,7 +67,7 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
     }
 
     private void mapSupportedTables(final ResultSet remoteTables, final List<TableMetadata> translatedTables,
-            final Optional<List<String>> selectedTables, final String tableName) throws SQLException {
+            final List<String> selectedTables, final String tableName) throws SQLException {
         if (isTableSelected(tableName, selectedTables)) {
             mapOrSkipSelectedTable(remoteTables, translatedTables, tableName);
         } else {
@@ -80,8 +80,8 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
         return true;
     }
 
-    protected boolean isTableSelected(final String tableName, final Optional<List<String>> selectedTables) {
-        return selectedTables.isEmpty() || selectedTables.get().contains(tableName);
+    protected boolean isTableSelected(final String tableName, final List<String> selectedTables) {
+        return (selectedTables == null) || selectedTables.isEmpty() || selectedTables.contains(tableName);
     }
 
     protected void mapOrSkipSelectedTable(final ResultSet remoteTables, final List<TableMetadata> translatedTables,

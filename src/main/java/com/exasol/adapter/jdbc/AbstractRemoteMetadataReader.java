@@ -91,22 +91,40 @@ public abstract class AbstractRemoteMetadataReader extends AbstractMetadataReade
 
     @Override
     public SchemaMetadata readRemoteSchemaMetadata() {
+        return readRemoteSchemaMetadataForSelectedTables(Collections.emptyList());
+    }
+
+    @Override
+    public SchemaMetadata readRemoteSchemaMetadata(final List<String> selectedTables) {
+        return readRemoteSchemaMetadataForSelectedTables(selectedTables);
+    }
+
+    private SchemaMetadata readRemoteSchemaMetadataForSelectedTables(final List<String> selectedTables) {
         try {
-            final String adapterNotes = SchemaAdapterNotesJsonConverter.getInstance()
-                    .convertToJson(getSchemaAdapterNotes());
-            final DatabaseMetaData remoteMetadata = this.connection.getMetaData();
-            final List<TableMetadata> tables = extractTableMetadata(remoteMetadata, Optional.empty());
-            return new SchemaMetadata(adapterNotes, tables);
+            return this.getSchemaMetadata(selectedTables);
         } catch (final SQLException exception) {
             throw new RemoteMetadataReaderException(
                     "Unable to read remote schema metadata. SQL error: " + exception.getMessage(), exception);
         }
     }
 
+    private SchemaMetadata getSchemaMetadata(final List<String> selectedTables) throws SQLException {
+        return new SchemaMetadata(this.getJsonAdapterNotes(), this.getTableMetadata(selectedTables));
+    }
+
+    private String getJsonAdapterNotes() {
+        return SchemaAdapterNotesJsonConverter.getInstance().convertToJson(getSchemaAdapterNotes());
+    }
+
+    private List<TableMetadata> getTableMetadata(final List<String> selectedTables) throws SQLException {
+        final DatabaseMetaData remoteMetadata = this.connection.getMetaData();
+        return this.extractTableMetadata(remoteMetadata, selectedTables);
+    }
+
     private List<TableMetadata> extractTableMetadata(final DatabaseMetaData remoteMetadata,
-            final Optional<List<String>> selectedTables) throws SQLException {
-        final String catalogName = getCatalogNameFilter();
-        final String schemaName = getSchemaNameFilter();
+            final List<String> selectedTables) throws SQLException {
+        final String catalogName = this.getCatalogNameFilter();
+        final String schemaName = this.getSchemaNameFilter();
         logTablesScan(catalogName, schemaName);
         try (final ResultSet remoteTables = remoteMetadata.getTables(catalogName, schemaName, ANY_TABLE,
                 getTableTypeFilter())) {
@@ -172,27 +190,6 @@ public abstract class AbstractRemoteMetadataReader extends AbstractMetadataReade
         } catch (final SQLException exception) {
             throw new RemoteMetadataReaderException("Unable to create schema adapter notes from remote schema.",
                     exception);
-        }
-    }
-
-    @Override
-    public SchemaMetadata readRemoteSchemaMetadata(final List<String> selectedTables) {
-        try {
-            final DatabaseMetaData remoteMetadata = this.connection.getMetaData();
-            final String adapterNotes = SchemaAdapterNotesJsonConverter.getInstance()
-                    .convertToJson(getSchemaAdapterNotes());
-            final List<TableMetadata> tables = extractTableMetadata(remoteMetadata, convertToOptional(selectedTables));
-            return new SchemaMetadata(adapterNotes, tables);
-        } catch (final SQLException exception) {
-            throw new RemoteMetadataReaderException("Unable to read remote schema metadata.", exception);
-        }
-    }
-
-    protected Optional<List<String>> convertToOptional(final List<String> selectedTables) {
-        if ((selectedTables != null) && !selectedTables.isEmpty()) {
-            return Optional.of(selectedTables);
-        } else {
-            return Optional.empty();
         }
     }
 }

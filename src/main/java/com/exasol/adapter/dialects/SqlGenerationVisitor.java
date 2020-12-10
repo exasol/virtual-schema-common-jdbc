@@ -1,14 +1,13 @@
 package com.exasol.adapter.dialects;
 
-import static com.exasol.adapter.sql.SqlFunctionAggregateListagg.Behavior;
-import static com.exasol.adapter.sql.SqlFunctionAggregateListagg.BehaviorType;
-
 import java.util.*;
 
 import com.exasol.adapter.AdapterException;
 import com.exasol.adapter.adapternotes.ColumnAdapterNotesJsonConverter;
 import com.exasol.adapter.metadata.DataType;
 import com.exasol.adapter.sql.*;
+import com.exasol.adapter.sql.SqlFunctionAggregateListagg.Behavior;
+import com.exasol.adapter.sql.SqlFunctionAggregateListagg.BehaviorType;
 
 /**
  * This class has the logic to generate SQL queries based on a graph of {@link SqlNode} elements. It uses the visitor
@@ -254,13 +253,13 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
         if (function.hasDistinct()) {
             builder.append("DISTINCT ");
         }
-        if (countFunction && renderedArguments.size() > 1) {
+        if (countFunction && (renderedArguments.size() > 1)) {
             builder.append("(");
         } else if (countFunction && renderedArguments.isEmpty()) {
             renderedArguments.add(SqlConstants.ASTERISK);
         }
         builder.append(String.join(", ", renderedArguments));
-        if (countFunction && renderedArguments.size() > 1) {
+        if (countFunction && (renderedArguments.size() > 1)) {
             builder.append(")");
         }
         builder.append(")");

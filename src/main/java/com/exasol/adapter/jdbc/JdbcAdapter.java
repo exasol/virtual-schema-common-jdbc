@@ -54,18 +54,8 @@ public class JdbcAdapter implements VirtualSchemaAdapter {
         dialect.validateProperties();
         if (tables.isEmpty()) {
             return dialect.readSchemaMetadata();
-        } else {
-            return dialect.readSchemaMetadata(tables);
         }
-    }
-
-    protected SchemaMetadata readMetadata(final AdapterProperties properties,
-            final List<String> whiteListedRemoteTables, final ExaMetadata exasolMetadata)
-            throws PropertyValidationException {
-        final ConnectionFactory connectionFactory = new RemoteConnectionFactory(exasolMetadata, properties);
-        final SqlDialect dialect = createDialect(connectionFactory, properties);
-        dialect.validateProperties();
-        return dialect.readSchemaMetadata(whiteListedRemoteTables);
+        return dialect.readSchemaMetadata(tables);
     }
 
     private SqlDialect createDialect(final ConnectionFactory connectionFactory, final AdapterProperties properties) {
@@ -86,21 +76,35 @@ public class JdbcAdapter implements VirtualSchemaAdapter {
 
     @Override
     public RefreshResponse refresh(final ExaMetadata metadata, final RefreshRequest request) throws AdapterException {
-        final SchemaMetadataInfo schemaMetadataInfo = request.getSchemaMetadataInfo();
-        final AdapterProperties properties = getPropertiesFromRequest(request);
-        final SchemaMetadata remoteMeta;
         try {
-            if (request.refreshesOnlySelectedTables()) {
-                final List<String> tables = request.getTables();
-                remoteMeta = readMetadata(properties, tables, metadata);
-            } else {
-                remoteMeta = readMetadata(properties, metadata);
-            }
-            return RefreshResponse.builder().schemaMetadata(remoteMeta).build();
-        } catch (final SQLException exception) {
+            final SchemaMetadata remoteMetadata = this.getRemoteMetadata(metadata, request);
+            return RefreshResponse.builder().schemaMetadata(remoteMetadata).build();
+        } catch (final SQLException | PropertyValidationException exception) {
             throw new AdapterException("Unable refresh metadata of Virtual Schema \""
-                    + schemaMetadataInfo.getSchemaName() + "\". Cause: " + exception.getMessage(), exception);
+                    + request.getSchemaMetadataInfo().getSchemaName() + "\". Cause: " + exception.getMessage(),
+                    exception);
         }
+    }
+
+    private SchemaMetadata getRemoteMetadata(final ExaMetadata metadata, final RefreshRequest request)
+            throws PropertyValidationException, SQLException {
+        final AdapterProperties properties = getPropertiesFromRequest(request);
+        if (request.refreshesOnlySelectedTables()) {
+            final List<String> tables = request.getTables();
+            return readMetadata(properties, tables, metadata);
+        }
+        else {
+            return readMetadata(properties, metadata);
+        }
+    }
+
+    protected SchemaMetadata readMetadata(final AdapterProperties properties,
+            final List<String> whiteListedRemoteTables, final ExaMetadata exasolMetadata)
+            throws PropertyValidationException {
+        final ConnectionFactory connectionFactory = new RemoteConnectionFactory(exasolMetadata, properties);
+        final SqlDialect dialect = createDialect(connectionFactory, properties);
+        dialect.validateProperties();
+        return dialect.readSchemaMetadata(whiteListedRemoteTables);
     }
 
     @Override
