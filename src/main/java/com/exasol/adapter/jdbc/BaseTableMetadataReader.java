@@ -19,6 +19,7 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
     static final String DEFAULT_TABLE_ADAPTER_NOTES = "";
     private static final Logger LOGGER = Logger.getLogger(BaseTableMetadataReader.class.getName());
     private static final Pattern UNQUOTED_IDENTIFIER_PATTERN = Pattern.compile("^[a-z][0-9a-z_]*");
+    private static final int DEFAULT_MAX_MAPPED_TABLE_LIST_SIZE = 1000;
     protected ColumnMetadataReader columnMetadataReader;
     private final IdentifierConverter identifierConverter;
 
@@ -40,11 +41,8 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
     @Override
     public List<TableMetadata> mapTables(final ResultSet remoteTables, final List<String> selectedTables)
             throws SQLException {
-        final List<TableMetadata> translatedTables = new ArrayList<>();
         if (remoteTables.next()) {
-            do {
-                mapOrSkipTable(remoteTables, translatedTables, selectedTables);
-            } while (remoteTables.next());
+            return extractTableMetadata(remoteTables, selectedTables);
         } else {
             LOGGER.warning(() -> "Table scan did not find any tables. This can mean that either" //
                     + " a) the source does not contain tables (yet)," + " b) the table type is not supported" //
@@ -52,26 +50,51 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
                     + " d) the user does not have access permissions." //
                     + " Please check that the source actually contains tables. " //
                     + " Also check the spelling and exact case of any catalog or schema name you provided.");
+            return Collections.emptyList();
         }
+    }
+
+    private List<TableMetadata> extractTableMetadata(final ResultSet remoteTables, final List<String> selectedTables)
+            throws SQLException {
+        final List<TableMetadata> translatedTables = new ArrayList<>();
+        do {
+            final String tableName = readTableName(remoteTables);
+            if (tableIsSupported(selectedTables, tableName)) {
+                final TableMetadata tableMetadata = mapTable(remoteTables, tableName);
+                if (tableHasColumns(tableMetadata, tableName)) {
+                    LOGGER.finer(() -> "Read table metadata: " + tableMetadata.describe());
+                    translatedTables.add(tableMetadata);
+                    validateSelectedTablesListSize(selectedTables);
+                }
+            }
+        } while (remoteTables.next());
         return translatedTables;
     }
 
-    protected void mapOrSkipTable(final ResultSet remoteTables, final List<TableMetadata> translatedTables,
-            final List<String> selectedTables) throws SQLException {
-        final String tableName = readTableName(remoteTables);
-        if (isTableIncludedByMapping(tableName)) {
-            mapSupportedTables(remoteTables, translatedTables, selectedTables, tableName);
-        } else {
-            skipUnsupportedTable(tableName);
+    private void validateSelectedTablesListSize(final List<String> selectedTables) {
+        if (selectedTables.size() > DEFAULT_MAX_MAPPED_TABLE_LIST_SIZE) {
+            throw new RemoteMetadataReaderException(
+                    "The size of the list of the selected tables exceeded the default allowed maximum: "
+                            + DEFAULT_MAX_MAPPED_TABLE_LIST_SIZE + ". "
+                            + "Please, use TABLE_FILTER property to define a list of tables you need.");
         }
     }
 
-    private void mapSupportedTables(final ResultSet remoteTables, final List<TableMetadata> translatedTables,
-            final List<String> selectedTables, final String tableName) throws SQLException {
+    protected boolean tableIsSupported(final List<String> selectedTables, final String tableName) {
+        if (isTableIncludedByMapping(tableName)) {
+            return tableIsSelected(selectedTables, tableName);
+        } else {
+            logSkippingUnsupportedTable(tableName);
+            return false;
+        }
+    }
+
+    private boolean tableIsSelected(final List<String> selectedTables, final String tableName) {
         if (isTableSelected(tableName, selectedTables)) {
-            mapOrSkipSelectedTable(remoteTables, translatedTables, tableName);
+            return tableIsNotInExclusionsList(tableName);
         } else {
             LOGGER.fine(() -> "Skipping filtered out table \"" + tableName + "\" when mapping remote metadata.");
+            return false;
         }
     }
 
@@ -84,12 +107,12 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
         return (selectedTables == null) || selectedTables.isEmpty() || selectedTables.contains(tableName);
     }
 
-    protected void mapOrSkipSelectedTable(final ResultSet remoteTables, final List<TableMetadata> translatedTables,
-            final String tableName) throws SQLException {
+    protected boolean tableIsNotInExclusionsList(final String tableName) {
         if (isTableFilteredOut(tableName)) {
-            skipFilteredTable(tableName);
+            logSkippingFilteredTable(tableName);
+            return false;
         } else {
-            mapTableNotFilteredOut(remoteTables, translatedTables, tableName);
+            return true;
         }
     }
 
@@ -102,30 +125,24 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
         }
     }
 
-    protected void skipFilteredTable(final String tableName) {
+    protected void logSkippingFilteredTable(final String tableName) {
         LOGGER.fine(
                 () -> "Skipping table \"" + tableName + "\" when mapping remote data due to user-defined table filter");
     }
 
-    protected void mapTableNotFilteredOut(final ResultSet remoteTables, final List<TableMetadata> translatedTables,
-            final String tableName) throws SQLException {
-        final TableMetadata tableMetadata = mapTable(remoteTables, tableName);
+    protected boolean tableHasColumns(final TableMetadata tableMetadata, final String tableName) {
         if (tableMetadata.getColumns().isEmpty()) {
-            skipTableWithEmptyColumns(tableName);
+            logSkippingTableWithEmptyColumns(tableName);
+            return false;
         } else {
-            addMappedTable(translatedTables, tableMetadata);
+            return true;
         }
     }
 
-    protected void skipTableWithEmptyColumns(final String tableName) {
+    protected void logSkippingTableWithEmptyColumns(final String tableName) {
         LOGGER.fine(() -> "Not mapping table \"" + tableName + "\" because it has no columns."
                 + " This can happen if the view containing the columns is invalid"
                 + " or if the Virtual Schema adapter does not support mapping the column types.");
-    }
-
-    protected void addMappedTable(final List<TableMetadata> translatedTables, final TableMetadata tableMetadata) {
-        LOGGER.finer(() -> "Read table metadata: " + tableMetadata.describe());
-        translatedTables.add(tableMetadata);
     }
 
     protected TableMetadata mapTable(final ResultSet table, final String tableName) throws SQLException {
@@ -151,7 +168,7 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
         return UNQUOTED_IDENTIFIER_PATTERN.matcher(identifier).matches();
     }
 
-    protected void skipUnsupportedTable(final String tableName) {
+    protected void logSkippingUnsupportedTable(final String tableName) {
         LOGGER.fine(() -> "Skipping unsupported table \"" + tableName + "\" when mapping remote metadata.");
     }
 }
