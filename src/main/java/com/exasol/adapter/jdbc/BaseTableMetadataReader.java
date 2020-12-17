@@ -76,7 +76,7 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
             throw new RemoteMetadataReaderException(
                     "The size of the list of the selected tables exceeded the default allowed maximum: "
                             + DEFAULT_MAX_MAPPED_TABLE_LIST_SIZE + ". "
-                            + "Please, use TABLE_FILTER property to define a list of tables you need.");
+                            + "Please, use the TABLE_FILTER property to define the list of tables you need.");
         }
     }
 
