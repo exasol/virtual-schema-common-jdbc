@@ -68,7 +68,7 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
     private Optional<TableMetadata> getTableMetadata(final ResultSet remoteTables, final List<String> selectedTables)
             throws SQLException {
         final String tableName = readTableName(remoteTables);
-        if (tableIsSupported(selectedTables, tableName)) {
+        if (isTableSupported(selectedTables, tableName)) {
             return getTableMetadata(remoteTables, tableName);
         }
         return Optional.empty();
@@ -117,9 +117,9 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
         }
     }
 
-    protected boolean tableIsSupported(final List<String> selectedTables, final String tableName) {
+    protected boolean isTableSupported(final List<String> selectedTables, final String tableName) {
         if (isTableIncludedByMapping(tableName)) {
-            return tableIsSelected(selectedTables, tableName);
+            return isTableSelected(selectedTables, tableName);
         } else {
             logSkippingUnsupportedTable(tableName);
             return false;
@@ -135,9 +135,9 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
         LOGGER.fine(() -> "Skipping unsupported table \"" + tableName + "\" when mapping remote metadata.");
     }
 
-    private boolean tableIsSelected(final List<String> selectedTables, final String tableName) {
+    private boolean isTableSelected(final List<String> selectedTables, final String tableName) {
         if (checkIfTableIsSelected(tableName, selectedTables)) {
-            return tableIsIncluded(tableName);
+            return isTableIncludedByFilter(tableName);
         } else {
             LOGGER.fine(() -> "Skipping filtered out table \"" + tableName + "\" when mapping remote metadata.");
             return false;
@@ -148,7 +148,7 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
         return (selectedTables == null) || selectedTables.isEmpty() || selectedTables.contains(tableName);
     }
 
-    protected boolean tableIsIncluded(final String tableName) {
+    protected boolean isTableIncludedByFilter(final String tableName) {
         final List<String> filteredTables = this.properties.getFilteredTables();
         if (filteredTables.isEmpty() || filteredTables.contains(tableName)) {
             return true;
