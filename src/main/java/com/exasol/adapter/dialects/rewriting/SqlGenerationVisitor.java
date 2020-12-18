@@ -19,7 +19,7 @@ import com.exasol.adapter.sql.SqlFunctionAggregateListagg.BehaviorType;
  * <p>
  * If this class is not sufficiently customizable for your use case, you can extend this class and override the required
  * methods. You also have to return your custom visitor class then in the method
- * {@link SqlDialect#getSqlGenerationVisitor(SqlGenerationContext)}.
+ * {@link SqlDialect#getSqlGenerator(SqlGenerationContext)}.
  * </p>
  *
  * Note on operator associativity and parenthesis generation: Currently we use parenthesis almost always. Without
@@ -297,14 +297,15 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String>, SqlGenerato
 
     @Override
     public String visit(final SqlFunctionScalar function) throws AdapterException {
-        final List<String> sqlArguments = this.generateSqlForFunctionArguments(function.getArguments());
-        final ScalarFunction scalarFunction = function.getFunction();
-        if (this.dialect.getBinaryInfixFunctionAliases().containsKey(scalarFunction)) {
-            return this.generateSqlForInfixFunction(scalarFunction, sqlArguments);
-        } else if (this.dialect.getPrefixFunctionAliases().containsKey(scalarFunction)) {
-            return this.generateSqlForPrefixFunction(scalarFunction, sqlArguments);
+        final List<String> argumentsSql = this.generateSqlForFunctionArguments(function.getArguments());
+        if (this.hasAlias(function)) {
+            return generateSqlForFunctionWithAlias(function, argumentsSql);
+        } else if (this.isBinaryInfixFunction(function)) {
+            return this.generateSqlForBinaryInfixFunction(function.getFunction(), argumentsSql);
+        } else if (this.isPrefixFunction(function)) {
+            return this.generateSqlForPrefixFunction(function.getFunction(), argumentsSql);
         } else {
-            return generateSqlForNamedFunction(function, sqlArguments);
+            return this.generateSqlForFunctionWithName(function, argumentsSql, function.getFunctionName());
         }
     }
 
@@ -316,20 +317,17 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String>, SqlGenerato
         return argumentsSql;
     }
 
-    private String generateSqlForPrefixFunction(final ScalarFunction scalarFunction, final List<String> sqlArguments) {
-        assert (sqlArguments.size() == 1);
-        final String realFunctionName = this.dialect.getPrefixFunctionAliases().get(scalarFunction);
-        return "(" + realFunctionName + sqlArguments.get(0) + ")";
+    private boolean hasAlias(final SqlFunctionScalar function) {
+        return this.dialect.getScalarFunctionAliases().containsKey(function.getFunction());
     }
 
-    private String generateSqlForInfixFunction(final ScalarFunction scalarFunction, final List<String> sqlArguments) {
-        assert (sqlArguments.size() == 2);
-        final String realFunctionName = this.dialect.getBinaryInfixFunctionAliases().get(scalarFunction);
-        return "(" + sqlArguments.get(0) + " " + realFunctionName + " " + sqlArguments.get(1) + ")";
+    private String generateSqlForFunctionWithAlias(final SqlFunctionScalar function, final List<String> sqlArguments) {
+        final String alias = this.dialect.getScalarFunctionAliases().get(function.getFunction());
+        return this.generateSqlForFunctionWithName(function, sqlArguments, alias);
     }
 
-    private String generateSqlForNamedFunction(final SqlFunctionScalar function, final List<String> sqlArguments) {
-        final String functionName = this.getFunctionNameInSource(function);
+    private String generateSqlForFunctionWithName(final SqlFunctionScalar function, final List<String> sqlArguments,
+            final String functionName) {
         if (sqlArguments.isEmpty() && this.dialect.omitParentheses(function.getFunction())) {
             return functionName;
         } else {
@@ -337,13 +335,25 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String>, SqlGenerato
         }
     }
 
-    private String getFunctionNameInSource(final SqlFunctionScalar function) {
-        if (this.dialect.getScalarFunctionAliases().containsKey(function.getFunction())) {
-            // Take alias if one is defined - will overwrite the infix
-            return this.dialect.getScalarFunctionAliases().get(function.getFunction());
-        } else {
-            return function.getFunctionName();
-        }
+    private boolean isBinaryInfixFunction(final SqlFunctionScalar function) {
+        return this.dialect.getBinaryInfixFunctionAliases().containsKey(function.getFunction());
+    }
+
+    private String generateSqlForBinaryInfixFunction(final ScalarFunction scalarFunction,
+            final List<String> sqlArguments) {
+        assert (sqlArguments.size() == 2);
+        final String realFunctionName = this.dialect.getBinaryInfixFunctionAliases().get(scalarFunction);
+        return "(" + sqlArguments.get(0) + " " + realFunctionName + " " + sqlArguments.get(1) + ")";
+    }
+
+    private boolean isPrefixFunction(final SqlFunctionScalar function) {
+        return this.dialect.getPrefixFunctionAliases().containsKey(function.getFunction());
+    }
+
+    private String generateSqlForPrefixFunction(final ScalarFunction scalarFunction, final List<String> sqlArguments) {
+        assert (sqlArguments.size() == 1);
+        final String realFunctionName = this.dialect.getPrefixFunctionAliases().get(scalarFunction);
+        return "(" + realFunctionName + sqlArguments.get(0) + ")";
     }
 
     @Override
