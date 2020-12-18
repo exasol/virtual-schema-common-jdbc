@@ -1,7 +1,8 @@
-package com.exasol.adapter.dialects;
+package com.exasol.adapter.dialects.rewriting;
 
 import java.sql.SQLException;
 
+import com.exasol.adapter.dialects.SqlDialect;
 import com.exasol.adapter.jdbc.RemoteMetadataReader;
 
 /**

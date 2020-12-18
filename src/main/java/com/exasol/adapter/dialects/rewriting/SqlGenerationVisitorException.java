@@ -1,4 +1,4 @@
-package com.exasol.adapter.dialects;
+package com.exasol.adapter.dialects.rewriting;
 
 /**
  * Represents an exceptional situation while dialects' SQL generation visitors are running.

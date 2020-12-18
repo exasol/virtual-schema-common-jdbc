@@ -1,8 +1,9 @@
-package com.exasol.adapter.dialects;
+package com.exasol.adapter.dialects.rewriting;
 
 import java.sql.SQLException;
 import java.util.logging.Logger;
 
+import com.exasol.adapter.dialects.SqlDialect;
 import com.exasol.adapter.jdbc.*;
 
 /**

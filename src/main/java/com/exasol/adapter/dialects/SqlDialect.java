@@ -7,6 +7,7 @@ import java.util.Map;
 import com.exasol.ExaMetadata;
 import com.exasol.adapter.AdapterException;
 import com.exasol.adapter.capabilities.Capabilities;
+import com.exasol.adapter.dialects.rewriting.SqlGenerationContext;
 import com.exasol.adapter.metadata.SchemaMetadata;
 import com.exasol.adapter.sql.*;
 
@@ -203,7 +204,7 @@ public interface SqlDialect {
      * @param context context information for the SQL generation visitor
      * @return the SqlGenerationVisitor to be used for this dialect
      */
-    public SqlNodeVisitor<String> getSqlGenerationVisitor(SqlGenerationContext context);
+    public SqlGenerator getSqlGenerator(SqlGenerationContext context);
 
     /**
      * Read the remote schema metadata for all tables from the remote source.

@@ -1,4 +1,4 @@
-package com.exasol.adapter.dialects;
+package com.exasol.adapter.dialects.rewriting;
 
 import java.util.ArrayList;
 import java.util.List;

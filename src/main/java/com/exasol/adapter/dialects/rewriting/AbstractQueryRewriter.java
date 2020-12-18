@@ -1,4 +1,4 @@
-package com.exasol.adapter.dialects;
+package com.exasol.adapter.dialects.rewriting;
 
 import java.sql.SQLException;
 import java.util.logging.Logger;
@@ -6,8 +6,8 @@ import java.util.logging.Logger;
 import com.exasol.*;
 import com.exasol.adapter.AdapterException;
 import com.exasol.adapter.AdapterProperties;
+import com.exasol.adapter.dialects.*;
 import com.exasol.adapter.jdbc.*;
-import com.exasol.adapter.sql.SqlNodeVisitor;
 import com.exasol.adapter.sql.SqlStatement;
 
 /**
@@ -58,9 +58,9 @@ public abstract class AbstractQueryRewriter implements QueryRewriter {
             throws AdapterException {
         final SqlGenerationContext context = new SqlGenerationContext(properties.getCatalogName(),
                 properties.getSchemaName(), false);
-        final SqlNodeVisitor<String> sqlGeneratorVisitor = this.dialect.getSqlGenerationVisitor(context);
-        final String pushdownQuery = statement.accept(sqlGeneratorVisitor);
-        LOGGER.finer(() -> "Push-down query generated with " + sqlGeneratorVisitor.getClass().getSimpleName() + ":\n"
+        final SqlGenerator sqlGenerator = this.dialect.getSqlGenerator(context);
+        final String pushdownQuery = sqlGenerator.generateSqlFor(statement);
+        LOGGER.finer(() -> "Push-down query generated with " + sqlGenerator.getClass().getSimpleName() + ":\n"
                 + pushdownQuery);
         return pushdownQuery;
     }

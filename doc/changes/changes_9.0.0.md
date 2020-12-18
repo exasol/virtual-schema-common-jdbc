@@ -6,3 +6,4 @@ Code name:
 
 * #64: Refactored the `AbstractRemoteMetadataReader` and `TableMetadataReader` interface
 * #75: Restricted amount of mapped tables in the remote schema to 1000.
+* #77: Refactored SQL generation for scalar functions.
