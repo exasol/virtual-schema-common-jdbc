@@ -341,8 +341,11 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String>, SqlGenerato
 
     private String generateSqlForBinaryInfixFunction(final ScalarFunction scalarFunction,
             final List<String> sqlArguments) {
-        assert (sqlArguments.size() == 2);
         final String realFunctionName = this.dialect.getBinaryInfixFunctionAliases().get(scalarFunction);
+        if (sqlArguments.size() != 2) {
+            throw new IllegalArgumentException("The " + realFunctionName + " function requests 2 arguments, but "
+                    + sqlArguments.size() + " were given.");
+        }
         return "(" + sqlArguments.get(0) + " " + realFunctionName + " " + sqlArguments.get(1) + ")";
     }
 
@@ -351,8 +354,11 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String>, SqlGenerato
     }
 
     private String generateSqlForPrefixFunction(final ScalarFunction scalarFunction, final List<String> sqlArguments) {
-        assert (sqlArguments.size() == 1);
         final String realFunctionName = this.dialect.getPrefixFunctionAliases().get(scalarFunction);
+        if (sqlArguments.size() != 1) {
+            throw new IllegalArgumentException("The " + realFunctionName + " function requests 1 arguments, but "
+                    + sqlArguments.size() + " were given.");
+        }
         return "(" + realFunctionName + sqlArguments.get(0) + ")";
     }
 
