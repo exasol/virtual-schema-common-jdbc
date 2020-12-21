@@ -17,6 +17,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.dialects.dummy.DummySqlDialect;
+import com.exasol.adapter.dialects.rewriting.SqlGenerationContext;
+import com.exasol.adapter.dialects.rewriting.SqlGenerationVisitor;
 import com.exasol.adapter.sql.ScalarFunction;
 import com.exasol.logging.CapturingLogHandler;
 
@@ -142,7 +144,7 @@ class AbstractSqlDialectTest {
     void testGetSqlGenerationVisitor() {
         final SqlDialect sqlDialect = new DummySqlDialect(null, AdapterProperties.emptyProperties());
         final SqlGenerationContext context = new SqlGenerationContext("catalogName", "schemaName", false);
-        assertThat(sqlDialect.getSqlGenerationVisitor(context), instanceOf(SqlGenerationVisitor.class));
+        assertThat(sqlDialect.getSqlGenerator(context), instanceOf(SqlGenerationVisitor.class));
     }
 
     @Test

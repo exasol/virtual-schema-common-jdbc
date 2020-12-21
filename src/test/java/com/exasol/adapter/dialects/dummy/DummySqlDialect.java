@@ -8,7 +8,10 @@ import java.util.Set;
 
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.capabilities.Capabilities;
-import com.exasol.adapter.dialects.*;
+import com.exasol.adapter.dialects.AbstractSqlDialect;
+import com.exasol.adapter.dialects.QueryRewriter;
+import com.exasol.adapter.dialects.rewriting.ImportIntoQueryRewriter;
+import com.exasol.adapter.dialects.rewriting.SqlGenerationContext;
 import com.exasol.adapter.jdbc.*;
 
 public class DummySqlDialect extends AbstractSqlDialect {

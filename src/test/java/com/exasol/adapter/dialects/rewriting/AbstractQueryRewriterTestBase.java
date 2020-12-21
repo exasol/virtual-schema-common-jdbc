@@ -1,4 +1,4 @@
-package com.exasol.adapter.dialects;
+package com.exasol.adapter.dialects.rewriting;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;

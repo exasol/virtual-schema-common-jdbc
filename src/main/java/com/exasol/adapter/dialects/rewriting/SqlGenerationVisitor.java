@@ -1,9 +1,11 @@
-package com.exasol.adapter.dialects;
+package com.exasol.adapter.dialects.rewriting;
 
 import java.util.*;
 
 import com.exasol.adapter.AdapterException;
 import com.exasol.adapter.adapternotes.ColumnAdapterNotesJsonConverter;
+import com.exasol.adapter.dialects.SqlDialect;
+import com.exasol.adapter.dialects.SqlGenerator;
 import com.exasol.adapter.metadata.DataType;
 import com.exasol.adapter.sql.*;
 import com.exasol.adapter.sql.SqlFunctionAggregateListagg.Behavior;
@@ -17,7 +19,7 @@ import com.exasol.adapter.sql.SqlFunctionAggregateListagg.BehaviorType;
  * <p>
  * If this class is not sufficiently customizable for your use case, you can extend this class and override the required
  * methods. You also have to return your custom visitor class then in the method
- * {@link SqlDialect#getSqlGenerationVisitor(SqlGenerationContext)}.
+ * {@link SqlDialect#getSqlGenerator(SqlGenerationContext)}.
  * </p>
  *
  * Note on operator associativity and parenthesis generation: Currently we use parenthesis almost always. Without
@@ -26,7 +28,7 @@ import com.exasol.adapter.sql.SqlFunctionAggregateListagg.BehaviorType;
  * parentheses. Currently we make inflationary use of parenthesis to to enforce the right semantic, but hopefully there
  * is a better way.
  */
-public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
+public class SqlGenerationVisitor implements SqlNodeVisitor<String>, SqlGenerator {
     private final SqlDialect dialect;
     private final SqlGenerationContext context;
 
@@ -40,6 +42,11 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
         this.dialect = dialect;
         this.context = context;
         checkDialectAliases();
+    }
+
+    @Override
+    public String generateSqlFor(final SqlNode sqlNode) throws AdapterException {
+        return sqlNode.accept(this);
     }
 
     protected SqlDialect getDialect() {
@@ -290,36 +297,69 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
 
     @Override
     public String visit(final SqlFunctionScalar function) throws AdapterException {
+        final List<String> argumentsSql = this.generateSqlForFunctionArguments(function.getArguments());
+        if (this.hasAlias(function)) {
+            return generateSqlForFunctionWithAlias(function, argumentsSql);
+        } else if (this.isBinaryInfixFunction(function)) {
+            return this.generateSqlForBinaryInfixFunction(function.getFunction(), argumentsSql);
+        } else if (this.isPrefixFunction(function)) {
+            return this.generateSqlForPrefixFunction(function.getFunction(), argumentsSql);
+        } else {
+            return this.generateSqlForFunctionWithName(function, argumentsSql, function.getFunctionName());
+        }
+    }
+
+    private List<String> generateSqlForFunctionArguments(final List<SqlNode> arguments) throws AdapterException {
         final List<String> argumentsSql = new ArrayList<>();
-        for (final SqlNode node : function.getArguments()) {
-            argumentsSql.add(node.accept(this));
+        for (final SqlNode argument : arguments) {
+            argumentsSql.add(this.generateSqlFor(argument));
         }
-        String functionNameInSourceSystem = function.getFunctionName();
-        if (this.dialect.getScalarFunctionAliases().containsKey(function.getFunction())) {
-            // Take alias if one is defined - will overwrite the infix
-            functionNameInSourceSystem = this.dialect.getScalarFunctionAliases().get(function.getFunction());
+        return argumentsSql;
+    }
+
+    private boolean hasAlias(final SqlFunctionScalar function) {
+        return this.dialect.getScalarFunctionAliases().containsKey(function.getFunction());
+    }
+
+    private String generateSqlForFunctionWithAlias(final SqlFunctionScalar function, final List<String> sqlArguments) {
+        final String alias = this.dialect.getScalarFunctionAliases().get(function.getFunction());
+        return this.generateSqlForFunctionWithName(function, sqlArguments, alias);
+    }
+
+    private String generateSqlForFunctionWithName(final SqlFunctionScalar function, final List<String> sqlArguments,
+            final String functionName) {
+        if (sqlArguments.isEmpty() && this.dialect.omitParentheses(function.getFunction())) {
+            return functionName;
         } else {
-            if (this.dialect.getBinaryInfixFunctionAliases().containsKey(function.getFunction())) {
-                assert (argumentsSql.size() == 2);
-                String realFunctionName = function.getFunctionName();
-                if (this.dialect.getBinaryInfixFunctionAliases().containsKey(function.getFunction())) {
-                    realFunctionName = this.dialect.getBinaryInfixFunctionAliases().get(function.getFunction());
-                }
-                return "(" + argumentsSql.get(0) + " " + realFunctionName + " " + argumentsSql.get(1) + ")";
-            } else if (this.dialect.getPrefixFunctionAliases().containsKey(function.getFunction())) {
-                assert (argumentsSql.size() == 1);
-                String realFunctionName = function.getFunctionName();
-                if (this.dialect.getPrefixFunctionAliases().containsKey(function.getFunction())) {
-                    realFunctionName = this.dialect.getPrefixFunctionAliases().get(function.getFunction());
-                }
-                return "(" + realFunctionName + argumentsSql.get(0) + ")";
-            }
+            return functionName + "(" + String.join(", ", sqlArguments) + ")";
         }
-        if (argumentsSql.isEmpty() && this.dialect.omitParentheses(function.getFunction())) {
-            return functionNameInSourceSystem;
-        } else {
-            return functionNameInSourceSystem + "(" + String.join(", ", argumentsSql) + ")";
+    }
+
+    private boolean isBinaryInfixFunction(final SqlFunctionScalar function) {
+        return this.dialect.getBinaryInfixFunctionAliases().containsKey(function.getFunction());
+    }
+
+    private String generateSqlForBinaryInfixFunction(final ScalarFunction scalarFunction,
+            final List<String> sqlArguments) {
+        final String realFunctionName = this.dialect.getBinaryInfixFunctionAliases().get(scalarFunction);
+        if (sqlArguments.size() != 2) {
+            throw new IllegalArgumentException("The " + realFunctionName + " function requests 2 arguments, but "
+                    + sqlArguments.size() + " were given.");
         }
+        return "(" + sqlArguments.get(0) + " " + realFunctionName + " " + sqlArguments.get(1) + ")";
+    }
+
+    private boolean isPrefixFunction(final SqlFunctionScalar function) {
+        return this.dialect.getPrefixFunctionAliases().containsKey(function.getFunction());
+    }
+
+    private String generateSqlForPrefixFunction(final ScalarFunction scalarFunction, final List<String> sqlArguments) {
+        final String realFunctionName = this.dialect.getPrefixFunctionAliases().get(scalarFunction);
+        if (sqlArguments.size() != 1) {
+            throw new IllegalArgumentException("The " + realFunctionName + " function requests 1 arguments, but "
+                    + sqlArguments.size() + " were given.");
+        }
+        return "(" + realFunctionName + sqlArguments.get(0) + ")";
     }
 
     @Override
@@ -609,4 +649,5 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String> {
         return converter.convertFromJsonToColumnAdapterNotes(column.getMetadata().getAdapterNotes(), column.getName())
                 .getTypeName();
     }
+
 }

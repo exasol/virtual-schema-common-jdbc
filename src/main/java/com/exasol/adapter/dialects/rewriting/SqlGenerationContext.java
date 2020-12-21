@@ -1,4 +1,4 @@
-package com.exasol.adapter.dialects;
+package com.exasol.adapter.dialects.rewriting;
 
 /**
  * Context information needed during SQL generation. These information are not dialect specific.

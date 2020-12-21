@@ -1,6 +1,6 @@
 package com.exasol.adapter.dialects;
 
-import static com.exasol.adapter.dialects.SqlGenerationHelper.addMetadata;
+import static com.exasol.adapter.dialects.rewriting.SqlGenerationHelper.addMetadata;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
