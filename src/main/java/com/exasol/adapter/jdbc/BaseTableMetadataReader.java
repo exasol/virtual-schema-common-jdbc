@@ -9,6 +9,7 @@ import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.dialects.IdentifierConverter;
 import com.exasol.adapter.metadata.ColumnMetadata;
 import com.exasol.adapter.metadata.TableMetadata;
+import com.exasol.errorreporting.ExaError;
 
 /**
  * This class maps metadata of tables from the remote source to Exasol.
@@ -44,12 +45,14 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
         if (remoteTables.next()) {
             return extractTableMetadata(remoteTables, selectedTables);
         } else {
-            LOGGER.warning(() -> "Table scan did not find any tables. This can mean that either" //
-                    + " a) the source does not contain tables (yet)," + " b) the table type is not supported" //
-                    + " c) the table scan filter criteria is incorrect or" //
-                    + " d) the user does not have access permissions." //
-                    + " Please check that the source actually contains tables. " //
-                    + " Also check the spelling and exact case of any catalog or schema name you provided.");
+            LOGGER.warning(() -> ExaError.messageBuilder("W-VS-COM-JDBC-7")
+                    .message("Table scan did not find any tables. This can mean that either" //
+                            + " a) the source does not contain tables (yet)," + " b) the table type is not supported" //
+                            + " c) the table scan filter criteria is incorrect or" //
+                            + " d) the user does not have access permissions.")
+                    .mitigation("Please check that the source actually contains tables. " //
+                            + " Also check the spelling and exact case of any catalog or schema name you provided.")
+                    .toString());
             return Collections.emptyList();
         }
     }
@@ -110,10 +113,11 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
 
     private void validateMappedTablesListSize(final List<TableMetadata> selectedTables) {
         if (selectedTables.size() > DEFAULT_MAX_MAPPED_TABLE_LIST_SIZE) {
-            throw new RemoteMetadataReaderException(
-                    "The size of the list of the selected tables exceeded the default allowed maximum: "
-                            + DEFAULT_MAX_MAPPED_TABLE_LIST_SIZE + ". "
-                            + "Please, use the TABLE_FILTER property to define the list of tables you need.");
+            throw new RemoteMetadataReaderException(ExaError.messageBuilder("E-VS-COM-JDBC-24").message(
+                    "The size of the list of the selected tables exceeded the default allowed maximum: {{allowedMax}}.")
+                    .unquotedParameter("allowedMax", DEFAULT_MAX_MAPPED_TABLE_LIST_SIZE)
+                    .mitigation("Please, use the 'TABLE_FILTER' property to define the list of tables you need.")
+                    .toString());
         }
     }
 

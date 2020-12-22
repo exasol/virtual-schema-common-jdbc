@@ -12,6 +12,7 @@ import com.exasol.adapter.metadata.SchemaMetadata;
 import com.exasol.adapter.metadata.SchemaMetadataInfo;
 import com.exasol.adapter.request.*;
 import com.exasol.adapter.response.*;
+import com.exasol.errorreporting.ExaError;
 
 /**
  * This class implements main logic for different types of requests a virtual schema JDBC adapter can receive.
@@ -33,8 +34,10 @@ public class JdbcAdapter implements VirtualSchemaAdapter {
             final SchemaMetadata remoteMeta = readMetadata(properties, exasolMetadata);
             return CreateVirtualSchemaResponse.builder().schemaMetadata(remoteMeta).build();
         } catch (final SQLException exception) {
-            throw new AdapterException("Unable create Virtual Schema \"" + request.getVirtualSchemaName()
-                    + "\". Cause: \"" + exception.getMessage(), exception);
+            throw new AdapterException(ExaError.messageBuilder("E-VS-COM-JDBC-25")
+                    .message("Unable create Virtual Schema \"{{virtualSchemaName}}\". Cause: {{cause}}")
+                    .unquotedParameter("virtualSchemaName", request.getVirtualSchemaName())
+                    .unquotedParameter("cause", exception.getMessage()).toString(), exception);
         }
     }
 
@@ -71,7 +74,7 @@ public class JdbcAdapter implements VirtualSchemaAdapter {
     }
 
     protected void logDropVirtualSchemaRequestReceived(final DropVirtualSchemaRequest request) {
-        LOGGER.fine(() -> "Received request to drop Virutal Schema \"" + request.getVirtualSchemaName() + "\".");
+        LOGGER.fine(() -> "Received request to drop Virtual Schema \"" + request.getVirtualSchemaName() + "\".");
     }
 
     @Override
@@ -80,9 +83,10 @@ public class JdbcAdapter implements VirtualSchemaAdapter {
             final SchemaMetadata remoteMetadata = this.getRemoteMetadata(metadata, request);
             return RefreshResponse.builder().schemaMetadata(remoteMetadata).build();
         } catch (final SQLException | PropertyValidationException exception) {
-            throw new AdapterException("Unable refresh metadata of Virtual Schema \""
-                    + request.getSchemaMetadataInfo().getSchemaName() + "\". Cause: " + exception.getMessage(),
-                    exception);
+            throw new AdapterException(ExaError.messageBuilder("E-VS-COM-JDBC-26")
+                    .message("Unable refresh metadata of Virtual Schema \"{{virtualSchemaName}}\". Cause: {{cause}}")
+                    .unquotedParameter("virtualSchemaName", request.getSchemaMetadataInfo().getSchemaName())
+                    .unquotedParameter("cause", exception.getMessage()).toString(), exception);
         }
     }
 
@@ -92,8 +96,7 @@ public class JdbcAdapter implements VirtualSchemaAdapter {
         if (request.refreshesOnlySelectedTables()) {
             final List<String> tables = request.getTables();
             return readMetadata(properties, tables, metadata);
-        }
-        else {
+        } else {
             return readMetadata(properties, metadata);
         }
     }
@@ -214,8 +217,9 @@ public class JdbcAdapter implements VirtualSchemaAdapter {
             final String importFromPushdownQuery = dialect.rewriteQuery(request.getSelect(), exaMetadata);
             return PushDownResponse.builder().pushDownSql(importFromPushdownQuery).build();
         } catch (final SQLException exception) {
-            throw new AdapterException("Unable to execute push-down request. Cause: " + exception.getMessage(),
-                    exception);
+            throw new AdapterException(ExaError.messageBuilder("E-VS-COM-JDBC-27")
+                    .message("Unable to execute push-down request. Cause: {{cause}}")
+                    .unquotedParameter("cause", exception.getMessage()).toString(), exception);
         }
     }
 }

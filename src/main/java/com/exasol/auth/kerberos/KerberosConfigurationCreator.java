@@ -7,6 +7,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.logging.Logger;
 
+import com.exasol.errorreporting.ExaError;
+
 /**
  * This class generates the necessary configuration for a successful Kerberos authentication.
  *
@@ -44,8 +46,10 @@ public class KerberosConfigurationCreator {
             final String base64EncodedKeyTab = tokens[2];
             createKerberosConfiguration(user, base64EncodedKerberosConfig, base64EncodedKeyTab);
         } else {
-            throw new KerberosConfigurationCreatorException("Syntax error in Kerberos password."
-                    + " Must conform to: 'ExaAuthType=Kerberos;<base 64 kerberos config>;<base 64 key tab>'");
+            throw new KerberosConfigurationCreatorException(ExaError.messageBuilder("E-VS-COM-JDBC-32")
+                    .message("Syntax error in Kerberos password."
+                            + " Must conform to: 'ExaAuthType=Kerberos;<base 64 kerberos config>;<base 64 key tab>'")
+                    .toString());
         }
     }
 
@@ -59,8 +63,8 @@ public class KerberosConfigurationCreator {
             final Path jaasConfigPath = createTemporaryJaasConfig(temporaryDirectory, user, keyTabPath);
             setKerberosSystemProperties(kerberosConfigPath, jaasConfigPath);
         } catch (final IOException exception) {
-            throw new KerberosConfigurationCreatorException("Unable to create temporary Kerberos configuration file.",
-                    exception);
+            throw new KerberosConfigurationCreatorException(ExaError.messageBuilder("E-VS-COM-JDBC-33")
+                    .message("Unable to create temporary Kerberos configuration file.").toString(), exception);
         }
     }
 

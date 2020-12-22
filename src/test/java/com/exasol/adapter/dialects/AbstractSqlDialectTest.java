@@ -47,7 +47,7 @@ class AbstractSqlDialectTest {
         final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
                 sqlDialect::validateProperties);
         assertThat(exception.getMessage(),
-                containsString("Please specify a connection using the property \"" + CONNECTION_NAME_PROPERTY + "\"."));
+                containsString("Please specify a connection using the property '" + CONNECTION_NAME_PROPERTY + "'."));
     }
 
     private void getMinimumMandatory() {
@@ -107,8 +107,9 @@ class AbstractSqlDialectTest {
         final SqlDialect sqlDialect = new DummySqlDialect(null, adapterProperties);
         final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
                 sqlDialect::validateProperties);
-        assertThat(exception.getMessage(), containsString(
-                "Invalid value 'IGNORE_ALL' for property EXCEPTION_HANDLING. Choose one of: IGNORE_INVALID_VIEWS, NONE"));
+        assertThat(exception.getMessage(),
+                containsString("E-VS-COM-JDBC-16: Invalid value 'IGNORE_ALL' for property 'EXCEPTION_HANDLING'. "
+                        + "Choose one of: [IGNORE_INVALID_VIEWS, NONE]."));
     }
 
     @ValueSource(strings = { "ab:\'ab\'", "a'b:'a''b'", "a''b:'a''''b'", "'ab':'''ab'''" })

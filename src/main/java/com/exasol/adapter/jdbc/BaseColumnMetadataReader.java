@@ -17,6 +17,7 @@ import com.exasol.adapter.adapternotes.ColumnAdapterNotesJsonConverter;
 import com.exasol.adapter.dialects.IdentifierConverter;
 import com.exasol.adapter.metadata.ColumnMetadata;
 import com.exasol.adapter.metadata.DataType;
+import com.exasol.errorreporting.ExaError;
 
 /**
  * This class implements a mapper that reads column metadata from the remote database and converts it into JDBC
@@ -67,8 +68,10 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
                 tableName, ANY_COLUMN)) {
             return getColumnsFromResultSet(remoteColumns);
         } catch (final SQLException exception) {
-            throw new RemoteMetadataReaderException("Unable to read column metadata from remote for catalog \""
-                    + catalogName + "\" and schema \"" + schemaName + "\"", exception);
+            throw new RemoteMetadataReaderException(ExaError.messageBuilder("E-VS-COM-JDBC-1").message(
+                    "Unable to read column metadata from remote for catalog \"{{catalogName}}\" and schema \"{{schemaName}}\"")
+                    .unquotedParameter("schemaName", schemaName) //
+                    .unquotedParameter("catalogName", catalogName).toString(), exception);
         }
     }
 
@@ -146,9 +149,14 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
         try {
             return !JDBC_FALSE.equalsIgnoreCase(remoteColumn.getString(NULLABLE_COLUMN));
         } catch (final SQLException exception) {
-            LOGGER.warning(() -> "Caught an SQL exception trying to determine whether column \"" + columnName
-                    + "\" is nullable: " + exception.getMessage());
-            LOGGER.warning(() -> "Assuming column \"" + columnName + "\" to be nullable.");
+            LOGGER.warning(() -> ExaError.messageBuilder("W-VS-COM-JDBC-3").message(
+                    "Caught an SQL exception trying to determine whether column \"{{columnName}}\" is nullable: "
+                            + "{{exceptionMessage}}")
+                    .unquotedParameter("columnName", columnName) //
+                    .unquotedParameter("exceptionMessage", exception.getMessage()).toString());
+            LOGGER.warning(() -> ExaError.messageBuilder("W-VS-COM-JDBC-4")
+                    .message("Assuming column \"{{columnName}}\" to be nullable.")
+                    .unquotedParameter("columnName", columnName).toString());
             return DEFAULT_NULLABLE;
         }
     }
@@ -158,9 +166,14 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
             final String identity = remoteColumn.getString(AUTOINCREMENT_COLUMN);
             return JDBC_TRUE.equalsIgnoreCase(identity);
         } catch (final SQLException exception) {
-            LOGGER.warning(() -> "Caught an SQL exception trying to determine whether column \"" + columnName
-                    + "\" is an auto-increment column: " + exception.getMessage());
-            LOGGER.warning(() -> "Assuming that column \"" + columnName + "\" is not incremented automatically.");
+            LOGGER.warning(() -> ExaError.messageBuilder("W-VS-COM-JDBC-5")
+                    .message("Caught an SQL exception trying to determine whether column \"{{columnName}}\" is "
+                            + "an auto-increment column: {{exceptionMessage}}")
+                    .unquotedParameter("columnName", columnName) //
+                    .unquotedParameter("exceptionMessage", exception.getMessage()).toString());
+            LOGGER.warning(() -> ExaError.messageBuilder("W-VS-COM-JDBC-6")
+                    .message("Assuming  that column \"{{columnName}}\" is not incremented automatically.")
+                    .unquotedParameter("columnName", columnName).toString());
             return false;
         }
     }
@@ -242,42 +255,34 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
     }
 
     private static DataType convertSmallInteger(final int jdbcPrecision) {
-        final DataType colType;
         final int precision = jdbcPrecision == 0 ? 9 : jdbcPrecision;
-        colType = DataType.createDecimal(precision, 0);
-        return colType;
+        return DataType.createDecimal(precision, 0);
     }
 
     private static DataType convertInteger(final int jdbcPrecision) {
-        final DataType colType;
         if (jdbcPrecision <= DataType.MAX_EXASOL_DECIMAL_PRECISION) {
             final int precision = jdbcPrecision == 0 ? 18 : jdbcPrecision;
-            colType = DataType.createDecimal(precision, 0);
+            return DataType.createDecimal(precision, 0);
         } else {
-            colType = fallBackToMaximumSizeVarChar();
+            return fallBackToMaximumSizeVarChar();
         }
-        return colType;
     }
 
     private static DataType convertBigInteger(final int jdbcPrecision) {
-        final DataType colType;
         if (jdbcPrecision <= DataType.MAX_EXASOL_DECIMAL_PRECISION) {
             final int precision = jdbcPrecision == 0 ? 36 : jdbcPrecision;
-            colType = DataType.createDecimal(precision, 0);
+            return DataType.createDecimal(precision, 0);
         } else {
-            colType = fallBackToMaximumSizeVarChar();
+            return fallBackToMaximumSizeVarChar();
         }
-        return colType;
     }
 
     protected DataType convertDecimal(final int jdbcPrecision, final int scale) {
-        final DataType colType;
         if (jdbcPrecision <= DataType.MAX_EXASOL_DECIMAL_PRECISION) {
-            colType = DataType.createDecimal(jdbcPrecision, scale);
+            return DataType.createDecimal(jdbcPrecision, scale);
         } else {
-            colType = fallBackToMaximumSizeVarChar();
+            return fallBackToMaximumSizeVarChar();
         }
-        return colType;
     }
 
     private static DataType fallBackToMaximumSizeVarChar() {
@@ -285,30 +290,26 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
     }
 
     private static DataType convertVarChar(final int size, final int octetLength) {
-        final DataType colType;
         final DataType.ExaCharset charset = (octetLength == size) ? ASCII : UTF8;
         if (size <= DataType.MAX_EXASOL_VARCHAR_SIZE) {
             final int precision = size == 0 ? DataType.MAX_EXASOL_VARCHAR_SIZE : size;
-            colType = DataType.createVarChar(precision, charset);
+            return DataType.createVarChar(precision, charset);
         } else {
-            colType = DataType.createVarChar(DataType.MAX_EXASOL_VARCHAR_SIZE, charset);
+            return DataType.createVarChar(DataType.MAX_EXASOL_VARCHAR_SIZE, charset);
         }
-        return colType;
     }
 
     private static DataType convertChar(final int size, final int octetLength) {
-        final DataType colType;
         final DataType.ExaCharset charset = (octetLength == size) ? ASCII : UTF8;
         if (size <= DataType.MAX_EXASOL_CHAR_SIZE) {
-            colType = DataType.createChar(size, charset);
+            return DataType.createChar(size, charset);
         } else {
             if (size <= DataType.MAX_EXASOL_VARCHAR_SIZE) {
-                colType = DataType.createVarChar(size, charset);
+                return DataType.createVarChar(size, charset);
             } else {
-                colType = DataType.createVarChar(DataType.MAX_EXASOL_VARCHAR_SIZE, charset);
+                return DataType.createVarChar(DataType.MAX_EXASOL_VARCHAR_SIZE, charset);
             }
         }
-        return colType;
     }
 
     protected String mapColumnName(final String columnName) {
@@ -344,9 +345,11 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
             final int scale = Integer.parseInt(matcher.group(2));
             return DataType.createDecimal(precision, scale);
         } else {
-            throw new IllegalArgumentException("Unable to parse adapter property " + property + " value \""
-                    + precisionAndScale
-                    + " into a number precision and scale. The required format is \"<precision>.<scale>\", where both are integer numbers.");
+            throw new IllegalArgumentException(ExaError.messageBuilder("E-VS-COM-JDBC-2").message(
+                    "Unable to parse adapter property {{property}} value {{precisionAndScale}} into a number precision "
+                            + "and scale. The required format is '<precision>.<scale>', where both are integer numbers.")
+                    .unquotedParameter("property", property) //
+                    .parameter("precisionAndScale", precisionAndScale).toString());
         }
     }
 }

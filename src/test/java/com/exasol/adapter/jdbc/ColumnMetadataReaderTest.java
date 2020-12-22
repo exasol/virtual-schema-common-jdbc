@@ -64,21 +64,18 @@ class ColumnMetadataReaderTest {
         when(this.columnsMock.getString(BaseColumnMetadataReader.NAME_COLUMN)).thenReturn(COLUMN_A);
         when(this.remoteMetadataMock.getColumns(null, null, "THE_TABLE", "%")).thenReturn(this.columnsMock);
         final List<ColumnMetadata> columns = mapMockedColumns(this.columnsMock);
-        final ColumnMetadata column = columns.get(0);
-        return column;
+        return columns.get(0);
     }
 
     private List<ColumnMetadata> mapMockedColumns(final ResultSet columnsMock)
             throws RemoteMetadataReaderException, SQLException {
         when(this.remoteMetadataMock.getColumns(null, null, "THE_TABLE", "%")).thenReturn(columnsMock);
-        final List<ColumnMetadata> columns = createDefaultColumnMetadataReader().mapColumns("THE_TABLE");
-        return columns;
+        return createDefaultColumnMetadataReader().mapColumns("THE_TABLE");
     }
 
     protected BaseColumnMetadataReader createDefaultColumnMetadataReader() {
-        final BaseColumnMetadataReader reader = new BaseColumnMetadataReader(this.connectionMock,
-                AdapterProperties.emptyProperties(), BaseIdentifierConverter.createDefault());
-        return reader;
+        return new BaseColumnMetadataReader(this.connectionMock, AdapterProperties.emptyProperties(),
+                BaseIdentifierConverter.createDefault());
     }
 
     @Test
@@ -383,7 +380,8 @@ class ColumnMetadataReaderTest {
     @Test
     void testMapColumnsWrapsSqlException() throws SQLException {
         when(this.connectionMock.getMetaData()).thenThrow(FAKE_SQL_EXCEPTION);
-        assertThrows(RemoteMetadataReaderException.class, () -> createDefaultColumnMetadataReader().mapColumns(""));
+        final BaseColumnMetadataReader defaultColumnMetadataReader = createDefaultColumnMetadataReader();
+        assertThrows(RemoteMetadataReaderException.class, () -> defaultColumnMetadataReader.mapColumns(""));
     }
 
     @Test

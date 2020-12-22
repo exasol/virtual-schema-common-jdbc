@@ -9,6 +9,7 @@ import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.dialects.*;
 import com.exasol.adapter.jdbc.*;
 import com.exasol.adapter.sql.SqlStatement;
+import com.exasol.errorreporting.ExaError;
 
 /**
  * Abstract implementation of {@link QueryRewriter}.
@@ -67,20 +68,18 @@ public abstract class AbstractQueryRewriter implements QueryRewriter {
 
     protected ExaConnectionInformation getConnectionInformation(final ExaMetadata exaMetadata,
             final AdapterProperties properties) throws AdapterException {
-        final ExaConnectionInformation exaConnectionInformation;
         if (properties.hasConnectionName()) {
             final String connectionName = properties.getConnectionName();
             try {
-                exaConnectionInformation = exaMetadata.getConnection(connectionName);
+                return exaMetadata.getConnection(connectionName);
             } catch (final ExaConnectionAccessException exception) {
-                throw new AdapterException("Unable to access information about the Exasol connection named \""
-                        + connectionName + "\" trying to create a connection definition for rewritten query.",
-                        exception);
+                throw new AdapterException(ExaError.messageBuilder("E-VS-COM-JDBC-8").message(
+                        "Unable to access information about the Exasol connection named {{connectionName}} trying to"
+                                + " create a connection definition for rewritten query.")
+                        .parameter("connectionName", connectionName).toString(), exception);
             }
-        } else {
-            exaConnectionInformation = null;
         }
-        return exaConnectionInformation;
+        return null;
     }
 
     /**
@@ -94,5 +93,4 @@ public abstract class AbstractQueryRewriter implements QueryRewriter {
      */
     protected abstract String generateImportStatement(final String connectionDefinition, final String pushdownQuery)
             throws SQLException;
-
 }

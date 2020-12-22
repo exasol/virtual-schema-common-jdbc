@@ -7,6 +7,7 @@ import java.util.*;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import com.exasol.ExaMetadata;
 import com.exasol.adapter.AdapterException;
@@ -178,14 +179,19 @@ public abstract class AbstractSqlDialect implements SqlDialect {
     }
 
     protected String createUnsupportedElementMessage(final String unsupportedElement, final String property) {
-        return "The dialect " + this.properties.getSqlDialect() + " does not support " + unsupportedElement
-                + " property. Please, do not set the \"" + property + "\" property.";
+        return ExaError.messageBuilder("E-VS-COM-JDBC-13")
+                .message("The dialect {{dialectName}} does not support {{unsupportedElement}} property.")
+                .parameter("dialectName", this.properties.getSqlDialect())
+                .parameter("unsupportedElement", unsupportedElement)
+                .mitigation(" Please, do not set the {{property}} property.") //
+                .parameter("property", property).toString();
     }
 
     private void validateConnectionNameProperty() throws PropertyValidationException {
         if (!this.properties.hasConnectionName()) {
-            throw new PropertyValidationException(
-                    "Please specify a connection using the property \"" + CONNECTION_NAME_PROPERTY + "\".");
+            throw new PropertyValidationException(ExaError.messageBuilder("E-VS-COM-JDBC-14")
+                    .message("Please specify a connection using the property {{connectionNameProperty}}.")
+                    .parameter("connectionNameProperty", CONNECTION_NAME_PROPERTY).toString());
         }
     }
 
@@ -206,8 +212,11 @@ public abstract class AbstractSqlDialect implements SqlDialect {
     protected void validateBooleanProperty(final String property) throws PropertyValidationException {
         if (this.properties.containsKey(property) //
                 && !BOOLEAN_PROPERTY_VALUE_PATTERN.matcher(this.properties.get(property)).matches()) {
-            throw new PropertyValidationException("The value '" + this.properties.get(property) + "' for the property "
-                    + property + " is invalid. It has to be either 'true' or 'false' (case insensitive).");
+            throw new PropertyValidationException(ExaError.messageBuilder("E-VS-COM-JDBC-15")
+                    .message("The value {{value}} for the property {{property}} is invalid. "
+                            + "It has to be either 'true' or 'false' (case insensitive).")
+                    .parameter("value", this.properties.get(property)) //
+                    .parameter("property", property).toString());
         }
     }
 
@@ -230,14 +239,19 @@ public abstract class AbstractSqlDialect implements SqlDialect {
             try {
                 final int port = Integer.parseInt(portAsString);
                 if ((port < 1) || (port > 65535)) {
-                    LOGGER.warning(() -> "Debug output port " + port + " is out of range. Port specified in property "
-                            + DEBUG_ADDRESS_PROPERTY
-                            + "must have following format: <host>[:<port>], and be between 1 and 65535.");
+                    LOGGER.warning(() -> ExaError.messageBuilder("W-VS-COM-JDBC-1")
+                            .message("Debug output port {{port}} is out of range.") //
+                            .unquotedParameter("port", port)
+                            .mitigation("Port specified in property {{debugAddressProperty}} must have "
+                                    + "the following format: <host>[:<port>], and be between 1 and 65535.")
+                            .parameter("debugAddressProperty", DEBUG_ADDRESS_PROPERTY).toString());
                 }
             } catch (final NumberFormatException ex) {
-                LOGGER.warning(() -> "Illegal debug output port \"" + portAsString + "\". Property "
-                        + DEBUG_ADDRESS_PROPERTY
-                        + "must have following format: <host>[:<port>], where port is a number between 1 and 65535.");
+                LOGGER.warning(() -> ExaError.messageBuilder("W-VS-COM-JDBC-2").message(
+                        "Illegal debug output port {{portAsString}}. Property {{debugAddressProperty}} must have "
+                                + "the following format: <host>[:<port>], where port is a number between 1 and 65535.")
+                        .parameter("debugAddressProperty", DEBUG_ADDRESS_PROPERTY)
+                        .parameter("portAsString", portAsString).toString());
             }
         }
     }
@@ -248,10 +262,14 @@ public abstract class AbstractSqlDialect implements SqlDialect {
             if (!((exceptionHandling == null) || exceptionHandling.isEmpty())) {
                 for (final SqlDialect.ExceptionHandlingMode mode : SqlDialect.ExceptionHandlingMode.values()) {
                     if (!mode.name().equals(exceptionHandling)) {
-                        throw new PropertyValidationException(
-                                "Invalid value '" + exceptionHandling + "' for property " + EXCEPTION_HANDLING_PROPERTY
-                                        + ". Choose one of: " + ExceptionHandlingMode.IGNORE_INVALID_VIEWS.name() + ", "
-                                        + ExceptionHandlingMode.NONE.name());
+                        throw new PropertyValidationException(ExaError.messageBuilder("E-VS-COM-JDBC-16").message(
+                                "Invalid value {{exceptionHandlingValue}} for property {{exceptionHandlingProperty}}.")
+                                .parameter("exceptionHandlingValue", exceptionHandling)
+                                .parameter("exceptionHandlingProperty", EXCEPTION_HANDLING_PROPERTY)
+                                .mitigation("Choose one of: {{availableValues}}.")
+                                .unquotedParameter("availableValues", Arrays.stream(ExceptionHandlingMode.values())
+                                        .map(Enum::toString).collect(Collectors.toList()).toString())
+                                .toString());
                     }
                 }
             }
@@ -265,13 +283,19 @@ public abstract class AbstractSqlDialect implements SqlDialect {
         final boolean connectionIsEmpty = ((value == null) || value.isEmpty());
         if (isDirectImport) {
             if (connectionIsEmpty) {
-                throw new PropertyValidationException("You defined the property " + importFromProperty
-                        + ", please also define " + connectionProperty);
+                throw new PropertyValidationException(ExaError.messageBuilder("E-VS-COM-JDBC-17")
+                        .message("You defined the property {{importFromProperty}}.")
+                        .parameter("importFromProperty", importFromProperty)
+                        .mitigation("Please also define {{connectionProperty}}.")
+                        .parameter("connectionProperty", connectionProperty).toString());
             }
         } else {
             if (!connectionIsEmpty) {
-                throw new PropertyValidationException("You defined the property " + connectionProperty
-                        + " without setting " + importFromProperty + " to 'TRUE'. This is not allowed");
+                throw new PropertyValidationException(ExaError.messageBuilder("E-VS-COM-JDBC-18")
+                        .message("You defined the property {{connectionProperty}} without setting "
+                                + "{{importFromProperty}} to 'TRUE'. This is not allowed")
+                        .parameter("connectionProperty", connectionProperty)
+                        .parameter("importFromProperty", importFromProperty).toString());
             }
         }
     }
@@ -283,10 +307,11 @@ public abstract class AbstractSqlDialect implements SqlDialect {
             final String precisionAndScale = this.properties.get(castNumberToDecimalProperty);
             final Matcher matcher = pattern.matcher(precisionAndScale);
             if (!matcher.matches()) {
-                throw new PropertyValidationException(ExaError.messageBuilder("E-VSJ-1").message(
-                        "Unable to parse adapter property {{propertyName}} value {{value}} into a number's precision and scale. The required format is '<precision>,<scale>', where both are integer numbers.")
-                        .parameter("propertyName", castNumberToDecimalProperty).parameter("value", precisionAndScale)
-                        .toString());
+                throw new PropertyValidationException(ExaError.messageBuilder("E-VS-COM-JDBC-19").message(
+                        "Unable to parse adapter property {{propertyName}} value {{value}} into a number's precision "
+                                + "and scale. The required format is '<precision>,<scale>' where both are integer numbers.")
+                        .parameter("propertyName", castNumberToDecimalProperty) //
+                        .parameter("value", precisionAndScale).toString());
             }
         }
     }
