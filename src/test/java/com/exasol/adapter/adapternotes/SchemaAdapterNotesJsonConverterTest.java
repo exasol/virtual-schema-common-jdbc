@@ -1,6 +1,7 @@
 package com.exasol.adapter.adapternotes;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -48,16 +49,22 @@ class SchemaAdapterNotesJsonConverterTest {
 
     @Test
     void testConvertFromJsonToSchemaAdapterNotesThrowsExceptionWhenEmptyAdapterNotesAreBzkk() {
-        assertThrows(AdapterException.class, () -> this.converter.convertFromJsonToSchemaAdapterNotes(null, ""));
+        final AdapterException exception = assertThrows(AdapterException.class,
+                () -> this.converter.convertFromJsonToSchemaAdapterNotes(null, ""));
+        assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-5"));
     }
 
     @Test
     void testConvertFromJsonToSchemaAdapterNotesThrowsExceptionWithEmptyAdapterNotes() {
-        assertThrows(AdapterException.class, () -> this.converter.convertFromJsonToSchemaAdapterNotes("", ""));
+        final AdapterException exception = assertThrows(AdapterException.class,
+                () -> this.converter.convertFromJsonToSchemaAdapterNotes("", ""));
+        assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-5"));
     }
 
     @Test
-    void testconvertFromJsonToSchemaAdapterNotesThrowsExceptionWithWrongAdapterNotes() {
-        assertThrows(AdapterException.class, () -> this.converter.convertFromJsonToSchemaAdapterNotes("testNotes", ""));
+    void testConvertFromJsonToSchemaAdapterNotesThrowsExceptionWithWrongAdapterNotes() {
+        final AdapterException exception = assertThrows(AdapterException.class,
+                () -> this.converter.convertFromJsonToSchemaAdapterNotes("testNotes", ""));
+        assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-6"));
     }
 }

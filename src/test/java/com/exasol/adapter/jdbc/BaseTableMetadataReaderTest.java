@@ -1,9 +1,11 @@
 package com.exasol.adapter.jdbc;
 
+import static com.exasol.adapter.jdbc.BaseTableMetadataReader.NAME_COLUMN;
 import static com.exasol.adapter.jdbc.TableMetadataMockUtils.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 import java.sql.*;
@@ -14,12 +16,12 @@ import java.util.logging.Logger;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.dialects.BaseIdentifierConverter;
-import com.exasol.adapter.metadata.DataType;
-import com.exasol.adapter.metadata.TableMetadata;
+import com.exasol.adapter.metadata.*;
 import com.exasol.logging.CapturingLogHandler;
 
 @ExtendWith(MockitoExtension.class)
@@ -89,5 +91,19 @@ class BaseTableMetadataReaderTest {
         Logger.getLogger("com.exasol").addHandler(capturingLogHandler);
         createDefaultTableMetadataReader().mapTables(this.tablesMock, Collections.emptyList());
         assertThat(capturingLogHandler.getCapturedData(), containsString("Table scan did not find any tables."));
+    }
+
+    @Test
+    void testValidateMappedTablesListSize() throws SQLException {
+        final ResultSet resultSetMock = Mockito.mock(ResultSet.class);
+        when(resultSetMock.next()).thenReturn(true);
+        when(resultSetMock.getString(NAME_COLUMN)).thenReturn("table");
+        when(this.columnMetadataReaderMock.mapColumns("table"))
+                .thenReturn(List.of(ColumnMetadata.builder().name("column").type(DataType.createBool()).build()));
+        final TableMetadataReader metadataReader = createDefaultTableMetadataReader();
+        final List<String> selectedTables = List.of();
+        final RemoteMetadataReaderException exception = assertThrows(RemoteMetadataReaderException.class,
+                () -> metadataReader.mapTables(resultSetMock, selectedTables));
+        assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-24"));
     }
 }

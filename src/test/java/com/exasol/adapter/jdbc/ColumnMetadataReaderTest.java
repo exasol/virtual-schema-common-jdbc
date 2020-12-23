@@ -1,5 +1,6 @@
 package com.exasol.adapter.jdbc;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -381,7 +382,10 @@ class ColumnMetadataReaderTest {
     void testMapColumnsWrapsSqlException() throws SQLException {
         when(this.connectionMock.getMetaData()).thenThrow(FAKE_SQL_EXCEPTION);
         final BaseColumnMetadataReader defaultColumnMetadataReader = createDefaultColumnMetadataReader();
-        assertThrows(RemoteMetadataReaderException.class, () -> defaultColumnMetadataReader.mapColumns(""));
+        final RemoteMetadataReaderException exception = assertThrows(RemoteMetadataReaderException.class,
+                () -> defaultColumnMetadataReader.mapColumns(""));
+        assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-1"));
+
     }
 
     @Test

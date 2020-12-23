@@ -52,8 +52,10 @@ class ResultSetMetadataReaderTest {
         when(this.resultSetMetadataMock.getColumnType(2)).thenReturn(Types.BLOB);
         when(this.resultSetMetadataMock.getColumnType(3)).thenReturn(Types.DATE);
         when(this.resultSetMetadataMock.getColumnType(4)).thenReturn(Types.BLOB);
+        final ResultSetMetadataReader reader = getReader();
         final RemoteMetadataReaderException thrown = assertThrows(RemoteMetadataReaderException.class,
-                () -> getReader().describeColumns("FOOBAR"));
-        assertThat(thrown.getMessage(), containsString("Unsupported data type(s) in column(s) in query: 2, 4"));
+                () -> reader.describeColumns("FOOBAR"));
+        assertThat(thrown.getMessage(),
+                containsString("E-VS-COM-JDBC-31: Unsupported data type(s) in column(s) in query: 2, 4"));
     }
 }

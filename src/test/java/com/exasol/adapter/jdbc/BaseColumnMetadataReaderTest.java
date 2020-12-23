@@ -1,14 +1,17 @@
 package com.exasol.adapter.jdbc;
 
 import static com.exasol.adapter.metadata.DataType.ExaCharset.UTF8;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.sql.*;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -99,5 +102,15 @@ class BaseColumnMetadataReaderTest {
     void mapLongVarcharToUnsupportedIfTooLarge(final int size) {
         final JdbcTypeDescription typeDescription = new JdbcTypeDescription(Types.LONGVARCHAR, 0, size, 0, "VARCHAR");
         assertThat(this.reader.mapJdbcType(typeDescription), equalTo(DataType.createMaximumSizeVarChar(UTF8)));
+    }
+
+    @Test
+    void testGetNumberTypeFromProperty() {
+        final BaseColumnMetadataReader reader = new BaseColumnMetadataReader(null,
+                new AdapterProperties(Map.of("SOME_PROPERTY", "abc")), new BaseIdentifierConverter(
+                        IdentifierCaseHandling.INTERPRET_AS_UPPER, IdentifierCaseHandling.INTERPRET_CASE_SENSITIVE));
+        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> reader.getNumberTypeFromProperty("SOME_PROPERTY"));
+        assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-2"));
     }
 }

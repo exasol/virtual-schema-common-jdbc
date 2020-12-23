@@ -5,7 +5,9 @@ import static com.exasol.adapter.sql.SqlFunctionAggregateListagg.Behavior.Trunca
 import static com.exasol.adapter.sql.SqlFunctionScalarExtract.ExtractParameter.SECOND;
 import static com.exasol.adapter.sql.SqlFunctionScalarExtract.ExtractParameter.YEAR;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -610,6 +612,22 @@ class SqlGenerationVisitorTest {
         final SqlNode expression = new SqlLiteralString("\" value '");
         final SqlPredicateIsNotNull sqlPredicateIsNull = new SqlPredicateIsNotNull(expression);
         assertThat(sqlGenerationVisitor.visit(sqlPredicateIsNull), equalTo("('\" value ''') IS NOT NULL"));
+    }
+
+    @Test
+    void visitBinaryScalarFunctionThrowsException(){
+        final SqlFunctionScalar functionScalar = new SqlFunctionScalar(ScalarFunction.ADD, List.of());
+        final IllegalArgumentException exception =
+                assertThrows(IllegalArgumentException.class, () -> sqlGenerationVisitor.visit(functionScalar));
+        assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-11"));
+    }
+
+    @Test
+    void visitPrefixScalarFunctionThrowsException(){
+        final SqlFunctionScalar functionScalar = new SqlFunctionScalar(ScalarFunction.NEG, List.of());
+        final IllegalArgumentException exception =
+                assertThrows(IllegalArgumentException.class, () -> sqlGenerationVisitor.visit(functionScalar));
+        assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-12"));
     }
 
     private static class TestDialect extends DummySqlDialect {

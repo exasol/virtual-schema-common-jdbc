@@ -1,11 +1,14 @@
 package com.exasol.adapter.jdbc;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collections;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -40,7 +43,9 @@ class AbstractRemoteMetadataReaderTest {
         final Connection connectionMock = mockConnectionThrowingExceptionOnGetMetadata();
         final RemoteMetadataReader reader = new DummyRemoteMetadataReader(connectionMock,
                 AdapterProperties.emptyProperties());
-        assertThrows(RemoteMetadataReaderException.class,
-                () -> reader.readRemoteSchemaMetadata(Collections.emptyList()));
+        final List<String> tables = Collections.emptyList();
+        final RemoteMetadataReaderException exception = assertThrows(RemoteMetadataReaderException.class,
+                () -> reader.readRemoteSchemaMetadata(tables));
+        assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-22"));
     }
 }

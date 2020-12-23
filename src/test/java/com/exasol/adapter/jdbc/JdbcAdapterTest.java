@@ -76,8 +76,9 @@ class JdbcAdapterTest {
 
     @Test
     void testPushdownWithIllegalStatementThrowsException() {
-        assertThrows(RemoteMetadataReaderException.class,
+        final RemoteMetadataReaderException exception = assertThrows(RemoteMetadataReaderException.class,
                 () -> pushStatementDown(TestSqlStatementFactory.createSelectOneFromDual()));
+        assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-30"));
     }
 
     @Test
