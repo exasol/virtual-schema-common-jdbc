@@ -67,4 +67,13 @@ class SchemaAdapterNotesJsonConverterTest {
                 () -> this.converter.convertFromJsonToSchemaAdapterNotes("testNotes", ""));
         assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-6"));
     }
+
+    @Test
+    void testCheckKey() {
+        final String serializedString = "{\"catalogSeparator\":\".\"," //
+                + "\"areNullsSortedLow\":false}";
+        final AdapterException exception = assertThrows(AdapterException.class,
+                () -> this.converter.convertFromJsonToSchemaAdapterNotes(serializedString, ""));
+        assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-7"));
+    }
 }
