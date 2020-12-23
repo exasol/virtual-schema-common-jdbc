@@ -12,6 +12,7 @@ import com.exasol.adapter.adapternotes.SchemaAdapterNotesJsonConverter;
 import com.exasol.adapter.dialects.IdentifierConverter;
 import com.exasol.adapter.metadata.SchemaMetadata;
 import com.exasol.adapter.metadata.TableMetadata;
+import com.exasol.errorreporting.ExaError;
 
 /**
  * Contains a common part of remote metadata readers.
@@ -103,8 +104,9 @@ public abstract class AbstractRemoteMetadataReader extends AbstractMetadataReade
         try {
             return this.getSchemaMetadata(selectedTables);
         } catch (final SQLException exception) {
-            throw new RemoteMetadataReaderException(
-                    "Unable to read remote schema metadata. SQL error: " + exception.getMessage(), exception);
+            throw new RemoteMetadataReaderException(ExaError.messageBuilder("E-VS-COM-JDBC-21")
+                    .message("Unable to read remote schema metadata. SQL error: {{exceptionMessage}}")
+                    .unquotedParameter("exceptionMessage", exception.getMessage()).toString(), exception);
         }
     }
 
@@ -188,7 +190,9 @@ public abstract class AbstractRemoteMetadataReader extends AbstractMetadataReade
                     .areNullsSortedLow(metadata.nullsAreSortedLow()) //
                     .build();
         } catch (final SQLException exception) {
-            throw new RemoteMetadataReaderException("Unable to create schema adapter notes from remote schema.",
+            throw new RemoteMetadataReaderException(
+                    ExaError.messageBuilder("E-VS-COM-JDBC-22")
+                            .message("Unable to create schema adapter notes from remote schema.").toString(),
                     exception);
         }
     }

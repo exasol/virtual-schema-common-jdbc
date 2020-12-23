@@ -1,6 +1,9 @@
 package com.exasol.adapter.dialects;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -83,32 +86,24 @@ class SqlDialectTest {
     }
 
     @Test
-    void testInvalidAliases() throws Exception {
+    void testInvalidAliases() {
         final SqlGenerationContext context = new SqlGenerationContext("", "schema", false);
         for (final ScalarFunction function : ScalarFunction.values()) {
             if (!function.isSimple()) {
                 final Map<ScalarFunction, String> scalarAliases = Map.of(function, "ALIAS");
                 final SqlDialect dialect = new AliasesSqlDialect(Map.of(), scalarAliases, Map.of(), Map.of());
-                try {
-                    new SqlGenerationVisitor(dialect, context);
-                    throw new Exception("Should never arrive here");
-                } catch (final RuntimeException ex) {
-                    // This error is expected
-                }
+                final UnsupportedOperationException exception = assertThrows(UnsupportedOperationException.class,
+                        () -> new SqlGenerationVisitor(dialect, context));
+                assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-9"));
             }
         }
-
-        // Test non-simple aggregate functions
         for (final AggregateFunction function : AggregateFunction.values()) {
             if (!function.isSimple()) {
                 final Map<AggregateFunction, String> aggregateAliases = Map.of(function, "ALIAS");
                 final SqlDialect dialect = new AliasesSqlDialect(aggregateAliases, Map.of(), Map.of(), Map.of());
-                try {
-                    new SqlGenerationVisitor(dialect, context);
-                    throw new Exception("Should never arrive here");
-                } catch (final RuntimeException ex) {
-                    // This error is expected
-                }
+                final UnsupportedOperationException exception = assertThrows(UnsupportedOperationException.class,
+                        () -> new SqlGenerationVisitor(dialect, context));
+                assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-10"));
             }
         }
     }

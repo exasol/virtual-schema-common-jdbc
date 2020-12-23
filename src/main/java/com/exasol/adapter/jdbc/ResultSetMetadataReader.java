@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import com.exasol.adapter.metadata.DataType;
+import com.exasol.errorreporting.ExaError;
 
 /**
  * This class creates a textual description of the result columns of a push-down query.
@@ -47,11 +48,11 @@ public class ResultSetMetadataReader {
             LOGGER.fine(() -> "Columns description: " + columnsDescription);
             return columnsDescription;
         } catch (final SQLException exception) {
-            throw new RemoteMetadataReaderException(
-                    "Unable to read remote metadata for push-down query trying to generate result column description. "
-                            + "Please, make sure that you provided valid CATALOG_NAME and SCHEMA_NAME properties if required. "
-                            + "Caused by: " + exception.getMessage(),
-                    exception);
+            throw new RemoteMetadataReaderException(ExaError.messageBuilder("E-VS-COM-JDBC-30").message(
+                    "Unable to read remote metadata for push-down query trying to generate result column description.")
+                    .mitigation("Please, make sure that you provided valid CATALOG_NAME "
+                            + "and SCHEMA_NAME properties if required. Caused by: {{cause}}")
+                    .parameter("cause", exception.getMessage()).toString(), exception);
         }
     }
 
@@ -65,9 +66,12 @@ public class ResultSetMetadataReader {
             ++column;
         }
         if (!illegalColumns.isEmpty()) {
-            throw new RemoteMetadataReaderException("Unsupported data type(s) in column(s) "
-                    + illegalColumns.stream().map(String::valueOf).collect(Collectors.joining(", "))
-                    + " in query. Please remove those columns from your query:\n" + query);
+            throw new RemoteMetadataReaderException(ExaError.messageBuilder("E-VS-COM-JDBC-31")
+                    .message("Unsupported data type(s) in column(s) in query: {{unsupportedColumns}}.")
+                    .unquotedParameter("unsupportedColumns",
+                            illegalColumns.stream().map(String::valueOf).collect(Collectors.joining(", ")))
+                    .mitigation("Please remove those columns from your query:\n{{query}}")
+                    .unquotedParameter("query", query).toString());
         }
     }
 

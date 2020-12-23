@@ -4,6 +4,7 @@ import static com.exasol.adapter.AdapterProperties.CONNECTION_NAME_PROPERTY;
 
 import com.exasol.ExaConnectionInformation;
 import com.exasol.adapter.AdapterProperties;
+import com.exasol.errorreporting.ExaError;
 
 /**
  * This class creates the connection definition part of <code>IMPORT</code> statements.
@@ -24,8 +25,9 @@ public class BaseConnectionDefinitionBuilder implements ConnectionDefinitionBuil
         if (properties.hasConnectionName()) {
             return "AT " + properties.getConnectionName();
         } else {
-            throw new IllegalArgumentException(
-                    "Please, provide a mandatory property \"" + CONNECTION_NAME_PROPERTY + "\".");
+            throw new IllegalArgumentException(ExaError.messageBuilder("E-VS-COM-JDBC-23")
+                    .message("Please, provide a mandatory property {{connectionNameProperty}}.")
+                    .parameter("connectionNameProperty", CONNECTION_NAME_PROPERTY).toString());
         }
     }
 

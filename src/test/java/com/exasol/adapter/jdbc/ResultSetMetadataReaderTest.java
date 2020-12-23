@@ -1,8 +1,8 @@
 package com.exasol.adapter.jdbc;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.startsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -52,8 +52,10 @@ class ResultSetMetadataReaderTest {
         when(this.resultSetMetadataMock.getColumnType(2)).thenReturn(Types.BLOB);
         when(this.resultSetMetadataMock.getColumnType(3)).thenReturn(Types.DATE);
         when(this.resultSetMetadataMock.getColumnType(4)).thenReturn(Types.BLOB);
+        final ResultSetMetadataReader reader = getReader();
         final RemoteMetadataReaderException thrown = assertThrows(RemoteMetadataReaderException.class,
-                () -> getReader().describeColumns("FOOBAR"));
-        assertThat(thrown.getMessage(), startsWith("Unsupported data type(s) in column(s) 2, 4"));
+                () -> reader.describeColumns("FOOBAR"));
+        assertThat(thrown.getMessage(),
+                containsString("E-VS-COM-JDBC-31: Unsupported data type(s) in column(s) in query: 2, 4"));
     }
 }

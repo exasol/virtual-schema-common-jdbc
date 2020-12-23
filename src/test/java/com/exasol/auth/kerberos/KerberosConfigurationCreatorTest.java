@@ -1,10 +1,10 @@
 package com.exasol.auth.kerberos;
 
 import static com.exasol.auth.kerberos.KerberosConfigurationCreator.*;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.io.FileMatchers.anExistingFile;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -101,7 +101,9 @@ class KerberosConfigurationCreatorTest {
             "ExaAuthType=Kerberos;too;many;parts" })
     @ParameterizedTest
     void testIllegalKerberosPasswordThrowsException(final String password) {
-        assertThrows(KerberosConfigurationCreatorException.class,
+        final KerberosConfigurationCreatorException exception = assertThrows(
+                KerberosConfigurationCreatorException.class,
                 () -> this.creator.writeKerberosConfigurationFiles("anyone", password));
+        assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-32"));
     }
 }

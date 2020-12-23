@@ -1,7 +1,7 @@
 package com.exasol.adapter.dialects;
 
-import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Set;
@@ -60,7 +60,9 @@ class SqlDialectRegistryTest {
 
     @Test
     void testGetSqlDialectClassForNameThrowsException() {
-        assertThrows(IllegalArgumentException.class,
-                () -> SqlDialectRegistry.getInstance().getDialectForName("DOESNOTEXIST", null, null));
+        final SqlDialectRegistry registry = SqlDialectRegistry.getInstance();
+        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> registry.getDialectForName("DOESNOTEXIST", null, null));
+        assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-20"));
     }
 }

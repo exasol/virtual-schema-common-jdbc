@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.jdbc.ConnectionFactory;
+import com.exasol.errorreporting.ExaError;
 
 /**
  * This class implements a registry for supported SQL dialects.
@@ -20,9 +21,9 @@ public final class SqlDialectRegistry {
      *
      * @return singleton instance
      */
-    public static final synchronized SqlDialectRegistry getInstance() {
+    public static synchronized SqlDialectRegistry getInstance() {
         if (instance == null) {
-            LOGGER.finer(() -> "Instanciating SQL dialect registry and loading adapter factories.");
+            LOGGER.finer(() -> "Instantiating SQL dialect registry and loading adapter factories.");
             instance = new SqlDialectRegistry();
             instance.loadSqlDialectFactories();
         }
@@ -31,9 +32,7 @@ public final class SqlDialectRegistry {
 
     private void loadSqlDialectFactories() {
         final ServiceLoader<SqlDialectFactory> serviceLoader = ServiceLoader.load(SqlDialectFactory.class);
-        final Iterator<SqlDialectFactory> factories = serviceLoader.iterator();
-        while (factories.hasNext()) {
-            final SqlDialectFactory factory = factories.next();
+        for (final SqlDialectFactory factory : serviceLoader) {
             registerSqlDialectFactory(factory);
         }
         LOGGER.fine(() -> "Registered SQL dialects: " + listRegisteredSqlDialectNames());
@@ -85,7 +84,9 @@ public final class SqlDialectRegistry {
                     + factory.getSqlDialectVersion());
             return factory.createSqlDialect(connectionFactory, properties);
         } else {
-            throw new IllegalArgumentException("Unknown SQL dialect \"" + name + "\" requested. " + describe());
+            throw new IllegalArgumentException(ExaError.messageBuilder("E-VS-COM-JDBC-20") //
+                    .message("Unknown SQL dialect {{name}} requested.") //
+                    .parameter("name", name).toString() + describe());
         }
     }
 

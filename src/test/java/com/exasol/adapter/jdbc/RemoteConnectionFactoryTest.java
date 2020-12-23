@@ -4,6 +4,7 @@ import static com.exasol.auth.kerberos.KerberosConfigurationCreator.KERBEROS_CON
 import static com.exasol.auth.kerberos.KerberosConfigurationCreator.LOGIN_CONFIG_PROPERTY;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.matchesPattern;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -62,11 +63,23 @@ class RemoteConnectionFactoryTest {
     }
 
     @Test
+    void testGetConnectionThrowsException() throws ExaConnectionAccessException {
+        when(this.exaMetadataMock.getConnection(CONNECTION_NAME))
+                .thenThrow(new ExaConnectionAccessException("FAKE connection access exception"));
+        this.rawProperties.put("CONNECTION_NAME", "");
+        final RemoteConnectionException exception = assertThrows(RemoteConnectionException.class,
+                this::createConnection);
+        assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-28"));
+    }
+
+    @Test
     void testGetConnectionWithInaccessibleNamedConnectionThrowsException() throws ExaConnectionAccessException {
         when(this.exaMetadataMock.getConnection(CONNECTION_NAME))
                 .thenThrow(new ExaConnectionAccessException("FAKE connection access exception"));
         this.rawProperties.put("CONNECTION_NAME", CONNECTION_NAME);
-        assertThrows(RemoteConnectionException.class, this::createConnection);
+        final RemoteConnectionException exception = assertThrows(RemoteConnectionException.class,
+                this::createConnection);
+        assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-29"));
     }
 
     @Test

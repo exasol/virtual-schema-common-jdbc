@@ -10,6 +10,7 @@ import com.exasol.adapter.metadata.DataType;
 import com.exasol.adapter.sql.*;
 import com.exasol.adapter.sql.SqlFunctionAggregateListagg.Behavior;
 import com.exasol.adapter.sql.SqlFunctionAggregateListagg.BehaviorType;
+import com.exasol.errorreporting.ExaError;
 
 /**
  * This class has the logic to generate SQL queries based on a graph of {@link SqlNode} elements. It uses the visitor
@@ -57,16 +58,22 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String>, SqlGenerato
         // Check if dialect provided invalid aliases, which would never be applied.
         for (final ScalarFunction function : this.dialect.getScalarFunctionAliases().keySet()) {
             if (!function.isSimple()) {
-                throw new UnsupportedOperationException("The dialect " + this.dialect.getName()
-                        + " provided an alias for the non-simple scalar function " + function.name()
-                        + ". This alias will never be considered.");
+                throw new UnsupportedOperationException(ExaError.messageBuilder("E-VS-COM-JDBC-9")
+                        .message("The dialect {{dialectName}} provided an alias for the non-simple scalar function "
+                                + "{{functionName}}. This alias will never be considered.")
+                        .unquotedParameter("dialectName", this.dialect.getName())
+                        .unquotedParameter("functionName", function.name()) //
+                        .ticketMitigation().toString());
             }
         }
         for (final AggregateFunction function : this.dialect.getAggregateFunctionAliases().keySet()) {
             if (!function.isSimple()) {
-                throw new UnsupportedOperationException("The dialect " + this.dialect.getName()
-                        + " provided an alias for the non-simple aggregate function " + function.name()
-                        + ". This alias will never be considered.");
+                throw new UnsupportedOperationException(ExaError.messageBuilder("E-VS-COM-JDBC-10")
+                        .message("The dialect {{dialectName}} provided an alias for the non-simple aggregate function "
+                                + "{{functionName}}. This alias will never be considered.")
+                        .unquotedParameter("dialectName", this.dialect.getName())
+                        .unquotedParameter("functionName", function.name()) //
+                        .ticketMitigation().toString());
             }
         }
     }
@@ -343,8 +350,10 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String>, SqlGenerato
             final List<String> sqlArguments) {
         final String realFunctionName = this.dialect.getBinaryInfixFunctionAliases().get(scalarFunction);
         if (sqlArguments.size() != 2) {
-            throw new IllegalArgumentException("The " + realFunctionName + " function requests 2 arguments, but "
-                    + sqlArguments.size() + " were given.");
+            throw new IllegalArgumentException(ExaError.messageBuilder("E-VS-COM-JDBC-11")
+                    .message("The {{realFunctionName}} function requests 2 arguments, but {{sqlArgumentsSize}} were given.")
+                    .unquotedParameter("realFunctionName", realFunctionName)
+                    .unquotedParameter("sqlArgumentsSize", sqlArguments.size()).toString());
         }
         return "(" + sqlArguments.get(0) + " " + realFunctionName + " " + sqlArguments.get(1) + ")";
     }
@@ -356,8 +365,10 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String>, SqlGenerato
     private String generateSqlForPrefixFunction(final ScalarFunction scalarFunction, final List<String> sqlArguments) {
         final String realFunctionName = this.dialect.getPrefixFunctionAliases().get(scalarFunction);
         if (sqlArguments.size() != 1) {
-            throw new IllegalArgumentException("The " + realFunctionName + " function requests 1 arguments, but "
-                    + sqlArguments.size() + " were given.");
+            throw new IllegalArgumentException(ExaError.messageBuilder("E-VS-COM-JDBC-12")
+                                                       .message("The {{realFunctionName}} function requests 1 argument, but {{sqlArgumentsSize}} were given.")
+                                                       .unquotedParameter("realFunctionName", realFunctionName)
+                                                       .unquotedParameter("sqlArgumentsSize", sqlArguments.size()).toString());
         }
         return "(" + realFunctionName + sqlArguments.get(0) + ")";
     }

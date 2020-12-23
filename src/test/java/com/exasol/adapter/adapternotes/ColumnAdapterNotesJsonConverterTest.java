@@ -1,7 +1,8 @@
 package com.exasol.adapter.adapternotes;
 
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.sql.Types;
@@ -53,16 +54,22 @@ class ColumnAdapterNotesJsonConverterTest {
 
     @Test
     void testConvertFromJsonToColumnAdapterNotesThrowsExceptionWhenAdapterNotesAreNull() {
-        assertThrows(AdapterException.class, () -> this.converter.convertFromJsonToColumnAdapterNotes(null, ""));
+        final AdapterException exception = assertThrows(AdapterException.class,
+                () -> this.converter.convertFromJsonToColumnAdapterNotes(null, ""));
+        assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-3"));
     }
 
     @Test
     void testConvertFromJsonToColumnAdapterNotesThrowsExceptionWithEmptyAdapterNotes() {
-        assertThrows(AdapterException.class, () -> this.converter.convertFromJsonToColumnAdapterNotes("", ""));
+        final AdapterException exception = assertThrows(AdapterException.class,
+                () -> this.converter.convertFromJsonToColumnAdapterNotes("", ""));
+        assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-3"));
     }
 
     @Test
-    void testconvertFromJsonToColumnAdapterNotesThrowsExceptionWithWrongAdapterNotes() {
-        assertThrows(AdapterException.class, () -> this.converter.convertFromJsonToColumnAdapterNotes("testNotes", ""));
+    void testConvertFromJsonToColumnAdapterNotesThrowsExceptionWithWrongAdapterNotes() {
+        final AdapterException exception = assertThrows(AdapterException.class,
+                () -> this.converter.convertFromJsonToColumnAdapterNotes("testNotes", ""));
+        assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-4"));
     }
 }
