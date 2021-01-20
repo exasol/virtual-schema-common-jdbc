@@ -273,10 +273,10 @@ class SqlGenerationVisitorTest {
         orderByExpressions.add(from);
         final SqlOrderBy orderBy = new SqlOrderBy(orderByExpressions, List.of(false), List.of(true));
         final SqlStatementSelect select = SqlStatementSelect.builder()
-                .selectList(SqlSelectList.createSelectStarSelectList()).fromClause(from).whereClause(where)
+                .selectList(SqlSelectList.createAnyValueSelectList()).fromClause(from).whereClause(where)
                 .limit(sqlLimit).orderBy(orderBy).build();
         assertThat(sqlGenerationVisitor.visit(select), equalTo(
-                "SELECT * FROM \"\"\" t1 '\" WHERE \"\"\" a '\" < '\" right ''' ORDER BY \"\"\" t1 '\" DESC LIMIT 5 OFFSET 10"));
+                "SELECT true FROM \"\"\" t1 '\" WHERE \"\"\" a '\" < '\" right ''' ORDER BY \"\"\" t1 '\" DESC LIMIT 5 OFFSET 10"));
     }
 
     @Test

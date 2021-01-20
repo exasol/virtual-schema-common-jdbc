@@ -114,12 +114,10 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String>, SqlGenerato
 
     @Override
     public String visit(final SqlSelectList selectList) throws AdapterException {
-        if (selectList.isRequestAnyColumn()) {
-            return representAnyColumnInSelectList();
-        } else if (selectList.isSelectStar()) {
-            return representAsteriskInSelectList(selectList);
-        } else {
+        if (selectList.hasExplicitColumnsList()) {
             return createExplicitColumnsSelectList(selectList);
+        } else {
+            return representAnyColumnInSelectList();
         }
     }
 
@@ -134,24 +132,6 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String>, SqlGenerato
      */
     protected String representAnyColumnInSelectList() {
         return SqlConstants.TRUE;
-    }
-
-    /**
-     * Represent "all columns" (the asterisk) in the <code>SELECT</code> list.
-     * <p>
-     * In most cases simply taking over the original asterisk will be sufficient and is therefore implemented in this
-     * base class.
-     * </p>
-     * <p>
-     * Override this method in case conversions are necessary.
-     * </p>
-     *
-     * @param selectList list of columns (or expressions) in the <code>SELECT</code> part
-     * @return always <code>"true"</code>
-     * @throws AdapterException in case select list cannot be resolved.
-     */
-    protected String representAsteriskInSelectList(final SqlSelectList selectList) throws AdapterException {
-        return SqlConstants.ASTERISK;
     }
 
     /**
