@@ -35,7 +35,6 @@ class ColumnMetadataReaderTest {
             ExaCharset.UTF8);
     private static final DataType TYPE_MAX_VARCHAR_ASCII = DataType.createVarChar(DataType.MAX_EXASOL_VARCHAR_SIZE,
             ExaCharset.ASCII);
-    private static final String COLUMN_A = "COLUMN_A";
     @Mock
     private Connection connectionMock;
     @Mock
@@ -52,16 +51,20 @@ class ColumnMetadataReaderTest {
     void testMapColumnsSingleColumn() throws SQLException {
         when(this.columnsMock.getInt(DATA_TYPE_COLUMN)).thenReturn(Types.BOOLEAN);
         final ColumnMetadata column = mapSingleMockedColumn("BOOLEAN");
-        assertAll(() -> assertThat(column.getName(), equalTo(COLUMN_A)),
+        assertAll(() -> assertThat(column.getName(), equalTo("BOOLEAN_COLUMN")),
                 () -> assertThat(column.getType(), equalTo(DataType.createBool())),
                 () -> assertThat(column.isNullable(), equalTo(true)),
                 () -> assertThat(column.isIdentity(), equalTo(false)));
     }
 
-    private ColumnMetadata mapSingleMockedColumn(final String typeName) throws SQLException {
+    private ColumnMetadata mapSingleMockedColumn() throws SQLException {
+        return mapSingleMockedColumn("ORIGINAL DATA TYPE");
+    }
+
+    private ColumnMetadata mapSingleMockedColumn(final String originalTypeName) throws SQLException {
         when(this.columnsMock.next()).thenReturn(true, false);
-        when(this.columnsMock.getString(NAME_COLUMN)).thenReturn(COLUMN_A);
-        when(this.columnsMock.getString(TYPE_NAME_COLUMN)).thenReturn(typeName);
+        when(this.columnsMock.getString(NAME_COLUMN)).thenReturn(originalTypeName + "_COLUMN");
+        when(this.columnsMock.getString(TYPE_NAME_COLUMN)).thenReturn(originalTypeName);
         when(this.remoteMetadataMock.getColumns(null, null, "THE_TABLE", "%")).thenReturn(this.columnsMock);
         final List<ColumnMetadata> columns = mapMockedColumns(this.columnsMock);
         return columns.get(0);
@@ -86,7 +89,7 @@ class ColumnMetadataReaderTest {
     private void assertSqlTypeConvertedToExasolType(final int typeId, final DataType expectedDataType)
             throws SQLException {
         when(this.columnsMock.getInt(DATA_TYPE_COLUMN)).thenReturn(typeId);
-        assertThat(mapSingleMockedColumn("DOUBLE").getType(), equalTo(expectedDataType));
+        assertThat(mapSingleMockedColumn().getType(), equalTo(expectedDataType));
     }
 
     @Test
@@ -112,7 +115,7 @@ class ColumnMetadataReaderTest {
         when(this.columnsMock.getInt(DATA_TYPE_COLUMN)).thenReturn(typeId);
         when(this.columnsMock.getInt(SIZE_COLUMN)).thenReturn(size);
         when(this.columnsMock.getInt(SCALE_COLUMN)).thenReturn(scale);
-        assertThat("Mapping java.sql.Type number " + typeId, mapSingleMockedColumn("DOUBLE").getType(),
+        assertThat("Mapping java.sql.Type number " + typeId, mapSingleMockedColumn().getType(),
                 equalTo(expectedDataType));
     }
 
@@ -177,7 +180,7 @@ class ColumnMetadataReaderTest {
     @ParameterizedTest
     void testSmallInteger(final int typeId) throws SQLException {
         when(this.columnsMock.getInt(DATA_TYPE_COLUMN)).thenReturn(typeId);
-        final DataType type = mapSingleMockedColumn("DOUBLE").getType();
+        final DataType type = mapSingleMockedColumn().getType();
         assertThat(type, equalTo(DataType.createDecimal(9, 0)));
     }
 
@@ -215,7 +218,7 @@ class ColumnMetadataReaderTest {
 
     @Test
     void testBigIntegerWithPrecision() throws SQLException {
-        final int precision = 17;
+        final int precision = 35;
         assertSqlTypeWithPrecisionConvertedToExasolType(Types.BIGINT, precision, 0,
                 DataType.createDecimal(precision, 0));
     }
@@ -251,8 +254,8 @@ class ColumnMetadataReaderTest {
     void testMapNotNullableColumn(final String jdbcNullable, final String nullable) throws SQLException {
         mockColumnNotNullable(jdbcNullable);
         when(this.columnsMock.getInt(DATA_TYPE_COLUMN)).thenReturn(Types.DOUBLE);
-        assertThat("JDBC string \"" + jdbcNullable + "\" interpreted as nullable",
-                mapSingleMockedColumn("DOUBLE").isNullable(), equalTo(Boolean.parseBoolean(nullable)));
+        assertThat("JDBC string \"" + jdbcNullable + "\" interpreted as nullable", mapSingleMockedColumn().isNullable(),
+                equalTo(Boolean.parseBoolean(nullable)));
     }
 
     private void mockColumnNotNullable(final String jdbcNullable) throws SQLException {
@@ -277,7 +280,7 @@ class ColumnMetadataReaderTest {
         mockColumnAutoIncrement(jdbcAutoIncrement);
         when(this.columnsMock.getInt(DATA_TYPE_COLUMN)).thenReturn(Types.DOUBLE);
         assertThat("JDBC string \"" + jdbcAutoIncrement + "\" interpreted as auto-increment on",
-                mapSingleMockedColumn("DOUBLE").isIdentity(), equalTo(Boolean.parseBoolean(identity)));
+                mapSingleMockedColumn().isIdentity(), equalTo(Boolean.parseBoolean(identity)));
     }
 
     private void mockColumnAutoIncrement(final String jdbcAutoIncrement) throws SQLException {
@@ -343,7 +346,7 @@ class ColumnMetadataReaderTest {
     void testMapColumnWithTypeNameNull() throws SQLException {
         when(this.columnsMock.getInt(DATA_TYPE_COLUMN)).thenReturn(Types.DOUBLE);
         when(this.columnsMock.next()).thenReturn(true, false);
-        when(this.columnsMock.getString(NAME_COLUMN)).thenReturn(COLUMN_A);
+        when(this.columnsMock.getString(NAME_COLUMN)).thenReturn("DOUBLE_COLUMN");
         when(this.columnsMock.getString(TYPE_NAME_COLUMN)).thenReturn(null);
         when(this.remoteMetadataMock.getColumns(null, null, "THE_TABLE", "%")).thenReturn(this.columnsMock);
         final List<ColumnMetadata> columns = mapMockedColumns(this.columnsMock);
@@ -375,7 +378,7 @@ class ColumnMetadataReaderTest {
         when(this.columnsMock.getString(NULLABLE_COLUMN)).thenReturn("true");
         when(this.columnsMock.getString(AUTOINCREMENT_COLUMN)).thenReturn("true");
         when(this.columnsMock.getString(DEFAULT_VALUE_COLUMN)).thenReturn("value");
-        assertThat(mapSingleMockedColumn("VARCHAR").getComment(), equalTo(""));
+        assertThat(mapSingleMockedColumn("DOUBLE").getComment(), equalTo(""));
     }
 
     private void mockReadingCommentThrowsSqlException() throws SQLException {
