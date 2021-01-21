@@ -1,6 +1,6 @@
 # Virtual Schema Common JDBC 9.0.0, released 2020-??-??
 
-Code name: 
+Code name: Restricted the amount of mapped tables in the remote schema to 1000 and updated to the latest virtual-schema-common-java
 
 ## Refactoring
 
@@ -9,6 +9,7 @@ Code name:
 * #77: Refactored SQL generation for scalar functions.
 * #79: Added error builder to the project.
 * #81: Updated to the latest virtual-schema-common-java.
+* #82: Migrate common tools for implementing a new dialect from the `virtual-schemas` repository.
 
 ## Dependency Updates
 
