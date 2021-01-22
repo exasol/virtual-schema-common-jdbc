@@ -18,13 +18,14 @@ import org.junit.jupiter.api.Test;
 import com.exasol.*;
 import com.exasol.adapter.*;
 import com.exasol.adapter.capabilities.*;
+import com.exasol.adapter.dialects.derby.DerbyAdapterFactory;
 import com.exasol.adapter.metadata.*;
 import com.exasol.adapter.request.*;
 import com.exasol.adapter.response.*;
 import com.exasol.adapter.sql.SqlStatement;
 import com.exasol.adapter.sql.TestSqlStatementFactory;
 
-class JdbcAdapterTest {
+class DerbyJdbcAdapterTest {
     private static final String SCHEMA_NAME = "THE_SCHEMA";
     private static final String TEST_DIALECT_NAME = "DERBY";
     private static final ExaConnectionInformation EXA_CONNECTION_INFORMATION = ExaConnectionInformationStub.builder() //
@@ -32,7 +33,7 @@ class JdbcAdapterTest {
             .password("") //
             .address("jdbc:derby:memory:test;create=true;") //
             .build();
-    private final VirtualSchemaAdapter adapter = new JdbcAdapterFactory().createAdapter();
+    private final VirtualSchemaAdapter adapter = new DerbyAdapterFactory().createAdapter();
     private Map<String, String> rawProperties;
 
     @BeforeEach
@@ -147,7 +148,7 @@ class JdbcAdapterTest {
 
     @Test
     void testSetPropertiesWithTablesFilter() throws AdapterException, SQLException {
-        final JdbcAdapter adapter = mock(JdbcAdapter.class);
+        final AbstractJdbcAdapter adapter = mock(AbstractJdbcAdapter.class);
         when(adapter.setProperties(any(), any())).thenCallRealMethod();
         when(adapter.readMetadata(any(), any(), any())).thenReturn(new SchemaMetadata("",
                 Arrays.asList(new TableMetadata("T1", "", null, ""), new TableMetadata("T2", "", null, ""))));
