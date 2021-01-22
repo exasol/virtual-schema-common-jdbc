@@ -29,9 +29,11 @@ This is an open source project which is officially supported by Exasol. For any 
 
 * [Changelog](doc/changes/changelog.md)
 
-## Information for Developers 
+## Information for Developers
 
-Please refer to the [documentation in the main Virtual Schema project](https://github.com/exasol/virtual-schemas/blob/master/README.md).
+* [Virtual Schema API Documentation][vs-api]
+* [Developing and Testing an SQL Dialect](doc/development/developing_a_dialect.md)
+* [Step-by-step guide to writing your own SQL dialect](doc/development/step_by_step_guide_to_writing_your_own_dialect.md)
 
 ## Dependencies
 
@@ -75,6 +77,7 @@ Running the Virtual Schema requires a Java Runtime version 11 or later.
 | [Sonatype OSS Index Maven Plugin][sonatype-oss-index-maven-plugin]       | Checking Dependencies Vulnerability                    | ASL2                          |
 | [Versions Maven Plugin][versions-maven-plugin]                           | Checking if dependencies updates are available         | Apache License 2.0            |
 
+[vs-api]: https://github.com/exasol/virtual-schema-common-java/blob/master/doc/development/api/virtual_schema_api.md
 
 [exasol-script-api]: https://docs.exasol.com/database_concepts/udf_scripts.htm
 [exasol-util-logging-testing]: https://github.com/exasol/java-util-logging-testing

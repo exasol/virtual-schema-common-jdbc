@@ -23,10 +23,12 @@ design and interface:
 ## Refactoring
 
 * #64: Refactored the `AbstractRemoteMetadataReader` and `TableMetadataReader` interface
-* #75: Restricted amount of mapped tables in the remote schema to 1000.
+* #75: Restricted the amount of mapped tables in the remote schema to 1000.
 * #77: Refactored SQL generation for scalar functions.
 * #79: Added error builder to the project.
 * #81: Updated to the latest virtual-schema-common-java.
+* #82: Migrated common tools for implementing a new dialect from the `virtual-schemas` repository.
+* #86: Remove dialect-level plug-in mechanism.
 
 ## Dependency Updates
 
