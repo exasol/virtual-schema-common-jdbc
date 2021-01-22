@@ -9,7 +9,7 @@ Code name: Restricted the amount of mapped tables in the remote schema to 1000 a
 * #77: Refactored SQL generation for scalar functions.
 * #79: Added error builder to the project.
 * #81: Updated to the latest virtual-schema-common-java.
-* #82: Migrate common tools for implementing a new dialect from the `virtual-schemas` repository.
+* #82: Migrated common tools for implementing a new dialect from the `virtual-schemas` repository.
 
 ## Dependency Updates
 
