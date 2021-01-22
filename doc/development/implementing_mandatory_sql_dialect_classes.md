@@ -1,21 +1,17 @@
 # Implementing the SQL Dialect Adapter's Mandatory Classes 
 
 Each SQL Dialect adapter consists of two or more classes, depending on how standard-compliant the source behaves.
-The minimum implementation requires that you create two mandatory classes:  
+The minimum implementation requires that you create the following mandatory classes:  
   
-1. [`<Your_dialect_name>SqlDialect.java`](#creating-the-main-dialect-class)
-2. [`<Your_dialect_name>SqlDialectFactory.java`](#creating-the-sql-dialect-factory)
-
-For example, for Athena dialect we have: `AthenaSqlDialect.java` and `AthenaSqlDialectFactory.java`.
+1. [`<Your_dialect_name>SqlDialect.java`](#creating-main-dialect-class)
+1. [`<Your_dialect_name>AdapterFactory.java`](#creating-adapter-factory)
+1. [`<Your_dialect_name>Adapter.java`](#creating-adapter)
 
 [Athena Virtual Schema Repository](https://github.com/exasol/athena-virtual-schema)
 
-And we also need two corresponding test classes:
- 
-1. `<Your_dialect_name>SqlDialectTest.java`
-2. `<Your_dialect_name>SqlDialectFactoryTest.java`  
+And we also need to create corresponding test classes.
 
-## Creating the Main Dialect Class
+## Creating Main Dialect Class
 
 1. Start by **creating a new repository** called with the new dialect name, for example `athena-virtual-schema`. The packages structure:  
     `athena-virtual-schema/src/main/java/com/exasol/adapter/dialects/athena` 
@@ -370,17 +366,13 @@ And we also need two corresponding test classes:
     Before you move on, first check how well your unit tests cover the class. 
     Keep adding test until you reach full coverage.
 
-## Creating the SQL Dialect Factory
+## Creating Adapter Factory
 
-Each dialect is accompanied by a factory that is responsible for instantiating that dialect. 
-The [Java Service](https://docs.oracle.com/javase/8/docs/api/java/util/ServiceLoader.html) loader takes care of finding and loading the factory. 
-It looks up the fully qualified class name of the dialect factories in the file [`com.exasol.adapter.dialects.SqlDialectFactory`](../../src/main/java/com/exasol/adapter/dialects/SqlDialectFactory.java).
-
-1. Now **create a class for the factory**: `com.exasol.adapter.dialects.athena.AthenaSqlDialectFactory` that **extends** `AbstractSqlDialectFactory`. 
+1. Now **create a class for the factory**: `com.exasol.adapter.dialects.athena.AthenaAdapterFactory` that **extends** `AbstractJdbcAdapterFactory`. 
     Let your IDE to generate necessary **overriding methods** for you. 
   
     ```java
-    public class AthenaSqlDialectFactory extends AbstractSqlDialectFactory {
+    public class AthenaAdapterFactory extends AbstractJdbcAdapterFactory {
        //methods here
    } 
   
@@ -388,30 +380,39 @@ It looks up the fully qualified class name of the dialect factories in the file 
    
    Also create a corresponding test class.
    
-2. **Implement method `getSqlDialectName()`** and write test for it.
+2. Implement method the following methods and write tests.
   
     ```java
     @Override
-    public String getSqlDialectName() {
+    protected String getSqlDialectName() {
         return AthenaSqlDialect.NAME;
     }
-    ```
    
-    The factory needs to be able to provide the dialect name since the JDBC adapter identifies dialect by name.
-    Note that at this point we don't have an instance of the dialect yet and thus are using the constant directly.
+   @Override
+    protected String getSqlDialectVersion() {
+        final VersionCollector versionCollector = new VersionCollector(
+                "META-INF/maven/com.exasol/athena-virtual-schema/pom.properties");
+        return versionCollector.getVersionNumber();
+    }
 
-3. The **other method** in the factory creates the instance: **`createSqlDialect()`**. Don't forget to write a test. 
-    Check the test coverage for the class.
-    
-    ```java
     @Override
-    public SqlDialect createSqlDialect(final ConnectionFactory connectionFactory, final AdapterProperties properties) {
-        return new AthenaSqlDialect(connectionFactory, properties);
+    public VirtualSchemaAdapter createAdapter() {
+        return new ExasolAdapter();
     }
     ```
    
-    The main reason for having a factory is that dialects are loaded lazily.
-    It is more resource-efficient and secure to load only the one single dialect that we actually need. 
-    The factories are very lightweight, dialects not so much.
+    Note that at this point we don't have an instance of the dialect yet and thus are using the constant directly.
 
-4. **Add the fully qualified factory name** `com.exasol.adapter.dialects.athena.AthenaSqlDialectFactory` to the **file `/src/main/resources/META-INF/services/com.exasol.adapter.dialects.SqlDialectFactory`**  so that the class loader can find your new dialect factory.
+3. . **Add the fully qualified factory name** `com.exasol.adapter.dialects.exasol.AthenaAdapterFactory` to the **file `/src/main/resources/META-INF/services/com.exasol.adapter.AdapterFactory`**  so that the class loader can find your new adapter factory.
+
+## Creating Adapter
+
+1. Create an adapter class. It will instantiate the dialect.
+    ```java
+    public class AthenaAdapter extends AbstractJdbcAdapter {
+        @Override
+        protected SqlDialect createDialect(ConnectionFactory connectionFactory, AdapterProperties properties) {
+            return new AthenaSqlDialect(connectionFactory, properties);
+        }
+    }
+    ```
