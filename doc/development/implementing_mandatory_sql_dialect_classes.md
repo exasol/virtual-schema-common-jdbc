@@ -7,7 +7,7 @@ The minimum implementation requires that you create the following mandatory clas
 1. [`<Your_dialect_name>AdapterFactory.java`](#creating-adapter-factory)
 1. [`<Your_dialect_name>Adapter.java`](#creating-adapter)
 
-[Athena Virtual Schema Repository](https://github.com/exasol/athena-virtual-schema)
+See Athena dialect source code in [Athena Virtual Schema Repository](https://github.com/exasol/athena-virtual-schema).
 
 And we also need to create corresponding test classes.
 
