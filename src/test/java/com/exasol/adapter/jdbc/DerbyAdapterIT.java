@@ -14,9 +14,12 @@ import org.mockito.Mockito;
 import com.exasol.ExaMetadata;
 import com.exasol.adapter.*;
 
-class JdbcAdapterIT {
+/**
+ * This class exists to integration test the JDBC adapter.
+ */
+class DerbyAdapterIT {
     @Test
-    public void testRegisteredDialects() throws AdapterException {
+    void testRegisteredAdapterFactories() throws AdapterException {
         final String rawRequest = "{\n" //
                 + "    \"type\" : \"getCapabilities\",\n" //
                 + "    \"schemaMetadataInfo\" :\n" //
@@ -32,6 +35,6 @@ class JdbcAdapterIT {
         final ExaMetadata exaMetadata = Mockito.mock(ExaMetadata.class);
         RequestDispatcher.adapterCall(exaMetadata, rawRequest);
         final List<AdapterFactory> registeredFactories = AdapterRegistry.getInstance().getRegisteredAdapterFactories();
-        assertThat(registeredFactories, hasItem(instanceOf(JdbcAdapterFactory.class)));
+        assertThat(registeredFactories, hasItem(instanceOf(AbstractJdbcAdapterFactory.class)));
     }
 }

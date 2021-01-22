@@ -3,7 +3,6 @@ package com.exasol.adapter.jdbc;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import com.exasol.ExaConnectionInformation;
@@ -37,7 +36,8 @@ public abstract class AbstractConnectionDefinitionBuilderTestBase {
     }
 
     protected void assertIllegalPropertiesThrowsException(final Map<String, String> rawProperties) {
-        assertThrows(IllegalArgumentException.class, () -> new BaseConnectionDefinitionBuilder()
-                .buildConnectionDefinition(new AdapterProperties(rawProperties), null));
+        final AdapterProperties properties = new AdapterProperties(rawProperties);
+        final BaseConnectionDefinitionBuilder builder = new BaseConnectionDefinitionBuilder();
+        assertThrows(IllegalArgumentException.class, () -> builder.buildConnectionDefinition(properties, null));
     }
 }

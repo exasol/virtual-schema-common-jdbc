@@ -15,7 +15,6 @@ import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.dialects.QueryRewriter;
 import com.exasol.adapter.dialects.SqlDialect;
 import com.exasol.adapter.dialects.dummy.DummySqlDialect;
-import com.exasol.adapter.dialects.rewriting.ImportFromJDBCQueryRewriter;
 import com.exasol.adapter.jdbc.BaseRemoteMetadataReader;
 import com.exasol.adapter.sql.TestSqlStatementFactory;
 

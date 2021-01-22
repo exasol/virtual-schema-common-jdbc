@@ -7,7 +7,8 @@ import java.util.logging.Logger;
 import com.exasol.ExaMetadata;
 import com.exasol.adapter.*;
 import com.exasol.adapter.capabilities.*;
-import com.exasol.adapter.dialects.*;
+import com.exasol.adapter.dialects.PropertyValidationException;
+import com.exasol.adapter.dialects.SqlDialect;
 import com.exasol.adapter.metadata.SchemaMetadata;
 import com.exasol.adapter.metadata.SchemaMetadataInfo;
 import com.exasol.adapter.request.*;
@@ -17,13 +18,13 @@ import com.exasol.errorreporting.ExaError;
 /**
  * This class implements main logic for different types of requests a virtual schema JDBC adapter can receive.
  */
-public class JdbcAdapter implements VirtualSchemaAdapter {
+public abstract class AbstractJdbcAdapter implements VirtualSchemaAdapter {
     private static final String SCALAR_FUNCTION_PREFIX = "FN_";
     private static final String PREDICATE_PREFIX = "FN_PRED_";
     private static final String AGGREGATE_FUNCTION_PREFIX = "FN_AGG_";
     private static final String LITERAL_PREFIX = "LITERAL_";
     private static final String TABLES_PROPERTY = "TABLE_FILTER";
-    private static final Logger LOGGER = Logger.getLogger(JdbcAdapter.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(AbstractJdbcAdapter.class.getName());
 
     @Override
     public CreateVirtualSchemaResponse createVirtualSchema(final ExaMetadata exasolMetadata,
@@ -61,10 +62,15 @@ public class JdbcAdapter implements VirtualSchemaAdapter {
         return dialect.readSchemaMetadata(tables);
     }
 
-    private SqlDialect createDialect(final ConnectionFactory connectionFactory, final AdapterProperties properties) {
-        final String dialectName = properties.getSqlDialect();
-        return SqlDialectRegistry.getInstance().getDialectForName(dialectName, connectionFactory, properties);
-    }
+    /**
+     * Create a new SQL dialect.
+     *
+     * @param connectionFactory factory that allows creating a connection to the remote data source
+     * @param properties        adapter properties
+     * @return new SQL dialect instance
+     */
+    protected abstract SqlDialect createDialect(final ConnectionFactory connectionFactory,
+            final AdapterProperties properties);
 
     @Override
     public DropVirtualSchemaResponse dropVirtualSchema(final ExaMetadata metadata,
