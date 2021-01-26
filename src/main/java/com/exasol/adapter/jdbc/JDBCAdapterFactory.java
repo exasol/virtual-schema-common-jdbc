@@ -16,10 +16,8 @@ public class JDBCAdapterFactory implements AdapterFactory {
 
     private SqlDialectFactory loadSqlDialectFactory() {
         final ServiceLoader<SqlDialectFactory> sqlDialectFactoryLoader = ServiceLoader.load(SqlDialectFactory.class);
-        for (final SqlDialectFactory sqlDialectFactory : sqlDialectFactoryLoader) {
-            return sqlDialectFactory;
-        }
-        throw new NoSuchElementException("No SqlDialectFactory was found.");
+        return sqlDialectFactoryLoader.findFirst()
+                .orElseThrow(() -> new NoSuchElementException("No SqlDialectFactory was found."));
     }
 
     @Override
