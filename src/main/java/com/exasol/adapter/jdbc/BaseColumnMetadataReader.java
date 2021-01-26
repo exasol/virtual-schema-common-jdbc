@@ -94,7 +94,7 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
     }
 
     private ColumnMetadata mapColumn(final ResultSet remoteColumn) throws SQLException {
-        final JdbcTypeDescription jdbcTypeDescription = readJdbcTypeDescription(remoteColumn);
+        final JDBCTypeDescription jdbcTypeDescription = readJdbcTypeDescription(remoteColumn);
         final String columnName = readColumnName(remoteColumn);
         final String originalTypeName = readColumnTypeName(remoteColumn);
         final ColumnAdapterNotes columnAdapterNotes = ColumnAdapterNotes.builder() //
@@ -116,13 +116,13 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
                 .build();
     }
 
-    public JdbcTypeDescription readJdbcTypeDescription(final ResultSet remoteColumn) throws SQLException {
+    public JDBCTypeDescription readJdbcTypeDescription(final ResultSet remoteColumn) throws SQLException {
         final int jdbcType = readJdbcDataType(remoteColumn);
         final int decimalScale = readScale(remoteColumn);
         final int precisionOrSize = readPrecisionOrSize(remoteColumn);
         final int charOctetLength = readOctetLength(remoteColumn);
         final String typeName = readTypeName(remoteColumn);
-        return new JdbcTypeDescription(jdbcType, decimalScale, precisionOrSize, charOctetLength, typeName);
+        return new JDBCTypeDescription(jdbcType, decimalScale, precisionOrSize, charOctetLength, typeName);
     }
 
     private int readJdbcDataType(final ResultSet remoteColumn) throws SQLException {
@@ -213,7 +213,7 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
     }
 
     @Override
-    public DataType mapJdbcType(final JdbcTypeDescription jdbcTypeDescription) {
+    public DataType mapJdbcType(final JDBCTypeDescription jdbcTypeDescription) {
         switch (jdbcTypeDescription.getJdbcType()) {
         case Types.TINYINT:
         case Types.SMALLINT:
@@ -326,7 +326,7 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
      * @return Exasol <code>DECIMAL</code> if precision is less than or equal maximum precision, <code>DOUBLE</code>
      *         otherwise.
      */
-    protected DataType mapJdbcTypeNumericToDecimalWithFallbackToDouble(final JdbcTypeDescription jdbcTypeDescription) {
+    protected DataType mapJdbcTypeNumericToDecimalWithFallbackToDouble(final JDBCTypeDescription jdbcTypeDescription) {
         final int decimalPrec = jdbcTypeDescription.getPrecisionOrSize();
         final int decimalScale = jdbcTypeDescription.getDecimalScale();
         if (decimalPrec <= DataType.MAX_EXASOL_DECIMAL_PRECISION) {

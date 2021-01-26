@@ -8,7 +8,7 @@ package com.exasol.adapter.jdbc;
  * <p>
  * The original name helps distinguishing types that have the same identifier number but different meaning.
  */
-public class JdbcTypeDescription {
+public class JDBCTypeDescription {
     private final int jdbcType;
     private final int decimalScale;
     private final int precisionOrSize;
@@ -24,7 +24,7 @@ public class JdbcTypeDescription {
      * @param byteSize        storage size the data type needs in bytes
      * @param typeName        original name the type has in the database
      */
-    public JdbcTypeDescription(final int jdbcType, final int decimalScale, final int precisionOrSize,
+    public JDBCTypeDescription(final int jdbcType, final int decimalScale, final int precisionOrSize,
             final int byteSize, final String typeName) {
         this.jdbcType = jdbcType;
         this.decimalScale = decimalScale;

@@ -17,7 +17,7 @@ import com.exasol.adapter.*;
 /**
  * This class exists to integration test the JDBC adapter.
  */
-class DerbyAdapterIT {
+class JDBCAdapterIT {
     @Test
     void testRegisteredAdapterFactories() throws AdapterException {
         final String rawRequest = "{\n" //
@@ -35,6 +35,6 @@ class DerbyAdapterIT {
         final ExaMetadata exaMetadata = Mockito.mock(ExaMetadata.class);
         RequestDispatcher.adapterCall(exaMetadata, rawRequest);
         final List<AdapterFactory> registeredFactories = AdapterRegistry.getInstance().getRegisteredAdapterFactories();
-        assertThat(registeredFactories, hasItem(instanceOf(AbstractJdbcAdapterFactory.class)));
+        assertThat(registeredFactories, hasItem(instanceOf(JDBCAdapterFactory.class)));
     }
 }

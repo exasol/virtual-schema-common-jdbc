@@ -27,6 +27,6 @@ To start developing Virtual Schemas you should know:
 
 ## Creating an SQL Dialect 
 
-- [Part 1. Implementing the SQL Dialect Adapter's Mandatory Classes](implementing_mandatory_sql_dialect_classes.md) 
+- [Part 1. Implementing the SQL Dialect Adapter's Mandatory Files](implementing_mandatory_sql_dialect_files.md) 
 - [Part 2. Implementing Additional Dialect-Specific Behavior](implementing_additional_dialect_specific_behavior.md)
 - [Part 3. Integration Testing](integration_testing.md)

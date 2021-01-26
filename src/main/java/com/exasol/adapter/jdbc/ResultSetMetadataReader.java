@@ -95,19 +95,19 @@ public class ResultSetMetadataReader {
         final int columnCount = metadata.getColumnCount();
         final List<DataType> types = new ArrayList<>(columnCount);
         for (int columnNumber = 1; columnNumber <= columnCount; ++columnNumber) {
-            final JdbcTypeDescription jdbcTypeDescription = getJdbcTypeDescription(metadata, columnNumber);
+            final JDBCTypeDescription jdbcTypeDescription = getJdbcTypeDescription(metadata, columnNumber);
             final DataType type = this.columnMetadataReader.mapJdbcType(jdbcTypeDescription);
             types.add(type);
         }
         return types;
     }
 
-    protected static JdbcTypeDescription getJdbcTypeDescription(final ResultSetMetaData metadata,
+    protected static JDBCTypeDescription getJdbcTypeDescription(final ResultSetMetaData metadata,
             final int columnNumber) throws SQLException {
         final int jdbcType = metadata.getColumnType(columnNumber);
         final int jdbcPrecisions = metadata.getPrecision(columnNumber);
         final int jdbcScales = metadata.getScale(columnNumber);
-        return new JdbcTypeDescription(jdbcType, jdbcScales, jdbcPrecisions, 0,
+        return new JDBCTypeDescription(jdbcType, jdbcScales, jdbcPrecisions, 0,
                 metadata.getColumnTypeName(columnNumber));
     }
 }

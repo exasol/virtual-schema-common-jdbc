@@ -1,11 +1,11 @@
-# Implementing the SQL Dialect Adapter's Mandatory Classes 
+# Implementing the SQL Dialect Adapter's Mandatory Files 
 
 Each SQL Dialect adapter consists of two or more classes, depending on how standard-compliant the source behaves.
-The minimum implementation requires that you create the following mandatory classes:  
+The minimum implementation requires that you create the following mandatory files:  
   
 1. [`<Your_dialect_name>SqlDialect.java`](#creating-main-dialect-class)
-1. [`<Your_dialect_name>AdapterFactory.java`](#creating-adapter-factory)
-1. [`<Your_dialect_name>Adapter.java`](#creating-adapter)
+1. [`<Your_dialect_name>SqlDialectFactory.java`](#creating-the-sql-dialect-factory)
+1. [/src/main/resources/META-INF/services/com.exasol.adapter.dialects.SqlDialectFactory](#making-the-sql-dialect-factory-available-for-loading)
 
 See Athena dialect source code in [Athena Virtual Schema Repository](https://github.com/exasol/athena-virtual-schema).
 
@@ -366,13 +366,13 @@ And we also need to create corresponding test classes.
     Before you move on, first check how well your unit tests cover the class. 
     Keep adding test until you reach full coverage.
 
-## Creating Adapter Factory
+## Creating the SQL Dialect Factory
 
-1. Now **create a class for the factory**: `com.exasol.adapter.dialects.athena.AthenaAdapterFactory` that **extends** `AbstractJdbcAdapterFactory`. 
+1. Now **create a class for the factory**: `com.exasol.adapter.dialects.athena.AthenaSqlDialectFactory` that **extends** `AbstractSqlDialectFactory`. 
     Let your IDE to generate necessary **overriding methods** for you. 
   
     ```java
-    public class AthenaAdapterFactory extends AbstractJdbcAdapterFactory {
+    public class AthenaSqlDialectFactory extends AbstractSqlDialectFactory {
        //methods here
    } 
   
@@ -396,23 +396,13 @@ And we also need to create corresponding test classes.
     }
 
     @Override
-    public VirtualSchemaAdapter createAdapter() {
-        return new ExasolAdapter();
+    public SqlDialect createSqlDialect(final ConnectionFactory connectionFactory, final AdapterProperties properties) {
+        return new AthenaSqlDialect(connectionFactory, properties);
     }
     ```
    
     Note that at this point we don't have an instance of the dialect yet and thus are using the constant directly.
 
-3. . **Add the fully qualified factory name** `com.exasol.adapter.dialects.exasol.AthenaAdapterFactory` to the **file `/src/main/resources/META-INF/services/com.exasol.adapter.AdapterFactory`**  so that the class loader can find your new adapter factory.
+## Making the SQL Dialect Factory available for loading
 
-## Creating Adapter
-
-1. Create an adapter class. It will instantiate the dialect.
-    ```java
-    public class AthenaAdapter extends AbstractJdbcAdapter {
-        @Override
-        protected SqlDialect createDialect(ConnectionFactory connectionFactory, AdapterProperties properties) {
-            return new AthenaSqlDialect(connectionFactory, properties);
-        }
-    }
-    ```
+1. **Add the fully qualified factory name** previously implemented, `com.exasol.adapter.dialects.athena.AthenaSqlDialectFactory`, to the **`/src/main/resources/META-INF/services/com.exasol.adapter.dialects.SqlDialectFactory`** file so that the class loader can find the SQL dialect factory.

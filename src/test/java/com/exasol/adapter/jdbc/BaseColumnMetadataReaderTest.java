@@ -41,20 +41,20 @@ class BaseColumnMetadataReaderTest {
             Types.SQLXML, Types.NULL, Types.REF_CURSOR })
     @ParameterizedTest
     void testMappingUnsupportedTypesReturnsUnsupportedType(final int jdbcType) {
-        final JdbcTypeDescription jdbcTypeDescription = new JdbcTypeDescription(jdbcType, 0, 0, 0, null);
+        final JDBCTypeDescription jdbcTypeDescription = new JDBCTypeDescription(jdbcType, 0, 0, 0, null);
         assertThat(this.reader.mapJdbcType(jdbcTypeDescription).getExaDataType(), equalTo(ExaDataType.UNSUPPORTED));
     }
 
     @Test
     void testMappingNumericToMaxSizeVarchar() {
-        final JdbcTypeDescription jdbcTypeDescription = new JdbcTypeDescription(Types.NUMERIC, 0, 0, 0, null);
+        final JDBCTypeDescription jdbcTypeDescription = new JDBCTypeDescription(Types.NUMERIC, 0, 0, 0, null);
         assertThat(this.reader.mapJdbcType(jdbcTypeDescription), equalTo(DataType.createMaximumSizeVarChar(UTF8)));
     }
 
     @ValueSource(ints = { Types.TIME, Types.TIMESTAMP_WITH_TIMEZONE })
     @ParameterizedTest
     void testMappingDateTimeToVarchar(final int jdbcType) {
-        final JdbcTypeDescription jdbcTypeDescription = new JdbcTypeDescription(jdbcType, 0, 0, 0, null);
+        final JDBCTypeDescription jdbcTypeDescription = new JDBCTypeDescription(jdbcType, 0, 0, 0, null);
         assertThat(this.reader.mapJdbcType(jdbcTypeDescription), equalTo(DataType.createVarChar(100, UTF8)));
     }
 
@@ -76,7 +76,7 @@ class BaseColumnMetadataReaderTest {
 
     @Test
     void testMapJdbcTypeNumericToDecimalWithFallbackToDoubleReturnsDouble() {
-        final JdbcTypeDescription jdbcTypeDescription = new JdbcTypeDescription(8, 10,
+        final JDBCTypeDescription jdbcTypeDescription = new JDBCTypeDescription(8, 10,
                 DataType.MAX_EXASOL_DECIMAL_PRECISION + 1, 0, "");
         assertThat(this.reader.mapJdbcTypeNumericToDecimalWithFallbackToDouble(jdbcTypeDescription),
                 equalTo(DataType.createDouble()));
@@ -84,7 +84,7 @@ class BaseColumnMetadataReaderTest {
 
     @Test
     void testMapJdbcTypeNumericToDecimalWithFallbackToDoubleReturnsDecimal() {
-        final JdbcTypeDescription jdbcTypeDescription = new JdbcTypeDescription(8, 10,
+        final JDBCTypeDescription jdbcTypeDescription = new JDBCTypeDescription(8, 10,
                 DataType.MAX_EXASOL_DECIMAL_PRECISION, 0, "");
         assertThat(this.reader.mapJdbcTypeNumericToDecimalWithFallbackToDouble(jdbcTypeDescription),
                 equalTo(DataType.createDecimal(DataType.MAX_EXASOL_DECIMAL_PRECISION, 10)));
@@ -93,14 +93,14 @@ class BaseColumnMetadataReaderTest {
     @ValueSource(ints = { 256, 65536, 2000000 }) // 2 pow 8, 2 pow 16, max
     @ParameterizedTest
     void mapLongVarchar(final int size) {
-        final JdbcTypeDescription typeDescription = new JdbcTypeDescription(Types.LONGVARCHAR, 0, size, 0, "VARCHAR");
+        final JDBCTypeDescription typeDescription = new JDBCTypeDescription(Types.LONGVARCHAR, 0, size, 0, "VARCHAR");
         assertThat(this.reader.mapJdbcType(typeDescription), equalTo(DataType.createVarChar(size, UTF8)));
     }
 
     @ValueSource(ints = { 2000001, 16777216 }) // max + 1, 2 pow 24
     @ParameterizedTest
     void mapLongVarcharToUnsupportedIfTooLarge(final int size) {
-        final JdbcTypeDescription typeDescription = new JdbcTypeDescription(Types.LONGVARCHAR, 0, size, 0, "VARCHAR");
+        final JDBCTypeDescription typeDescription = new JDBCTypeDescription(Types.LONGVARCHAR, 0, size, 0, "VARCHAR");
         assertThat(this.reader.mapJdbcType(typeDescription), equalTo(DataType.createMaximumSizeVarChar(UTF8)));
     }
 
