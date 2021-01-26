@@ -29,7 +29,7 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
     /**
      * Construct a new instance of {@link JDBCAdapter}
      *
-     * @param sqlDialectFactory
+     * @param sqlDialectFactory {@link SqlDialectFactory} for creating {@link SqlDialect}
      */
     public JDBCAdapter(final SqlDialectFactory sqlDialectFactory) {
         this.sqlDialectFactory = sqlDialectFactory;
