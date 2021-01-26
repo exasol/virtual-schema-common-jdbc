@@ -1,6 +1,6 @@
 # Virtual Schema Common JDBC 9.0.0, released 2020-??-??
 
-Code name: Single-stage loading
+Code name:
 
 In release 9.0.0, we optimized adapter loading by limiting the number of SQL dialects to be loaded to one.
 
@@ -22,6 +22,7 @@ design and interface:
 * #81: Updated to the latest virtual-schema-common-java.
 * #82: Migrated common tools for implementing a new dialect from the `virtual-schemas` repository.
 * #86: Remove dialect-level plug-in mechanism.
+* #88: Limit number of SQL dialects to one at loading time.
 
 ## Dependency Updates
 
