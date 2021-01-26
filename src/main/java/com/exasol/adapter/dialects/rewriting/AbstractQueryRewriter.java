@@ -7,7 +7,8 @@ import com.exasol.*;
 import com.exasol.adapter.AdapterException;
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.dialects.*;
-import com.exasol.adapter.jdbc.*;
+import com.exasol.adapter.jdbc.ConnectionDefinitionBuilder;
+import com.exasol.adapter.jdbc.RemoteMetadataReader;
 import com.exasol.adapter.sql.SqlStatement;
 import com.exasol.errorreporting.ExaError;
 
@@ -23,24 +24,15 @@ public abstract class AbstractQueryRewriter implements QueryRewriter {
     /**
      * Create a new instance of a {@link AbstractQueryRewriter}.
      *
-     * @param dialect              dialect
-     * @param remoteMetadataReader remote metadata reader
+     * @param dialect                     dialect
+     * @param remoteMetadataReader        remote metadata reader
+     * @param connectionDefinitionBuilder builder for creating connection definitions
      */
-    protected AbstractQueryRewriter(final SqlDialect dialect, final RemoteMetadataReader remoteMetadataReader) {
+    protected AbstractQueryRewriter(final SqlDialect dialect, final RemoteMetadataReader remoteMetadataReader,
+            final ConnectionDefinitionBuilder connectionDefinitionBuilder) {
         this.dialect = dialect;
         this.remoteMetadataReader = remoteMetadataReader;
-        this.connectionDefinitionBuilder = createConnectionDefinitionBuilder();
-    }
-
-    /**
-     * Create the connection definition builder.
-     * <p>
-     * Override this method in case you need connection definitions that differ from the regular JDBC style.
-     *
-     * @return connection definition builder
-     */
-    protected ConnectionDefinitionBuilder createConnectionDefinitionBuilder() {
-        return new BaseConnectionDefinitionBuilder();
+        this.connectionDefinitionBuilder = connectionDefinitionBuilder;
     }
 
     @Override

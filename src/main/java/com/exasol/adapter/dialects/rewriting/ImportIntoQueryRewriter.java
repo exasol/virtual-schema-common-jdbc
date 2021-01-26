@@ -22,7 +22,7 @@ public class ImportIntoQueryRewriter extends AbstractQueryRewriter {
      */
     public ImportIntoQueryRewriter(final SqlDialect dialect, final RemoteMetadataReader remoteMetadataReader,
             final ConnectionFactory connectionFactory) {
-        super(dialect, remoteMetadataReader);
+        super(dialect, remoteMetadataReader, new BaseConnectionDefinitionBuilder());
         this.connectionFactory = connectionFactory;
     }
 
