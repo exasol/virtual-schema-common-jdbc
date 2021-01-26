@@ -26,5 +26,5 @@ public interface ColumnMetadataReader {
      * @param jdbcTypeDescription parameter object describing the type from the JDBC perspective
      * @return Exasol data type information
      */
-    public DataType mapJdbcType(JdbcTypeDescription jdbcTypeDescription);
+    public DataType mapJdbcType(JDBCTypeDescription jdbcTypeDescription);
 }
