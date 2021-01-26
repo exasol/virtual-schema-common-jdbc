@@ -4,8 +4,8 @@ Each SQL Dialect adapter consists of two or more classes, depending on how stand
 The minimum implementation requires that you create the following mandatory files:  
   
 1. [`<Your_dialect_name>SqlDialect.java`](#creating-main-dialect-class)
-2. [`<Your_dialect_name>SqlDialectFactory.java`](#creating-the-sql-dialect-factory)
-3. [/src/main/resources/META-INF/services/com.exasol.adapter.dialects.SqlDialectFactory](#making-the-sql-dialect-factory-available-for-loading)
+1. [`<Your_dialect_name>SqlDialectFactory.java`](#creating-the-sql-dialect-factory)
+1. [/src/main/resources/META-INF/services/com.exasol.adapter.dialects.SqlDialectFactory](#making-the-sql-dialect-factory-available-for-loading)
 
 See Athena dialect source code in [Athena Virtual Schema Repository](https://github.com/exasol/athena-virtual-schema).
 
