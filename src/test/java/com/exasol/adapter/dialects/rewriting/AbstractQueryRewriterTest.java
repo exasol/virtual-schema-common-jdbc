@@ -15,6 +15,7 @@ import com.exasol.ExaMetadata;
 import com.exasol.adapter.AdapterException;
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.dialects.SqlDialect;
+import com.exasol.adapter.jdbc.BaseConnectionDefinitionBuilder;
 import com.exasol.adapter.jdbc.RemoteMetadataReader;
 
 class AbstractQueryRewriterTest {
@@ -37,7 +38,7 @@ class AbstractQueryRewriterTest {
          * @param remoteMetadataReader remote metadata reader
          */
         protected DummyQueryRewriter(final SqlDialect dialect, final RemoteMetadataReader remoteMetadataReader) {
-            super(dialect, remoteMetadataReader);
+            super(dialect, remoteMetadataReader, new BaseConnectionDefinitionBuilder());
         }
 
         @Override

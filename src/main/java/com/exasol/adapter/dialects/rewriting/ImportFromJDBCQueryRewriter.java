@@ -3,6 +3,7 @@ package com.exasol.adapter.dialects.rewriting;
 import java.sql.SQLException;
 
 import com.exasol.adapter.dialects.SqlDialect;
+import com.exasol.adapter.jdbc.BaseConnectionDefinitionBuilder;
 import com.exasol.adapter.jdbc.RemoteMetadataReader;
 
 /**
@@ -16,7 +17,7 @@ public class ImportFromJDBCQueryRewriter extends AbstractQueryRewriter {
      * @param remoteMetadataReader remote metadata reader
      */
     public ImportFromJDBCQueryRewriter(final SqlDialect dialect, final RemoteMetadataReader remoteMetadataReader) {
-        super(dialect, remoteMetadataReader);
+        super(dialect, remoteMetadataReader, new BaseConnectionDefinitionBuilder());
     }
 
     @Override
