@@ -18,7 +18,7 @@ public class ImportFromJDBCQueryRewriter extends AbstractQueryRewriter {
      * @param remoteMetadataReader remote metadata reader
      */
     public ImportFromJDBCQueryRewriter(final SqlDialect dialect, final RemoteMetadataReader remoteMetadataReader) {
-        super(dialect, remoteMetadataReader, new BaseConnectionDefinitionBuilder());
+        this(dialect, remoteMetadataReader, new BaseConnectionDefinitionBuilder());
     }
 
     /**

@@ -25,8 +25,7 @@ public class ImportIntoTemporaryTableQueryRewriter extends AbstractQueryRewriter
      */
     public ImportIntoTemporaryTableQueryRewriter(final SqlDialect dialect,
             final RemoteMetadataReader remoteMetadataReader, final ConnectionFactory connectionFactory) {
-        super(dialect, remoteMetadataReader, new BaseConnectionDefinitionBuilder());
-        this.connectionFactory = connectionFactory;
+        this(dialect, remoteMetadataReader, connectionFactory, new BaseConnectionDefinitionBuilder());
     }
 
     /**
