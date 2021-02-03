@@ -41,6 +41,6 @@ class ImportIntoQueryRewriterTest extends AbstractQueryRewriterTestBase {
             final AdapterProperties properties) {
         final SqlDialect dialect = new DummySqlDialect(connectionFactory, properties);
         final BaseRemoteMetadataReader metadataReader = new BaseRemoteMetadataReader(connection, properties);
-        return new ImportIntoQueryRewriter(dialect, metadataReader, connectionFactory);
+        return new ImportIntoTemporaryTableQueryRewriter(dialect, metadataReader, connectionFactory);
     }
 }

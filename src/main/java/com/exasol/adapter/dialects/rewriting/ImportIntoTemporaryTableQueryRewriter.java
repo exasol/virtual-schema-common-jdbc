@@ -7,22 +7,40 @@ import com.exasol.adapter.dialects.SqlDialect;
 import com.exasol.adapter.jdbc.*;
 
 /**
- * Implementation of {@link AbstractQueryRewriter} to generate {@code IMPORT INTO FROM JDBC} queries.
+ * Implementation of {@link AbstractQueryRewriter} to generate {@code IMPORT INTO (<columns description>) FROM JDBC}
+ * queries.
+ * 
+ * @see <a href="https://docs.exasol.com/sql/import.htm">https://docs.exasol.com/sql/import.htm</a>
  */
-public class ImportIntoQueryRewriter extends AbstractQueryRewriter {
-    private static final Logger LOGGER = Logger.getLogger(ImportIntoQueryRewriter.class.getName());
+public class ImportIntoTemporaryTableQueryRewriter extends AbstractQueryRewriter {
+    private static final Logger LOGGER = Logger.getLogger(ImportIntoTemporaryTableQueryRewriter.class.getName());
     protected final ConnectionFactory connectionFactory;
 
     /**
-     * Construct a new instance of {@link ImportIntoQueryRewriter}.
+     * Construct a new instance of {@link ImportIntoTemporaryTableQueryRewriter}.
      *
      * @param dialect              dialect
      * @param remoteMetadataReader remote metadata reader
      * @param connectionFactory    factory for the JDBC connection to remote data source
      */
-    public ImportIntoQueryRewriter(final SqlDialect dialect, final RemoteMetadataReader remoteMetadataReader,
-            final ConnectionFactory connectionFactory) {
+    public ImportIntoTemporaryTableQueryRewriter(final SqlDialect dialect,
+            final RemoteMetadataReader remoteMetadataReader, final ConnectionFactory connectionFactory) {
         super(dialect, remoteMetadataReader, new BaseConnectionDefinitionBuilder());
+        this.connectionFactory = connectionFactory;
+    }
+
+    /**
+     * Construct a new instance of {@link ImportIntoTemporaryTableQueryRewriter}.
+     *
+     * @param dialect                     dialect
+     * @param remoteMetadataReader        remote metadata reader
+     * @param connectionFactory           factory for the JDBC connection to remote data source
+     * @param connectionDefinitionBuilder custom connection definition builder
+     */
+    public ImportIntoTemporaryTableQueryRewriter(final SqlDialect dialect,
+            final RemoteMetadataReader remoteMetadataReader, final ConnectionFactory connectionFactory,
+            final ConnectionDefinitionBuilder connectionDefinitionBuilder) {
+        super(dialect, remoteMetadataReader, connectionDefinitionBuilder);
         this.connectionFactory = connectionFactory;
     }
 
