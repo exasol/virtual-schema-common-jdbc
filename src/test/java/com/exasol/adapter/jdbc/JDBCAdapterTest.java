@@ -9,7 +9,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.sql.SQLException;
 import java.util.*;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -26,7 +25,6 @@ import com.exasol.adapter.sql.TestSqlStatementFactory;
 
 class JDBCAdapterTest {
     private static final String SCHEMA_NAME = "THE_SCHEMA";
-    private static final String TEST_DIALECT_NAME = "DERBY";
     private static final ExaConnectionInformation EXA_CONNECTION_INFORMATION = ExaConnectionInformationStub.builder() //
             .user("") //
             .password("") //
@@ -51,19 +49,14 @@ class JDBCAdapterTest {
 
     private PushDownResponse pushStatementDown(final SqlStatement statement)
             throws AdapterException, ExaConnectionAccessException {
-        setTestSqlDialectProperty();
         setDerbyConnectionNameProperty();
         this.rawProperties.put(SCHEMA_NAME_PROPERTY, "SYSIBM");
         final List<TableMetadata> involvedTablesMetadata = null;
-        final PushDownRequest request = new PushDownRequest(TEST_DIALECT_NAME, createSchemaMetadataInfo(), statement,
+        final PushDownRequest request = new PushDownRequest(createSchemaMetadataInfo(), statement,
                 involvedTablesMetadata);
         final ExaMetadata exaMetadataMock = mock(ExaMetadata.class);
         when(exaMetadataMock.getConnection("DERBY_CONNECTION")).thenReturn(EXA_CONNECTION_INFORMATION);
         return this.adapter.pushdown(exaMetadataMock, request);
-    }
-
-    private void setTestSqlDialectProperty() {
-        this.rawProperties.put(SQL_DIALECT_PROPERTY, TEST_DIALECT_NAME);
     }
 
     private void setDerbyConnectionNameProperty() {
@@ -83,11 +76,9 @@ class JDBCAdapterTest {
 
     @Test
     void testGetCapabilities() throws AdapterException {
-        setTestSqlDialectProperty();
         setDerbyConnectionNameProperty();
         this.rawProperties.put(SCHEMA_NAME_PROPERTY, "SYSIBM");
-        final GetCapabilitiesRequest request = new GetCapabilitiesRequest(TEST_DIALECT_NAME,
-                createSchemaMetadataInfo());
+        final GetCapabilitiesRequest request = new GetCapabilitiesRequest(createSchemaMetadataInfo());
         final ExaMetadata exaMetadataMock = mock(ExaMetadata.class);
         final GetCapabilitiesResponse response = this.adapter.getCapabilities(exaMetadataMock, request);
         assertAll(
@@ -104,13 +95,11 @@ class JDBCAdapterTest {
 
     @Test
     void testGetCapabilitiesWithExcludedCapabilitiesList() throws AdapterException {
-        setTestSqlDialectProperty();
         setDerbyConnectionNameProperty();
         this.rawProperties.put(SCHEMA_NAME_PROPERTY, "SYSIBM");
         this.rawProperties.put(EXCLUDED_CAPABILITIES_PROPERTY,
                 "ORDER_BY_EXPRESSION, LITERAL_NULL, FN_AGG_COUNT_STAR, FN_PRED_AND, FN_ADD");
-        final GetCapabilitiesRequest request = new GetCapabilitiesRequest(TEST_DIALECT_NAME,
-                createSchemaMetadataInfo());
+        final GetCapabilitiesRequest request = new GetCapabilitiesRequest(createSchemaMetadataInfo());
         final ExaMetadata exaMetadataMock = mock(ExaMetadata.class);
         final GetCapabilitiesResponse response = this.adapter.getCapabilities(exaMetadataMock, request);
         assertThat(response.getCapabilities().getMainCapabilities(),
@@ -121,24 +110,20 @@ class JDBCAdapterTest {
 
     @Test
     void testDropVirtualSchemaMustSucceedEvenIfDebugAddressIsInvalid() throws AdapterException {
-        setTestSqlDialectProperty();
         setDerbyConnectionNameProperty();
         final ExaMetadata exaMetadataMock = mock(ExaMetadata.class);
         this.rawProperties.put(AdapterProperties.DEBUG_ADDRESS_PROPERTY, "this_is_an:invalid_debug_address");
-        final DropVirtualSchemaRequest dropRequest = new DropVirtualSchemaRequest(TEST_DIALECT_NAME,
-                createSchemaMetadataInfo());
+        final DropVirtualSchemaRequest dropRequest = new DropVirtualSchemaRequest(createSchemaMetadataInfo());
         final DropVirtualSchemaResponse response = this.adapter.dropVirtualSchema(exaMetadataMock, dropRequest);
         assertThat(response, notNullValue());
     }
 
     @Test
     void testSetPropertiesWithoutTablesFilter() throws AdapterException, ExaConnectionAccessException {
-        setTestSqlDialectProperty();
         setDerbyConnectionNameProperty();
         final Map<String, String> newRawProperties = new HashMap<>();
         newRawProperties.put(SCHEMA_NAME_PROPERTY, "NEW SCHEMA");
-        final SetPropertiesRequest request = new SetPropertiesRequest(TEST_DIALECT_NAME, createSchemaMetadataInfo(),
-                newRawProperties);
+        final SetPropertiesRequest request = new SetPropertiesRequest(createSchemaMetadataInfo(), newRawProperties);
         final ExaMetadata exaMetadataMock = mock(ExaMetadata.class);
         when(exaMetadataMock.getConnection("DERBY_CONNECTION")).thenReturn(EXA_CONNECTION_INFORMATION);
         final SetPropertiesResponse response = this.adapter.setProperties(exaMetadataMock, request);
@@ -146,18 +131,16 @@ class JDBCAdapterTest {
     }
 
     @Test
-    void testSetPropertiesWithTablesFilter() throws AdapterException, SQLException {
+    void testSetPropertiesWithTablesFilter() throws AdapterException {
         final JDBCAdapter adapter = mock(JDBCAdapter.class);
         when(adapter.setProperties(any(), any())).thenCallRealMethod();
         when(adapter.readMetadata(any(), any(), any())).thenReturn(new SchemaMetadata("",
                 Arrays.asList(new TableMetadata("T1", "", null, ""), new TableMetadata("T2", "", null, ""))));
-        setTestSqlDialectProperty();
         setDerbyConnectionNameProperty();
         final Map<String, String> newRawProperties = new HashMap<>();
         newRawProperties.put(SCHEMA_NAME_PROPERTY, "NEW SCHEMA");
         newRawProperties.put(TABLE_FILTER_PROPERTY, "T1, T2");
-        final SetPropertiesRequest request = new SetPropertiesRequest(TEST_DIALECT_NAME, createSchemaMetadataInfo(),
-                newRawProperties);
+        final SetPropertiesRequest request = new SetPropertiesRequest(createSchemaMetadataInfo(), newRawProperties);
         final ExaMetadata exaMetadataMock = mock(ExaMetadata.class);
         final SetPropertiesResponse response = adapter.setProperties(exaMetadataMock, request);
         final List<TableMetadata> tables = response.getSchemaMetadata().getTables();
@@ -168,10 +151,8 @@ class JDBCAdapterTest {
 
     @Test
     void testCreateVirtualSchema() throws AdapterException, ExaConnectionAccessException {
-        setTestSqlDialectProperty();
         setDerbyConnectionNameProperty();
-        final CreateVirtualSchemaRequest request = new CreateVirtualSchemaRequest(TEST_DIALECT_NAME,
-                createSchemaMetadataInfo());
+        final CreateVirtualSchemaRequest request = new CreateVirtualSchemaRequest(createSchemaMetadataInfo());
         final ExaMetadata exaMetadataMock = mock(ExaMetadata.class);
         when(exaMetadataMock.getConnection("DERBY_CONNECTION")).thenReturn(EXA_CONNECTION_INFORMATION);
         final CreateVirtualSchemaResponse response = this.adapter.createVirtualSchema(exaMetadataMock, request);
@@ -190,11 +171,10 @@ class JDBCAdapterTest {
 
     @Test
     void testRefreshSelectedTables() throws AdapterException, ExaConnectionAccessException {
-        setTestSqlDialectProperty();
         setDerbyConnectionNameProperty();
         final List<String> tablesList = new ArrayList<>();
         tablesList.add("SYSDUMMY1");
-        final RefreshRequest request = new RefreshRequest(TEST_DIALECT_NAME, createSchemaMetadataInfo(), tablesList);
+        final RefreshRequest request = new RefreshRequest(createSchemaMetadataInfo(), tablesList);
         final ExaMetadata exaMetadataMock = mock(ExaMetadata.class);
         when(exaMetadataMock.getConnection("DERBY_CONNECTION")).thenReturn(EXA_CONNECTION_INFORMATION);
         final RefreshResponse response = this.adapter.refresh(exaMetadataMock, request);

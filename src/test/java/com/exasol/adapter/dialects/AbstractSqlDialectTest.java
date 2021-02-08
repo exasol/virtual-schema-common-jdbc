@@ -40,7 +40,6 @@ class AbstractSqlDialectTest {
 
     @Test
     void testNoConnectionName() {
-        this.rawProperties.put(SQL_DIALECT_PROPERTY, "GENERIC");
         this.rawProperties.put(SCHEMA_NAME_PROPERTY, "MY_SCHEMA");
         final AdapterProperties adapterProperties = new AdapterProperties(this.rawProperties);
         final SqlDialect sqlDialect = new DummySqlDialect(null, adapterProperties);
@@ -52,7 +51,6 @@ class AbstractSqlDialectTest {
     }
 
     private void getMinimumMandatory() {
-        this.rawProperties.put(SQL_DIALECT_PROPERTY, "GENERIC");
         this.rawProperties.put(CONNECTION_NAME_PROPERTY, "MY_CONN");
     }
 
@@ -93,7 +91,6 @@ class AbstractSqlDialectTest {
 
     @Test
     void testSchemaAndCatalogOptional() throws PropertyValidationException {
-        this.rawProperties.put(SQL_DIALECT_PROPERTY, "GENERIC");
         this.rawProperties.put(CONNECTION_NAME_PROPERTY, "MY_CONN");
         final AdapterProperties adapterProperties = new AdapterProperties(this.rawProperties);
         final SqlDialect sqlDialect = new DummySqlDialect(null, adapterProperties);

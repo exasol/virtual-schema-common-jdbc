@@ -330,8 +330,8 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String>, SqlGenerato
             final List<String> sqlArguments) {
         final String realFunctionName = this.dialect.getBinaryInfixFunctionAliases().get(scalarFunction);
         if (sqlArguments.size() != 2) {
-            throw new IllegalArgumentException(ExaError.messageBuilder("E-VS-COM-JDBC-11")
-                    .message("The {{realFunctionName}} function requests 2 arguments, but {{sqlArgumentsSize}} were given.")
+            throw new IllegalArgumentException(ExaError.messageBuilder("E-VS-COM-JDBC-11").message(
+                    "The {{realFunctionName}} function requests 2 arguments, but {{sqlArgumentsSize}} were given.")
                     .unquotedParameter("realFunctionName", realFunctionName)
                     .unquotedParameter("sqlArgumentsSize", sqlArguments.size()).toString());
         }
@@ -345,10 +345,10 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String>, SqlGenerato
     private String generateSqlForPrefixFunction(final ScalarFunction scalarFunction, final List<String> sqlArguments) {
         final String realFunctionName = this.dialect.getPrefixFunctionAliases().get(scalarFunction);
         if (sqlArguments.size() != 1) {
-            throw new IllegalArgumentException(ExaError.messageBuilder("E-VS-COM-JDBC-12")
-                                                       .message("The {{realFunctionName}} function requests 1 argument, but {{sqlArgumentsSize}} were given.")
-                                                       .unquotedParameter("realFunctionName", realFunctionName)
-                                                       .unquotedParameter("sqlArgumentsSize", sqlArguments.size()).toString());
+            throw new IllegalArgumentException(ExaError.messageBuilder("E-VS-COM-JDBC-12").message(
+                    "The {{realFunctionName}} function requests 1 argument, but {{sqlArgumentsSize}} were given.")
+                    .unquotedParameter("realFunctionName", realFunctionName)
+                    .unquotedParameter("sqlArgumentsSize", sqlArguments.size()).toString());
         }
         return "(" + realFunctionName + sqlArguments.get(0) + ")";
     }
@@ -443,12 +443,12 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String>, SqlGenerato
 
     @Override
     public String visit(final SqlLiteralDouble literal) {
-        return Double.toString(literal.getValue());
+        return literal.getValue();
     }
 
     @Override
     public String visit(final SqlLiteralExactnumeric literal) {
-        return literal.getValue().toString();
+        return literal.getValue();
     }
 
     @Override

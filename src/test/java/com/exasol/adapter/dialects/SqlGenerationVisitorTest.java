@@ -44,7 +44,7 @@ class SqlGenerationVisitorTest {
         final DataType dataType = DataType.createDecimal(18, 0);
         final SqlLiteralDouble argument = new SqlLiteralDouble(20);
         final SqlFunctionScalarCast sqlFunctionScalarCast = new SqlFunctionScalarCast(dataType, argument);
-        assertThat(sqlGenerationVisitor.visit(sqlFunctionScalarCast), equalTo("CAST(20.0 AS DECIMAL(18, 0))"));
+        assertThat(sqlGenerationVisitor.visit(sqlFunctionScalarCast), equalTo("CAST(2E1 AS DECIMAL(18, 0))"));
     }
 
     @Test
@@ -245,7 +245,7 @@ class SqlGenerationVisitorTest {
     @Test
     void testVisitSqlLiteralDouble() {
         final SqlLiteralDouble sqlLiteralDouble = new SqlLiteralDouble(20.3);
-        assertThat(sqlGenerationVisitor.visit(sqlLiteralDouble), equalTo("20.3"));
+        assertThat(sqlGenerationVisitor.visit(sqlLiteralDouble), equalTo("2.03E1"));
     }
 
     @Test
@@ -615,18 +615,18 @@ class SqlGenerationVisitorTest {
     }
 
     @Test
-    void visitBinaryScalarFunctionThrowsException(){
+    void visitBinaryScalarFunctionThrowsException() {
         final SqlFunctionScalar functionScalar = new SqlFunctionScalar(ScalarFunction.ADD, List.of());
-        final IllegalArgumentException exception =
-                assertThrows(IllegalArgumentException.class, () -> sqlGenerationVisitor.visit(functionScalar));
+        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> sqlGenerationVisitor.visit(functionScalar));
         assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-11"));
     }
 
     @Test
-    void visitPrefixScalarFunctionThrowsException(){
+    void visitPrefixScalarFunctionThrowsException() {
         final SqlFunctionScalar functionScalar = new SqlFunctionScalar(ScalarFunction.NEG, List.of());
-        final IllegalArgumentException exception =
-                assertThrows(IllegalArgumentException.class, () -> sqlGenerationVisitor.visit(functionScalar));
+        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> sqlGenerationVisitor.visit(functionScalar));
         assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-12"));
     }
 

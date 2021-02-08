@@ -1,6 +1,7 @@
 package com.exasol.adapter.jdbc;
 
-import java.util.*;
+import java.util.NoSuchElementException;
+import java.util.ServiceLoader;
 
 import com.exasol.adapter.AdapterFactory;
 import com.exasol.adapter.VirtualSchemaAdapter;
@@ -18,11 +19,6 @@ public class JDBCAdapterFactory implements AdapterFactory {
         final ServiceLoader<SqlDialectFactory> sqlDialectFactoryLoader = ServiceLoader.load(SqlDialectFactory.class);
         return sqlDialectFactoryLoader.findFirst()
                 .orElseThrow(() -> new NoSuchElementException("No SqlDialectFactory was found."));
-    }
-
-    @Override
-    public Set<String> getSupportedAdapterNames() {
-        return Set.of(this.getSqlDialectName());
     }
 
     private String getSqlDialectName() {
