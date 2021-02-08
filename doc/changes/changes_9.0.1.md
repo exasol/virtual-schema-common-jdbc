@@ -1,4 +1,4 @@
-# Virtual Schema Common JDBC 9.0.1, released 2021-??-??
+# Virtual Schema Common JDBC 9.0.1, released 2021-02-08
 
 Code name:
 
