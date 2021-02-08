@@ -1,6 +1,6 @@
 # Virtual Schema Common JDBC 9.0.1, released 2021-02-08
 
-Code name:
+Code name: Changes `from common-java` including fixes for DOUBLE and EXACTNUMERIC datatypes, removed DIALECT_NAME property
 
 ## Bug Fixes
 
