@@ -4,7 +4,7 @@ Code name:
 
 ## Bug Fixes
 
-* #92: Fixed base classes of QueryRewriter.
+* #92: Fixed base classes of `QueryRewriter`.
 * #94: Updated to the latest `virtual-schema-common-java`.
 
 ## Dependency Updates
