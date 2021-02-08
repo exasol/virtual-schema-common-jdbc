@@ -27,9 +27,8 @@ public abstract class AbstractSqlDialect implements SqlDialect {
     private static final Logger LOGGER = Logger.getLogger(AbstractSqlDialect.class.getName());
     private static final Pattern BOOLEAN_PROPERTY_VALUE_PATTERN = Pattern.compile("^TRUE$|^FALSE$",
             Pattern.CASE_INSENSITIVE);
-    private static final Set<String> COMMON_SUPPORTED_PROPERTIES = Set.of(SQL_DIALECT_PROPERTY,
-            CONNECTION_NAME_PROPERTY, TABLE_FILTER_PROPERTY, EXCLUDED_CAPABILITIES_PROPERTY, DEBUG_ADDRESS_PROPERTY,
-            LOG_LEVEL_PROPERTY);
+    private static final Set<String> COMMON_SUPPORTED_PROPERTIES = Set.of(CONNECTION_NAME_PROPERTY,
+            TABLE_FILTER_PROPERTY, EXCLUDED_CAPABILITIES_PROPERTY, DEBUG_ADDRESS_PROPERTY, LOG_LEVEL_PROPERTY);
     protected final ConnectionFactory connectionFactory;
     private final Set<String> supportedProperties;
     protected Set<ScalarFunction> omitParenthesesMap = EnumSet.noneOf(ScalarFunction.class);
