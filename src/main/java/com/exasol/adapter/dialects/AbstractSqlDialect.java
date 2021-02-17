@@ -179,8 +179,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
 
     protected String createUnsupportedElementMessage(final String unsupportedElement, final String property) {
         return ExaError.messageBuilder("E-VS-COM-JDBC-13")
-                .message("The dialect {{dialectName}} does not support {{unsupportedElement}} property.")
-                .parameter("dialectName", this.properties.getSqlDialect())
+                .message("This dialect does not support {{unsupportedElement}} property.")
                 .parameter("unsupportedElement", unsupportedElement)
                 .mitigation(" Please, do not set the {{property}} property.") //
                 .parameter("property", property).toString();

@@ -1,5 +1,7 @@
 package com.exasol.adapter.dialects.rewriting;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.*;
 
 import com.exasol.adapter.AdapterException;
@@ -441,14 +443,27 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String>, SqlGenerato
         return "DATE " + getDialect().getStringLiteral(literal.getValue());
     }
 
+    /**
+     * Get a value of the double converted to an E-notation format.
+     * <p>
+     * For example: 1.234 becomes 1.234E0
+     * </p>
+     */
     @Override
     public String visit(final SqlLiteralDouble literal) {
-        return literal.getValue();
+        final NumberFormat numFormat = new DecimalFormat("0.################E0");
+        return numFormat.format(literal.getValue());
     }
 
+    /**
+     * Formats a value of the exactnumeric as a plain string without E notation.
+     * <p>
+     * For example: 1E-35 becomes 0.00000000000000000000000000000000001
+     * </p>
+     */
     @Override
     public String visit(final SqlLiteralExactnumeric literal) {
-        return literal.getValue();
+        return literal.getValue().toPlainString();
     }
 
     @Override

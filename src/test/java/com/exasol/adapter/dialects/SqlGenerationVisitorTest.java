@@ -14,6 +14,8 @@ import java.util.*;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import com.exasol.adapter.AdapterException;
 import com.exasol.adapter.AdapterProperties;
@@ -242,16 +244,32 @@ class SqlGenerationVisitorTest {
         assertThat(sqlGenerationVisitor.visit(sqlLiteralDate), equalTo("DATE '2015-12-01'"));
     }
 
-    @Test
-    void testVisitSqlLiteralDouble() {
-        final SqlLiteralDouble sqlLiteralDouble = new SqlLiteralDouble(20.3);
-        assertThat(sqlGenerationVisitor.visit(sqlLiteralDouble), equalTo("2.03E1"));
+    @ParameterizedTest
+    @CsvSource({ "1.0, 1E0", //
+            "1.234, 1.234E0", //
+            "345600000000, 3.456E11", //
+            "0.0000000000000000009236, 9.236E-19", //
+            "0.00098, 9.8E-4", //
+            "1.2345000000000000e+02, 1.2345E2" //
+    })
+    void testVisitSqlLiteralDouble(final double input, final String expected) {
+        final SqlLiteralDouble sqlLiteralDouble = new SqlLiteralDouble(input);
+        assertThat(sqlGenerationVisitor.visit(sqlLiteralDouble), equalTo(expected));
     }
 
-    @Test
-    void testVisitSqlLiteralExactnumeric() {
-        final SqlLiteralExactnumeric sqlLiteralExactnumeric = new SqlLiteralExactnumeric(BigDecimal.TEN);
-        assertThat(sqlGenerationVisitor.visit(sqlLiteralExactnumeric), equalTo("10"));
+    @ParameterizedTest
+    @CsvSource({ "1E-35, 0.00000000000000000000000000000000001", //
+            "1E35, 100000000000000000000000000000000000", //
+            "12345, 12345", //
+            "3.456e11, 345600000000", //
+            "9.8e-4, 0.00098", //
+            "9.236E-19, 0.0000000000000000009236", //
+            "123.45, 123.45", //
+            "12345, 12345" //
+    })
+    void testVisitSqlLiteralExactnumeric(final BigDecimal input, final String expected) {
+        final SqlLiteralExactnumeric sqlLiteralExactnumeric = new SqlLiteralExactnumeric(input);
+        assertThat(sqlGenerationVisitor.visit(sqlLiteralExactnumeric), equalTo(expected));
     }
 
     @Test
