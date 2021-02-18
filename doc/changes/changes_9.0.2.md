@@ -4,7 +4,7 @@ Code name:
 
 ## Bug Fixes
 
-* #99: Moved here the double and exactnumeric literals formatting from `virtual-schema-common-java`(https://github.com/exasol/virtual-schema-common-java)
+* #99: Moved to this repository the double and exactnumeric literals formatting from `virtual-schema-common-java`(https://github.com/exasol/virtual-schema-common-java)
 
 ## Dependency Updates
 
