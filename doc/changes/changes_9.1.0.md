@@ -15,3 +15,5 @@ Code name: Added abstract scalar function integration tests
 ### Test Dependencies
 
 * Updated `com.exasol:virtual-schema-common-java:15.0.0` to `15.0.1`
+* Added `com.exasol:hamcrest-resultset-matcher:1.4.0`
+* Added `org.yaml:snakeyaml:1.27`
