@@ -1,6 +1,10 @@
-# Virtual Schema Common JDBC 9.0.2, released 2021-02-??
+# Virtual Schema Common JDBC 9.1.0, released 2021-03-??
 
-Code name:
+Code name: Added abstract scalar function integration tests
+
+## Features
+
+#101: Moved the abstract scalar function integration tests from postgresql-virtual-schema to this repository.
 
 ## Bug Fixes
 
