@@ -37,7 +37,7 @@ import com.exasol.matcher.TypeMatchMode;
  */
 @SuppressWarnings("java:S5786") // class is public since it is an abstract test
 @Execution(value = ExecutionMode.CONCURRENT)
-public abstract class ScalarFunctionsAbstractIT {
+public abstract class ScalarFunctionsTestBase {
     /**
      * These have a special syntax, so we define explicit test for them below.
      */
@@ -60,7 +60,7 @@ public abstract class ScalarFunctionsAbstractIT {
      * define explicit parameters here. You can define multiple parameter combinations here (by adding multiple list
      * entries). By that you can test a function with different values.
      */
-    private static final Logger LOGGER = Logger.getLogger(ScalarFunctionsAbstractIT.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(ScalarFunctionsTestBase.class.getName());
 
     /**
      * Returns a set of scalar functions that should not be tested for this dialect.
