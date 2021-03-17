@@ -1,6 +1,6 @@
-# Virtual Schema Common JDBC 9.0.2, released 2021-02-??
+# Virtual Schema Common JDBC 9.0.2, released 2021-03-17
 
-Code name:
+Code name: Moved functionality
 
 ## Bug Fixes
 
