@@ -149,12 +149,12 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
         try {
             return !JDBC_FALSE.equalsIgnoreCase(remoteColumn.getString(NULLABLE_COLUMN));
         } catch (final SQLException exception) {
-            LOGGER.warning(() -> ExaError.messageBuilder("W-VS-COM-JDBC-3").message(
+            LOGGER.warning(() -> ExaError.messageBuilder("W-VS-COM-JDBC-20").message(
                     "Caught an SQL exception trying to determine whether column \"{{columnName}}\" is nullable: "
                             + "{{exceptionMessage}}")
                     .unquotedParameter("columnName", columnName) //
                     .unquotedParameter("exceptionMessage", exception.getMessage()).toString());
-            LOGGER.warning(() -> ExaError.messageBuilder("W-VS-COM-JDBC-4")
+            LOGGER.warning(() -> ExaError.messageBuilder("W-VS-COM-JDBC-38")
                     .message("Assuming column \"{{columnName}}\" to be nullable.")
                     .unquotedParameter("columnName", columnName).toString());
             return DEFAULT_NULLABLE;
@@ -166,12 +166,12 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
             final String identity = remoteColumn.getString(AUTOINCREMENT_COLUMN);
             return JDBC_TRUE.equalsIgnoreCase(identity);
         } catch (final SQLException exception) {
-            LOGGER.warning(() -> ExaError.messageBuilder("W-VS-COM-JDBC-5")
+            LOGGER.warning(() -> ExaError.messageBuilder("W-VS-COM-JDBC-37")
                     .message("Caught an SQL exception trying to determine whether column \"{{columnName}}\" is "
                             + "an auto-increment column: {{exceptionMessage}}")
                     .unquotedParameter("columnName", columnName) //
                     .unquotedParameter("exceptionMessage", exception.getMessage()).toString());
-            LOGGER.warning(() -> ExaError.messageBuilder("W-VS-COM-JDBC-6")
+            LOGGER.warning(() -> ExaError.messageBuilder("W-VS-COM-JDBC-36")
                     .message("Assuming  that column \"{{columnName}}\" is not incremented automatically.")
                     .unquotedParameter("columnName", columnName).toString());
             return false;

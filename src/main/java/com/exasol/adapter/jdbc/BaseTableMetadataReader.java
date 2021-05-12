@@ -45,7 +45,7 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
         if (remoteTables.next()) {
             return extractTableMetadata(remoteTables, selectedTables);
         } else {
-            LOGGER.warning(() -> ExaError.messageBuilder("W-VS-COM-JDBC-7")
+            LOGGER.warning(() -> ExaError.messageBuilder("W-VS-COM-JDBC-35")
                     .message("Table scan did not find any tables. This can mean that either" //
                             + " a) the source does not contain tables (yet)," + " b) the table type is not supported" //
                             + " c) the table scan filter criteria is incorrect or" //

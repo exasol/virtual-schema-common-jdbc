@@ -237,7 +237,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
             try {
                 final int port = Integer.parseInt(portAsString);
                 if ((port < 1) || (port > 65535)) {
-                    LOGGER.warning(() -> ExaError.messageBuilder("W-VS-COM-JDBC-1")
+                    LOGGER.warning(() -> ExaError.messageBuilder("W-VS-COM-JDBC-40")
                             .message("Debug output port {{port}} is out of range.") //
                             .unquotedParameter("port", port)
                             .mitigation("Port specified in property {{debugAddressProperty}} must have "
@@ -245,7 +245,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
                             .parameter("debugAddressProperty", DEBUG_ADDRESS_PROPERTY).toString());
                 }
             } catch (final NumberFormatException ex) {
-                LOGGER.warning(() -> ExaError.messageBuilder("W-VS-COM-JDBC-2").message(
+                LOGGER.warning(() -> ExaError.messageBuilder("W-VS-COM-JDBC-39").message(
                         "Illegal debug output port {{portAsString}}. Property {{debugAddressProperty}} must have "
                                 + "the following format: <host>[:<port>], where port is a number between 1 and 65535.")
                         .parameter("debugAddressProperty", DEBUG_ADDRESS_PROPERTY)
