@@ -92,6 +92,7 @@ public class ResultSetMetadataReader {
     }
 
     private List<DataType> mapResultMetadataToExasolDataTypes(final ResultSetMetaData metadata) throws SQLException {
+        validateMetadata(metadata);
         final int columnCount = metadata.getColumnCount();
         final List<DataType> types = new ArrayList<>(columnCount);
         for (int columnNumber = 1; columnNumber <= columnCount; ++columnNumber) {
@@ -100,6 +101,16 @@ public class ResultSetMetadataReader {
             types.add(type);
         }
         return types;
+    }
+
+    private void validateMetadata(final ResultSetMetaData metadata) {
+        if (metadata == null) {
+            throw new RemoteMetadataReaderException(ExaError.messageBuilder("E-VS-COM-JDBC-34") //
+                    .message(
+                            "Metadata is missing in the ResultSet. This can happen if the generated query was incorrect,"
+                                    + " but the JDBC driver didn't throw an exception.")
+                    .ticketMitigation().toString());
+        }
     }
 
     protected static JDBCTypeDescription getJdbcTypeDescription(final ResultSetMetaData metadata,
