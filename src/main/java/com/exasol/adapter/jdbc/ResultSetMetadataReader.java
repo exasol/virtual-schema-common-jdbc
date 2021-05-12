@@ -104,7 +104,7 @@ public class ResultSetMetadataReader {
 
     private void validateMetadata(final ResultSetMetaData metadata) {
         if (metadata == null) {
-            throw new RemoteMetadataReaderException(ExaError.messageBuilder("E-VS-COM-JDBC-34") //
+            throw new RemoteMetadataReaderException(ExaError.messageBuilder("F-VS-COM-JDBC-34") //
                     .message(
                             "Metadata is missing in the ResultSet. This can happen if the generated query was incorrect,"
                                     + " but the JDBC driver didn't throw an exception.")

@@ -68,6 +68,6 @@ class ResultSetMetadataReaderTest {
                 columnMetadataReader);
         final RemoteMetadataReaderException exception = assertThrows(RemoteMetadataReaderException.class,
                 () -> metadataReader.describeColumns("FOOBAR"));
-        assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-34"));
+        assertThat(exception.getMessage(), containsString("F-VS-COM-JDBC-34"));
     }
 }
