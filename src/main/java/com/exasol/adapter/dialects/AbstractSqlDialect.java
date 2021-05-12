@@ -237,15 +237,14 @@ public abstract class AbstractSqlDialect implements SqlDialect {
             try {
                 final int port = Integer.parseInt(portAsString);
                 if ((port < 1) || (port > 65535)) {
-                    LOGGER.warning(() -> ExaError.messageBuilder("W-VS-COM-JDBC-1")
-                            .message("Debug output port {{port}} is out of range.") //
-                            .unquotedParameter("port", port)
+                    LOGGER.warning(() -> ExaError.messageBuilder("W-VS-COM-JDBC-40")
+                            .message("Debug output port {{port|uq}} is out of range.", port) //
                             .mitigation("Port specified in property {{debugAddressProperty}} must have "
                                     + "the following format: <host>[:<port>], and be between 1 and 65535.")
                             .parameter("debugAddressProperty", DEBUG_ADDRESS_PROPERTY).toString());
                 }
             } catch (final NumberFormatException ex) {
-                LOGGER.warning(() -> ExaError.messageBuilder("W-VS-COM-JDBC-2").message(
+                LOGGER.warning(() -> ExaError.messageBuilder("W-VS-COM-JDBC-39").message(
                         "Illegal debug output port {{portAsString}}. Property {{debugAddressProperty}} must have "
                                 + "the following format: <host>[:<port>], where port is a number between 1 and 65535.")
                         .parameter("debugAddressProperty", DEBUG_ADDRESS_PROPERTY)
@@ -264,9 +263,9 @@ public abstract class AbstractSqlDialect implements SqlDialect {
                                 "Invalid value {{exceptionHandlingValue}} for property {{exceptionHandlingProperty}}.")
                                 .parameter("exceptionHandlingValue", exceptionHandling)
                                 .parameter("exceptionHandlingProperty", EXCEPTION_HANDLING_PROPERTY)
-                                .mitigation("Choose one of: {{availableValues}}.")
-                                .unquotedParameter("availableValues", Arrays.stream(ExceptionHandlingMode.values())
-                                        .map(Enum::toString).collect(Collectors.toList()).toString())
+                                .mitigation("Choose one of: {{availableValues|uq}}.",
+                                        Arrays.stream(ExceptionHandlingMode.values()).map(Enum::toString)
+                                                .collect(Collectors.toList()).toString())
                                 .toString());
                     }
                 }

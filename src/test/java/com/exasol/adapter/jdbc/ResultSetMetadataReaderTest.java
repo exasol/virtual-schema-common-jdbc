@@ -58,4 +58,16 @@ class ResultSetMetadataReaderTest {
         assertThat(thrown.getMessage(),
                 containsString("E-VS-COM-JDBC-31: Unsupported data type(s) in column(s) in query: 2, 4"));
     }
+
+    @Test
+    void testEmptyMetadata() throws SQLException {
+        when(this.connectionMock.prepareStatement(any())).thenReturn(this.statementMock);
+        final ColumnMetadataReader columnMetadataReader = new BaseColumnMetadataReader(this.connectionMock,
+                AdapterProperties.emptyProperties(), BaseIdentifierConverter.createDefault());
+        final ResultSetMetadataReader metadataReader = new ResultSetMetadataReader(this.connectionMock,
+                columnMetadataReader);
+        final RemoteMetadataReaderException exception = assertThrows(RemoteMetadataReaderException.class,
+                () -> metadataReader.describeColumns("FOOBAR"));
+        assertThat(exception.getMessage(), containsString("F-VS-COM-JDBC-34"));
+    }
 }

@@ -79,8 +79,7 @@ public final class SchemaAdapterNotesJsonConverter {
             throws AdapterException {
         if ((adapterNotes == null) || adapterNotes.isEmpty()) {
             throw new AdapterException(ExaError.messageBuilder("E-VS-COM-JDBC-5")
-                    .message("Adapter notes for virtual schema \"{{schemaName}}\" are empty or NULL.")
-                    .unquotedParameter("schemaName", schemaName) //
+                    .message("Adapter notes for virtual schema \"{{schemaName|uq}}\" are empty or NULL.", schemaName)
                     .mitigation("Please refresh the virtual schema.").toString());
         }
         final JsonObject root;
@@ -88,8 +87,8 @@ public final class SchemaAdapterNotesJsonConverter {
             root = jr.readObject();
         } catch (final RuntimeException exception) {
             throw new AdapterException(ExaError.messageBuilder("E-VS-COM-JDBC-6")
-                    .message("Could not parse the schema adapter notes of virtual schema \"{{schemaName}}\".")
-                    .unquotedParameter("schemaName", schemaName) //
+                    .message("Could not parse the schema adapter notes of virtual schema \"{{schemaName|uq}}\".",
+                            schemaName)
                     .mitigation("Please refresh the virtual schema.").toString(), exception);
         }
         checkKey(root, CATALOG_SEPARATOR, schemaName);
@@ -128,9 +127,8 @@ public final class SchemaAdapterNotesJsonConverter {
             throws AdapterException {
         if (!root.containsKey(key)) {
             throw new AdapterException(ExaError.messageBuilder("E-VS-COM-JDBC-7")
-                    .message("Adapter notes of virtual schema \"{{schemaName}}\" don't have the key {{key}}.")
-                    .unquotedParameter("schemaName", schemaName) //
-                    .parameter("key", key) //
+                    .message("Adapter notes of virtual schema \"{{schemaName|uq}}\" don't have the key {{key}}.",
+                            schemaName, key)
                     .mitigation("Please refresh the virtual schema").toString());
         }
     }

@@ -1,0 +1,5 @@
+error-tags:
+  VS-COM-JDBC:
+    packages:
+      - com.exasol
+    highest-index: 40

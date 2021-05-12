@@ -67,11 +67,10 @@ public class ResultSetMetadataReader {
         }
         if (!illegalColumns.isEmpty()) {
             throw new RemoteMetadataReaderException(ExaError.messageBuilder("E-VS-COM-JDBC-31")
-                    .message("Unsupported data type(s) in column(s) in query: {{unsupportedColumns}}.")
-                    .unquotedParameter("unsupportedColumns",
+                    .message("Unsupported data type(s) in column(s) in query: {{unsupportedColumns|uq}}.",
                             illegalColumns.stream().map(String::valueOf).collect(Collectors.joining(", ")))
-                    .mitigation("Please remove those columns from your query:\n{{query}}")
-                    .unquotedParameter("query", query).toString());
+                    .mitigation("Please remove those columns from your query:\n{{query|uq}}", query)
+                    .toString());
         }
     }
 
@@ -92,6 +91,7 @@ public class ResultSetMetadataReader {
     }
 
     private List<DataType> mapResultMetadataToExasolDataTypes(final ResultSetMetaData metadata) throws SQLException {
+        validateMetadata(metadata);
         final int columnCount = metadata.getColumnCount();
         final List<DataType> types = new ArrayList<>(columnCount);
         for (int columnNumber = 1; columnNumber <= columnCount; ++columnNumber) {
@@ -100,6 +100,16 @@ public class ResultSetMetadataReader {
             types.add(type);
         }
         return types;
+    }
+
+    private void validateMetadata(final ResultSetMetaData metadata) {
+        if (metadata == null) {
+            throw new RemoteMetadataReaderException(ExaError.messageBuilder("F-VS-COM-JDBC-34") //
+                    .message(
+                            "Metadata is missing in the ResultSet. This can happen if the generated query was incorrect,"
+                                    + " but the JDBC driver didn't throw an exception.")
+                    .ticketMitigation().toString());
+        }
     }
 
     protected static JDBCTypeDescription getJdbcTypeDescription(final ResultSetMetaData metadata,
