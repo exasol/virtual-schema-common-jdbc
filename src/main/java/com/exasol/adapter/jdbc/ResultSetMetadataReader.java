@@ -67,11 +67,10 @@ public class ResultSetMetadataReader {
         }
         if (!illegalColumns.isEmpty()) {
             throw new RemoteMetadataReaderException(ExaError.messageBuilder("E-VS-COM-JDBC-31")
-                    .message("Unsupported data type(s) in column(s) in query: {{unsupportedColumns}}.")
-                    .unquotedParameter("unsupportedColumns",
+                    .message("Unsupported data type(s) in column(s) in query: {{unsupportedColumns|uq}}.",
                             illegalColumns.stream().map(String::valueOf).collect(Collectors.joining(", ")))
-                    .mitigation("Please remove those columns from your query:\n{{query}}")
-                    .unquotedParameter("query", query).toString());
+                    .mitigation("Please remove those columns from your query:\n{{query|uq}}", query)
+                    .toString());
         }
     }
 

@@ -58,8 +58,7 @@ public final class ColumnAdapterNotesJsonConverter {
             throws AdapterException {
         if ((adapterNotes == null) || adapterNotes.isEmpty()) {
             throw new AdapterException(ExaError.messageBuilder("E-VS-COM-JDBC-3")
-                    .message("Adapter notes for column \"{{columnName}}\" are empty or NULL.")
-                    .unquotedParameter("columnName", columnName) //
+                    .message("Adapter notes for column \"{{columnName|uq}}\" are empty or NULL.", columnName)
                     .mitigation("Please refresh the virtual schema.").toString());
         }
         final JsonObject root;
@@ -67,9 +66,8 @@ public final class ColumnAdapterNotesJsonConverter {
             root = jr.readObject();
         } catch (final RuntimeException exception) {
             throw new AdapterException(ExaError.messageBuilder("E-VS-COM-JDBC-4")
-                    .message("Could not parse the column adapter notes of column \"{{columnName}}\".")
-                    .unquotedParameter("columnName", columnName).mitigation("Please refresh the virtual schema.")
-                    .toString(), exception);
+                    .message("Could not parse the column adapter notes of column \"{{columnName|uq}}\".", columnName)
+                    .mitigation("Please refresh the virtual schema.").toString(), exception);
         }
         return ColumnAdapterNotes.builder() //
                 .jdbcDataType(root.getInt(JDBC_DATA_TYPE)) //

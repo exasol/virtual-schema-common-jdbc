@@ -105,8 +105,9 @@ public abstract class AbstractRemoteMetadataReader extends AbstractMetadataReade
             return this.getSchemaMetadata(selectedTables);
         } catch (final SQLException exception) {
             throw new RemoteMetadataReaderException(ExaError.messageBuilder("E-VS-COM-JDBC-21")
-                    .message("Unable to read remote schema metadata. SQL error: {{exceptionMessage}}")
-                    .unquotedParameter("exceptionMessage", exception.getMessage()).toString(), exception);
+                    .message("Unable to read remote schema metadata. SQL error: {{exceptionMessage|uq}}",
+                            exception.getMessage())
+                    .toString(), exception);
         }
     }
 

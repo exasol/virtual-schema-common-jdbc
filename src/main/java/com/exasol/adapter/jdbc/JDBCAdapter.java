@@ -45,9 +45,9 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
             return CreateVirtualSchemaResponse.builder().schemaMetadata(remoteMeta).build();
         } catch (final SQLException exception) {
             throw new AdapterException(ExaError.messageBuilder("E-VS-COM-JDBC-25")
-                    .message("Unable create Virtual Schema \"{{virtualSchemaName}}\". Cause: {{cause}}")
-                    .unquotedParameter("virtualSchemaName", request.getVirtualSchemaName())
-                    .unquotedParameter("cause", exception.getMessage()).toString(), exception);
+                    .message("Unable create Virtual Schema \"{{virtualSchemaName|uq}}\". Cause: {{cause|uq}}",
+                            request.getVirtualSchemaName(), exception.getMessage())
+                    .toString(), exception);
         }
     }
 
@@ -92,10 +92,9 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
             final SchemaMetadata remoteMetadata = this.getRemoteMetadata(metadata, request);
             return RefreshResponse.builder().schemaMetadata(remoteMetadata).build();
         } catch (final SQLException | PropertyValidationException exception) {
-            throw new AdapterException(ExaError.messageBuilder("E-VS-COM-JDBC-26")
-                    .message("Unable refresh metadata of Virtual Schema \"{{virtualSchemaName}}\". Cause: {{cause}}")
-                    .unquotedParameter("virtualSchemaName", request.getSchemaMetadataInfo().getSchemaName())
-                    .unquotedParameter("cause", exception.getMessage()).toString(), exception);
+            throw new AdapterException(ExaError.messageBuilder("E-VS-COM-JDBC-26").message(
+                    "Unable refresh metadata of Virtual Schema \"{{virtualSchemaName|uq}}\". Cause: {{cause|uq}}",
+                    request.getSchemaMetadataInfo().getSchemaName(), exception.getMessage()).toString(), exception);
         }
     }
 
@@ -227,8 +226,8 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
             return PushDownResponse.builder().pushDownSql(importFromPushdownQuery).build();
         } catch (final SQLException exception) {
             throw new AdapterException(ExaError.messageBuilder("E-VS-COM-JDBC-27")
-                    .message("Unable to execute push-down request. Cause: {{cause}}")
-                    .unquotedParameter("cause", exception.getMessage()).toString(), exception);
+                    .message("Unable to execute push-down request. Cause: {{cause|uq}}", exception.getMessage())
+                    .toString(), exception);
         }
     }
 }

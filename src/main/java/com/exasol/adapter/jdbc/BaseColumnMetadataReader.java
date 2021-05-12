@@ -69,9 +69,8 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
             return getColumnsFromResultSet(remoteColumns);
         } catch (final SQLException exception) {
             throw new RemoteMetadataReaderException(ExaError.messageBuilder("E-VS-COM-JDBC-1").message(
-                    "Unable to read column metadata from remote for catalog \"{{catalogName}}\" and schema \"{{schemaName}}\"")
-                    .unquotedParameter("schemaName", schemaName) //
-                    .unquotedParameter("catalogName", catalogName).toString(), exception);
+                    "Unable to read column metadata from remote for catalog \"{{catalogName|uq}}\" and schema \"{{schemaName|uq}}\"",
+                    schemaName, catalogName).toString(), exception);
         }
     }
 
@@ -150,13 +149,11 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
             return !JDBC_FALSE.equalsIgnoreCase(remoteColumn.getString(NULLABLE_COLUMN));
         } catch (final SQLException exception) {
             LOGGER.warning(() -> ExaError.messageBuilder("W-VS-COM-JDBC-20").message(
-                    "Caught an SQL exception trying to determine whether column \"{{columnName}}\" is nullable: "
-                            + "{{exceptionMessage}}")
-                    .unquotedParameter("columnName", columnName) //
-                    .unquotedParameter("exceptionMessage", exception.getMessage()).toString());
+                    "Caught an SQL exception trying to determine whether column \"{{columnName|uq}}\" is nullable: "
+                            + "{{exceptionMessage|uq}}",
+                    columnName, exception.getMessage()).toString());
             LOGGER.warning(() -> ExaError.messageBuilder("W-VS-COM-JDBC-38")
-                    .message("Assuming column \"{{columnName}}\" to be nullable.")
-                    .unquotedParameter("columnName", columnName).toString());
+                    .message("Assuming column \"{{columnName|uq}}\" to be nullable.", columnName).toString());
             return DEFAULT_NULLABLE;
         }
     }
@@ -167,13 +164,15 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
             return JDBC_TRUE.equalsIgnoreCase(identity);
         } catch (final SQLException exception) {
             LOGGER.warning(() -> ExaError.messageBuilder("W-VS-COM-JDBC-37")
-                    .message("Caught an SQL exception trying to determine whether column \"{{columnName}}\" is "
-                            + "an auto-increment column: {{exceptionMessage}}")
-                    .unquotedParameter("columnName", columnName) //
-                    .unquotedParameter("exceptionMessage", exception.getMessage()).toString());
+                    .message(
+                            "Caught an SQL exception trying to determine whether column \"{{columnName|uq}}\" is "
+                                    + "an auto-increment column: {{exceptionMessage|uq}}",
+                            columnName, exception.getMessage())
+                    .toString());
             LOGGER.warning(() -> ExaError.messageBuilder("W-VS-COM-JDBC-36")
-                    .message("Assuming  that column \"{{columnName}}\" is not incremented automatically.")
-                    .unquotedParameter("columnName", columnName).toString());
+                    .message("Assuming  that column \"{{columnName|uq}}\" is not incremented automatically.",
+                            columnName)
+                    .toString());
             return false;
         }
     }
@@ -346,10 +345,9 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
             return DataType.createDecimal(precision, scale);
         } else {
             throw new IllegalArgumentException(ExaError.messageBuilder("E-VS-COM-JDBC-2").message(
-                    "Unable to parse adapter property {{property}} value {{precisionAndScale}} into a number precision "
-                            + "and scale. The required format is '<precision>.<scale>', where both are integer numbers.")
-                    .unquotedParameter("property", property) //
-                    .parameter("precisionAndScale", precisionAndScale).toString());
+                    "Unable to parse adapter property {{property|uq}} value {{precisionAndScale}} into a number precision "
+                            + "and scale. The required format is '<precision>.<scale>', where both are integer numbers.",
+                    property, precisionAndScale).toString());
         }
     }
 }

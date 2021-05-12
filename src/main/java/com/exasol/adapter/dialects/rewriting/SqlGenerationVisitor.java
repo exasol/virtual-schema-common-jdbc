@@ -2,7 +2,9 @@ package com.exasol.adapter.dialects.rewriting;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import com.exasol.adapter.AdapterException;
 import com.exasol.adapter.adapternotes.ColumnAdapterNotesJsonConverter;
@@ -61,21 +63,19 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String>, SqlGenerato
         for (final ScalarFunction function : this.dialect.getScalarFunctionAliases().keySet()) {
             if (!function.isSimple()) {
                 throw new UnsupportedOperationException(ExaError.messageBuilder("E-VS-COM-JDBC-9")
-                        .message("The dialect {{dialectName}} provided an alias for the non-simple scalar function "
-                                + "{{functionName}}. This alias will never be considered.")
-                        .unquotedParameter("dialectName", this.dialect.getName())
-                        .unquotedParameter("functionName", function.name()) //
+                        .message(
+                                "The dialect {{dialectName|uq}} provided an alias for the non-simple scalar function "
+                                        + "{{functionName|uq}}. This alias will never be considered.",
+                                this.dialect.getName(), function.name())
                         .ticketMitigation().toString());
             }
         }
         for (final AggregateFunction function : this.dialect.getAggregateFunctionAliases().keySet()) {
             if (!function.isSimple()) {
-                throw new UnsupportedOperationException(ExaError.messageBuilder("E-VS-COM-JDBC-10")
-                        .message("The dialect {{dialectName}} provided an alias for the non-simple aggregate function "
-                                + "{{functionName}}. This alias will never be considered.")
-                        .unquotedParameter("dialectName", this.dialect.getName())
-                        .unquotedParameter("functionName", function.name()) //
-                        .ticketMitigation().toString());
+                throw new UnsupportedOperationException(ExaError.messageBuilder("E-VS-COM-JDBC-10").message(
+                        "The dialect {{dialectName|uq}} provided an alias for the non-simple aggregate function "
+                                + "{{functionName|uq}}. This alias will never be considered.",
+                        this.dialect.getName(), function.name()).ticketMitigation().toString());
             }
         }
     }
@@ -333,9 +333,8 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String>, SqlGenerato
         final String realFunctionName = this.dialect.getBinaryInfixFunctionAliases().get(scalarFunction);
         if (sqlArguments.size() != 2) {
             throw new IllegalArgumentException(ExaError.messageBuilder("E-VS-COM-JDBC-11").message(
-                    "The {{realFunctionName}} function requests 2 arguments, but {{sqlArgumentsSize}} were given.")
-                    .unquotedParameter("realFunctionName", realFunctionName)
-                    .unquotedParameter("sqlArgumentsSize", sqlArguments.size()).toString());
+                    "The {{realFunctionName|uq}} function requests 2 arguments, but {{sqlArgumentsSize|uq}} were given.",
+                    realFunctionName, sqlArguments.size()).toString());
         }
         return "(" + sqlArguments.get(0) + " " + realFunctionName + " " + sqlArguments.get(1) + ")";
     }
@@ -348,9 +347,8 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String>, SqlGenerato
         final String realFunctionName = this.dialect.getPrefixFunctionAliases().get(scalarFunction);
         if (sqlArguments.size() != 1) {
             throw new IllegalArgumentException(ExaError.messageBuilder("E-VS-COM-JDBC-12").message(
-                    "The {{realFunctionName}} function requests 1 argument, but {{sqlArgumentsSize}} were given.")
-                    .unquotedParameter("realFunctionName", realFunctionName)
-                    .unquotedParameter("sqlArgumentsSize", sqlArguments.size()).toString());
+                    "The {{realFunctionName|uq}} function requests 1 argument, but {{sqlArgumentsSize|uq}} were given.",
+                    realFunctionName, sqlArguments.size()).toString());
         }
         return "(" + realFunctionName + sqlArguments.get(0) + ")";
     }
