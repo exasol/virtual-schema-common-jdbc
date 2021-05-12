@@ -11,7 +11,6 @@ Code name:
 ### Compile Dependency Updates
 
 * Updated `com.exasol:error-reporting-java:0.2.2` to `0.4.0`
-* Updated `com.exasol:virtual-schema-common-java:15.0.1` to `15.1.0`
 
 ### Test Dependency Updates
 
