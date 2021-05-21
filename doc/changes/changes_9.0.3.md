@@ -1,6 +1,6 @@
-# Virtual Schema Common JDBC 9.0.3, released 2021-05-??
+# Virtual Schema Common JDBC 9.0.3, released 2021-05-21
 
-Code name:
+Code name: Minor Improvements
 
 ## Bug Fixes
 
@@ -11,12 +11,13 @@ Code name:
 ### Compile Dependency Updates
 
 * Updated `com.exasol:error-reporting-java:0.2.2` to `0.4.0`
+* Updated `com.exasol:virtual-schema-common-java:15.0.1` to `15.1.0`
 
 ### Test Dependency Updates
 
-* Updated `nl.jqno.equalsverifier:equalsverifier:3.5.2` to `3.6`
-* Updated `org.junit.jupiter:junit-jupiter:5.7.0` to `5.7.1`
-* Updated `org.mockito:mockito-junit-jupiter:3.7.7` to `3.9.0`
+* Updated `nl.jqno.equalsverifier:equalsverifier:3.5.2` to `3.6.1`
+* Updated `org.junit.jupiter:junit-jupiter:5.7.0` to `5.7.2`
+* Updated `org.mockito:mockito-junit-jupiter:3.7.7` to `3.10.0`
 
 ### Plugin Dependency Updates
 
