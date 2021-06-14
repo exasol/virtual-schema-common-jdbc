@@ -125,7 +125,6 @@ class BaseTableMetadataReaderTest {
     private void mockSingleTableWithName(final String tableName) throws SQLException {
         mockTableCount(this.tablesMock, 1);
         mockTableName(this.tablesMock, tableName);
-        mockTableName(this.tablesMock, tableName);
         mockTableWithColumnsOfType(this.tablesMock, this.columnMetadataReaderMock, tableName, DataType.createBool());
     }
 
