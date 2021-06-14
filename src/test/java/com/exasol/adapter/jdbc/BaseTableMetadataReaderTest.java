@@ -150,4 +150,13 @@ class BaseTableMetadataReaderTest {
                 List.of(TABLE_A));
         assertSingleTableByName(tables, TABLE_A);
     }
+
+    @Test
+    void testMapTablesWithFilteredTablesDefinedByPropertiesleftOut() throws SQLException {
+        mockTableCount(this.tablesMock, 2);
+        mockTableName(this.tablesMock, TABLE_A, TABLE_B);
+        final List<TableMetadata> tables = createTableMetadataReaderWithSingleFilteredTable(TABLE_B)
+                .mapTables(this.tablesMock, List.of(TABLE_A));
+        assertThat(tables, iterableWithSize(0));
+    }
 }
