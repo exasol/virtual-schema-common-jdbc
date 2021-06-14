@@ -141,7 +141,7 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
 
     private boolean isFilteredTable(final List<String> filteredTables, final String tableName) {
         final Set<String> allFilteredTables = this.getAllFilteredTables(filteredTables);
-        if (includeAllTables(filteredTables) || allFilteredTables.contains(tableName)) {
+        if (includeAllTables(allFilteredTables) || allFilteredTables.contains(tableName)) {
             return true;
         } else {
             LOGGER.fine(() -> "Skipping filtered out table \"" + tableName + "\" when mapping remote metadata.");
@@ -155,7 +155,7 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
         return allFilteredTables;
     }
 
-    protected boolean includeAllTables(final List<String> filteredTables) {
+    protected boolean includeAllTables(final Set<String> filteredTables) {
         return (filteredTables == null) || filteredTables.isEmpty();
     }
 
