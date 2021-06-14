@@ -14,11 +14,11 @@ public interface TableMetadataReader {
      * Map a list of tables found in a JDBC result set to a list of {@link TableMetadata}.
      *
      * @param remoteTables   result set containing the tables to be mapped
-     * @param selectedTables optional list of tables name that is used to narrow down the mapping
+     * @param filteredTables list of tables name that is used to narrow down the mapping
      * @return list of {@link TableMetadata}
      * @throws SQLException if either mapping the table or its columns produces an SQL error
      */
-    public List<TableMetadata> mapTables(ResultSet remoteTables, List<String> selectedTables) throws SQLException;
+    public List<TableMetadata> mapTables(ResultSet remoteTables, List<String> filteredTables) throws SQLException;
 
     /**
      * Returns true if the metadata reader includes the table with the given name when the remote metadata gets mapped

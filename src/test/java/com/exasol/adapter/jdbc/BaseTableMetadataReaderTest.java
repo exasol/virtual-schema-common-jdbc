@@ -9,8 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 import java.sql.*;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Logger;
 
 import org.junit.jupiter.api.Test;
@@ -47,7 +46,8 @@ class BaseTableMetadataReaderTest {
         mockTableComment(this.tablesMock, TABLE_A_COMMENT, TABLE_B_COMMENT);
         mockTableWithColumnsOfType(this.tablesMock, this.columnMetadataReaderMock, TABLE_A, DataType.createBool());
         mockTableWithColumnsOfType(this.tablesMock, this.columnMetadataReaderMock, TABLE_B, DataType.createDate());
-        final List<TableMetadata> tables = createDefaultTableMetadataReader().mapTables(this.tablesMock, List.of());
+        final List<TableMetadata> tables = createDefaultTableMetadataReader().mapTables(this.tablesMock,
+                Collections.emptyList());
         final TableMetadata tableA = tables.get(0);
         final TableMetadata tableB = tables.get(1);
         assertAll(() -> assertThat(tables, iterableWithSize(2)), //
@@ -64,8 +64,12 @@ class BaseTableMetadataReaderTest {
     }
 
     private TableMetadataReader createDefaultTableMetadataReader() {
-        return new BaseTableMetadataReader(this.connectionMock, this.columnMetadataReaderMock,
-                AdapterProperties.emptyProperties(), BaseIdentifierConverter.createDefault());
+        return createTableMetadataReaderWithProperties(AdapterProperties.emptyProperties());
+    }
+
+    private TableMetadataReader createTableMetadataReaderWithProperties(final AdapterProperties properties) {
+        return new BaseTableMetadataReader(this.connectionMock, this.columnMetadataReaderMock, properties,
+                BaseIdentifierConverter.createDefault());
     }
 
     protected void mockConnection() throws SQLException {
@@ -78,10 +82,14 @@ class BaseTableMetadataReaderTest {
         mockTableName(this.tablesMock, TABLE_A, TABLE_B);
         mockTableComment(this.tablesMock, TABLE_A_COMMENT, TABLE_B_COMMENT);
         mockTableWithColumnsOfType(this.tablesMock, this.columnMetadataReaderMock, TABLE_A, DataType.createBool());
-        final List<TableMetadata> tables = createDefaultTableMetadataReader().mapTables(this.tablesMock, List.of());
-        final TableMetadata tableA = tables.get(0);
+        final List<TableMetadata> tables = createDefaultTableMetadataReader().mapTables(this.tablesMock,
+                Collections.emptyList());
+        assertSingleTableByName(tables, TABLE_A);
+    }
+
+    private void assertSingleTableByName(final List<TableMetadata> tables, final String tableName) {
         assertAll(() -> assertThat(tables, iterableWithSize(1)), //
-                () -> assertThat(tableA.getName(), equalTo(TABLE_A)));
+                () -> assertThat(tables.get(0).getName(), equalTo(tableName)));
     }
 
     @Test
@@ -101,9 +109,46 @@ class BaseTableMetadataReaderTest {
         when(this.columnMetadataReaderMock.mapColumns("table"))
                 .thenReturn(List.of(ColumnMetadata.builder().name("column").type(DataType.createBool()).build()));
         final TableMetadataReader metadataReader = createDefaultTableMetadataReader();
-        final List<String> selectedTables = List.of();
         final RemoteMetadataReaderException exception = assertThrows(RemoteMetadataReaderException.class,
-                () -> metadataReader.mapTables(resultSetMock, selectedTables));
+                () -> metadataReader.mapTables(resultSetMock, Collections.emptyList()));
         assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-24"));
+    }
+
+    @Test
+    void testMapTablesWithFilteredTablesDefinedByUser() throws SQLException {
+        mockSingleTableWithName(TABLE_A);
+        final List<TableMetadata> tables = createDefaultTableMetadataReader().mapTables(this.tablesMock,
+                List.of(TABLE_A));
+        assertSingleTableByName(tables, TABLE_A);
+    }
+
+    private void mockSingleTableWithName(final String tableName) throws SQLException {
+        mockTableCount(this.tablesMock, 1);
+        mockTableName(this.tablesMock, tableName);
+        mockTableName(this.tablesMock, tableName);
+        mockTableWithColumnsOfType(this.tablesMock, this.columnMetadataReaderMock, tableName, DataType.createBool());
+    }
+
+    @Test
+    void testMapTablesWithFilteredTablesDefinedByProperties() throws SQLException {
+        mockSingleTableWithName(TABLE_A);
+        final List<TableMetadata> tables = createTableMetadataReaderWithSingleFilteredTable(TABLE_A)
+                .mapTables(this.tablesMock, Collections.emptyList());
+        assertSingleTableByName(tables, TABLE_A);
+    }
+
+    private TableMetadataReader createTableMetadataReaderWithSingleFilteredTable(final String tableName) {
+        final Map<String, String> properties = Map.of(AdapterProperties.TABLE_FILTER_PROPERTY, tableName);
+        return createTableMetadataReaderWithProperties(new AdapterProperties(properties));
+    }
+
+    @Test
+    void testMapTablesWithOneFilteredTableLeftOut() throws SQLException {
+        mockTableCount(this.tablesMock, 2);
+        mockTableName(this.tablesMock, TABLE_A, TABLE_B);
+        mockTableWithColumnsOfType(this.tablesMock, this.columnMetadataReaderMock, TABLE_A, DataType.createBool());
+        final List<TableMetadata> tables = createDefaultTableMetadataReader().mapTables(this.tablesMock,
+                List.of(TABLE_A));
+        assertSingleTableByName(tables, TABLE_A);
     }
 }

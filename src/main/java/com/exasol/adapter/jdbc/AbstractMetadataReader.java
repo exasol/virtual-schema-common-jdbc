@@ -21,7 +21,7 @@ public abstract class AbstractMetadataReader implements MetadataReader {
      * @param connection JDBC connection to remote data source
      * @param properties user-defined adapter properties
      */
-    public AbstractMetadataReader(final Connection connection, final AdapterProperties properties) {
+    protected AbstractMetadataReader(final Connection connection, final AdapterProperties properties) {
         this.properties = properties;
         this.connection = connection;
     }

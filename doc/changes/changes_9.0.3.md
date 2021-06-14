@@ -4,7 +4,7 @@ Code name: Minor Improvements
 
 ## Bug Fixes
 
-* # 105: Added validation for `ResultSetMetaData` in `ResultSetMetadataReader`.
+* #105: Added validation for `ResultSetMetaData` in `ResultSetMetadataReader`.
 
 ## Dependency Updates
 
