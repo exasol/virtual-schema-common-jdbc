@@ -143,7 +143,8 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
         if (isFilteredByProperties(tableName) && isFiltered(tableName, filteredTables)) {
             return true;
         } else {
-            LOGGER.fine(() -> "Skipping filtered out table \"" + tableName + "\" when mapping remote metadata.");
+            LOGGER.fine(() -> "Skipping filtered out table \"" + tableName
+                    + "\" when mapping remote metadata due to request properties or user-defined table filter.");
             return false;
         }
     }
