@@ -5,3 +5,4 @@ Code name:
 ## Refactorings
 
 * #73: Refactored table metadata reading with filtered tables.
+## Dependency Updates
