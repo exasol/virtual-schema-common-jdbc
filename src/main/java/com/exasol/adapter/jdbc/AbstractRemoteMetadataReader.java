@@ -29,7 +29,7 @@ public abstract class AbstractRemoteMetadataReader extends AbstractMetadataReade
      * @param connection SQl connection
      * @param properties adapter properties
      */
-    public AbstractRemoteMetadataReader(final Connection connection, final AdapterProperties properties) {
+    protected AbstractRemoteMetadataReader(final Connection connection, final AdapterProperties properties) {
         super(connection, properties);
         this.identifierConverter = createIdentifierConverter();
         this.columnMetadataReader = createColumnMetadataReader();

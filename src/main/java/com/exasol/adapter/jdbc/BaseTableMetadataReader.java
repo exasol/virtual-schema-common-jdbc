@@ -1,8 +1,6 @@
 package com.exasol.adapter.jdbc;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -42,10 +40,10 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
     }
 
     @Override
-    public List<TableMetadata> mapTables(final ResultSet remoteTables, final List<String> selectedTables)
+    public List<TableMetadata> mapTables(final ResultSet remoteTables, final List<String> filteredTables)
             throws SQLException {
         if (remoteTables.next()) {
-            return extractTableMetadata(remoteTables, selectedTables);
+            return extractTableMetadata(remoteTables, filteredTables);
         } else {
             LOGGER.warning(() -> ExaError.messageBuilder("W-VS-COM-JDBC-35")
                     .message("Table scan did not find any tables. This can mean that either" //
@@ -59,21 +57,21 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
         }
     }
 
-    private List<TableMetadata> extractTableMetadata(final ResultSet remoteTables, final List<String> selectedTables)
+    private List<TableMetadata> extractTableMetadata(final ResultSet remoteTables, final List<String> filteredTables)
             throws SQLException {
         final List<TableMetadata> mappedTables = new ArrayList<>();
         do {
-            final Optional<TableMetadata> tableMetadata = getTableMetadata(remoteTables, selectedTables);
+            final Optional<TableMetadata> tableMetadata = getTableMetadata(remoteTables, filteredTables);
             tableMetadata.ifPresent(mappedTables::add);
             validateMappedTablesListSize(mappedTables);
         } while (remoteTables.next());
         return mappedTables;
     }
 
-    private Optional<TableMetadata> getTableMetadata(final ResultSet remoteTables, final List<String> selectedTables)
+    private Optional<TableMetadata> getTableMetadata(final ResultSet remoteTables, final List<String> filteredTables)
             throws SQLException {
         final String tableName = readTableName(remoteTables);
-        if (isTableSupported(selectedTables, tableName)) {
+        if (isTableSupported(filteredTables, tableName)) {
             return getTableMetadata(remoteTables, tableName);
         }
         return Optional.empty();
@@ -123,9 +121,9 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
         }
     }
 
-    protected boolean isTableSupported(final List<String> selectedTables, final String tableName) {
+    protected boolean isTableSupported(final List<String> filteredTables, final String tableName) {
         if (isTableIncludedByMapping(tableName)) {
-            return isTableSelected(selectedTables, tableName);
+            return isFilteredTable(filteredTables, tableName);
         } else {
             logSkippingUnsupportedTable(tableName);
             return false;
@@ -141,32 +139,26 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
         LOGGER.fine(() -> "Skipping unsupported table \"" + tableName + "\" when mapping remote metadata.");
     }
 
-    private boolean isTableSelected(final List<String> selectedTables, final String tableName) {
-        if (checkIfTableIsSelected(tableName, selectedTables)) {
-            return isTableIncludedByFilter(tableName);
-        } else {
-            LOGGER.fine(() -> "Skipping filtered out table \"" + tableName + "\" when mapping remote metadata.");
-            return false;
-        }
-    }
-
-    protected boolean checkIfTableIsSelected(final String tableName, final List<String> selectedTables) {
-        return (selectedTables == null) || selectedTables.isEmpty() || selectedTables.contains(tableName);
-    }
-
-    protected boolean isTableIncludedByFilter(final String tableName) {
-        final List<String> filteredTables = this.properties.getFilteredTables();
-        if (filteredTables.isEmpty() || filteredTables.contains(tableName)) {
+    private boolean isFilteredTable(final List<String> filteredTables, final String tableName) {
+        if (isFilteredByProperties(tableName) && isFiltered(tableName, filteredTables)) {
             return true;
         } else {
-            logSkippingFilteredTable(tableName);
+            LOGGER.fine(() -> "Skipping filtered out table \"" + tableName
+                    + "\" when mapping remote metadata due to request properties or user-defined table filter.");
             return false;
         }
     }
 
-    protected void logSkippingFilteredTable(final String tableName) {
-        LOGGER.fine(
-                () -> "Skipping table \"" + tableName + "\" when mapping remote data due to user-defined table filter");
+    private boolean isFilteredByProperties(final String tableName) {
+        return this.isFiltered(tableName, this.properties.getFilteredTables());
+    }
+
+    private boolean isFiltered(final String tableName, final List<String> filteredTables) {
+        return includeAllTables(filteredTables) || filteredTables.contains(tableName);
+    }
+
+    protected boolean includeAllTables(final List<String> filteredTables) {
+        return (filteredTables == null) || filteredTables.isEmpty();
     }
 
     protected void logSkippingTableWithEmptyColumns(final String tableName) {

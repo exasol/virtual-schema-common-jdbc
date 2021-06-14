@@ -16,7 +16,7 @@ public abstract class AbstractIdentifierConverter implements IdentifierConverter
      * @param unquotedIdentifierHandling handling for unquoted identifiers
      * @param quotedIdentifierHandling   handling for quoted identifiers
      */
-    public AbstractIdentifierConverter(final IdentifierCaseHandling unquotedIdentifierHandling,
+    protected AbstractIdentifierConverter(final IdentifierCaseHandling unquotedIdentifierHandling,
             final IdentifierCaseHandling quotedIdentifierHandling) {
         this.unquotedIdentifierHandling = unquotedIdentifierHandling;
         this.quotedIdentifierHandling = quotedIdentifierHandling;
