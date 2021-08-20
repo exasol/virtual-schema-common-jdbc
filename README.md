@@ -1,9 +1,7 @@
 # Virtual Schema Common Module for JDBC-based Data Access
 
-[![Build Status](https://travis-ci.com/exasol/virtual-schema-common-jdbc.svg?branch=main)](https://travis-ci.com/exasol/virtual-schema-common-jdbc)
+[![Build Status](https://github.com/exasol/virtual-schema-common-jdbc/actions/workflows/ci-build.yml/badge.svg)](https://github.com/exasol/virtual-schema-common-jdbc/actions/workflows/ci-build.yml)
 [![Maven Central](https://img.shields.io/maven-central/v/com.exasol/virtual-schema-common-jdbc)](https://search.maven.org/artifact/com.exasol/virtual-schema-common-jdbc)
-
-SonarCloud results:
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=com.exasol%3Avirtual-schema-common-jdbc&metric=alert_status)](https://sonarcloud.io/dashboard?id=com.exasol%3Avirtual-schema-common-jdbc)
 
@@ -35,6 +33,5 @@ This is an open source project which is officially supported by Exasol. For any 
 * [Virtual Schema API Documentation][vs-api]
 * [Developing and Testing an SQL Dialect](doc/development/developing_a_dialect.md)
 * [Step-by-step guide to writing your own SQL dialect](doc/development/step_by_step_guide_to_writing_your_own_dialect.md)
-
 
 [vs-api]: https://github.com/exasol/virtual-schema-common-java/blob/main/doc/development/api/virtual_schema_api.md

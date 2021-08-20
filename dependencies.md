@@ -64,11 +64,11 @@
 [24]: https://www.eclipse.org/legal/epl-2.0/
 [44]: http://www.eclipse.org/legal/epl-v10.html
 [5]: https://github.com/exasol/java-util-logging-testing
+[18]: https://github.com/mockito/mockito/blob/main/LICENSE
 [49]: http://zlika.github.io/reproducible-build-maven-plugin
 [57]: https://maven.apache.org/plugins/maven-site-plugin/
 [22]: https://www.apache.org/licenses/LICENSE-2.0.txt
 [39]: https://maven.apache.org/enforcer/maven-enforcer-plugin/
-[18]: https://github.com/mockito/mockito/blob/release/3.x/LICENSE
 [14]: https://www.eclipse.org/legal/epl-v20.html
 [2]: https://github.com/eclipse-ee4j/jaxb-api
 [55]: http://maven.apache.org/plugins/maven-install-plugin/
