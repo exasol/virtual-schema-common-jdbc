@@ -1,0 +1,37 @@
+@startuml
+!include ../clean.skin
+
+title "Virtual Schema Adapter Modules"
+
+interface "Virtual Schema API" <<interface>> as api
+interface "JDBC API" <<interface>> as jdbc
+
+component "Virtual Schema Adapter" as adapter {
+    component "Request Dispatcher" as dispatcher
+    component "JDBC Adapter" as jdbc_adapter
+    component "SQL Dialect" as dialect
+    component "Metadata Reader" as reader
+    component "Query Rewriter" as rewriter
+    component "Query Renderer" as renderer
+    
+    dispatcher .l.|> api : <<implement>>
+    dispatcher -r-> jdbc_adapter : [[../class/cl_initializaton.svg load]] &\ndispatch request
+    jdbc_adapter -d-> dialect : load &\ndelegate
+    dialect -l-> reader : scan source schema
+    dialect -d-> rewriter : rewrite\nquery
+    rewriter -l-> renderer : render SQL
+    reader .l.> jdbc : <<use>>
+}
+
+note bottom of adapter
+    The JDBC common library
+    contains base objects for 
+    RDBMs dialects that use
+    the JDBC interface for
+    scanning the metadata of
+    the remote data source.
+end note
+
+url of reader is [[../class/cl_metadata_reader.svg]]
+
+@enduml
