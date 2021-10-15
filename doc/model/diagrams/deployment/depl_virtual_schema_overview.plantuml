@@ -1,0 +1,56 @@
+@startuml
+!include ../clean.skin
+
+title: Virtual Schema Deployment Overview
+
+actor "User" as user
+
+node "ExasolDataNode" as db_node {
+    database "Virtual Schema" as vs
+    
+    together {
+        storage "BucketFS" as bucketfs {
+            artifact "Script Language Container" as lc
+            artifact "Data Source Driver JAR" as driver_jar
+            artifact "Virtual Schema Distribution JAR" as dist
+            'lc -[hidden]d- dist
+            'dist -[hidden]d- driver_jar
+        }
+
+        node "UDF Client with Linux Container" as container {
+            component "UDF Client Main" as udf_client
+            node "Java Virtual Machine" as jvm {
+                component "Data Source Driver" as driver
+                component "Virtual Schema Adapter" as vs_adapter
+                component "Driver Manager" as driver_manager
+            }
+            vs_adapter -d-> driver_manager : load(driver)
+            driver_manager -r-> driver : load
+            vs_adapter-d-> driver
+        }
+        
+        udf_client -r-> jvm : instanciate
+        udf_client -l-> vs_adapter : execute
+        udf_client --> dist : load
+        dist -u-> vs_adapter : define
+        driver_jar -u-> driver : define
+        lc -u-> container : define
+    }
+
+    component exasql {
+        component "Engine" as engine
+        component "Compiler" as compiler
+        engine -r-> compiler : invoke
+    }
+    
+    compiler -r-> udf_client : call for\nVirtual Schema\nfragments
+    compiler -d-> container : trigger loading
+}
+
+database "Source Schema" as source
+user -d-> vs
+driver -l-> source
+engine -l- vs
+
+url of vs_adapter is [[../component/comp_virtual_schema_adapter.svg]]
+@enduml

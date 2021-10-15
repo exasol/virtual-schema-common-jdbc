@@ -1,0 +1,37 @@
+@startuml
+!include ../clean.skin
+
+title "Adapter and SQL Dialect Initialization"
+
+class JDBCAdapter
+
+class SqlDialectFactory {
+    + createSqlDialect(connectionFactory : ConnectionFactory, properties: AdapterProperties) : SqlDialect
+    + getSqlDialectName() : String
+    + getSqlDialectVersion() : String
+}
+
+interface SqlDialect
+
+abstract class AbstractSqlDialect {
+    + AbstractSqlDialect(connectionFactory: Connection, properties : AdapterProperties, dialectSpecificProperties: Set<String>)
+}
+
+class PostgreSQLSqlDialect
+
+note right: This is just an example, there many other dialects.
+
+JDBCAdapter -d-> SqlDialectFactory
+note on link
+    Inject JDBC connection and
+    user-defined properties.
+end note
+SqlDialectFactory -d-> SqlDialect : <<create>>
+note on link
+    Inject JDBC connection and
+    user-defined properties.
+end note
+AbstractSqlDialect .u.|> SqlDialect
+PostgreSQLSqlDialect -u-|> AbstractSqlDialect
+
+@enduml

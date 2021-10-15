@@ -1,0 +1,65 @@
+@startuml
+!include ../clean.skin
+
+package virtual-schema-common-java as vscj {
+    note as n0
+        Base classes for initializing the Virtual Schema,
+        protocol handling between adapter and core database
+        and functions common to all virtual schemas
+    end note
+}
+
+package virtual-schema-common-jdbc as vscjdbc {
+    package com.exasol.auth.kerberos {
+            note as n4
+                Classes to generate a
+                Kerberos configuration
+                used to authenticate
+                with Kerberos via JDBC
+            end note
+    }
+
+    package com.exasol.adapter {
+        package adapternotes  {
+            note as n1
+                Classes for managing
+                cached adapter information
+            end note
+        }
+        
+        package dialects {
+            note as n6
+                Base classes for
+                SQL dialects
+            end note
+        }
+        
+        package jdbc {
+            note as n3
+                Common JDBC metadata
+                reading, connection
+                and error handling
+            end note
+        }
+        
+        package sql {
+            note as n2
+                Classes for rendering
+                SQL statements from
+                object trees to strings
+            end note
+        }
+    }
+}
+
+package <dialect>-virtual-schema as dialect {
+    note as n5
+        SQL dialect implementation that handles database-specific
+        metadata interpretation, SQL construction and type conversion
+    end note
+}
+
+dialect ..> vscjdbc : depend
+vscjdbc ..> vscj : depend 
+
+@enduml
