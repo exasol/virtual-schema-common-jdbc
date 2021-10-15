@@ -3,10 +3,10 @@
 
 title "Adapter and SQL Dialect Initialization"
 
-class JdbcAdapter
+class JDBCAdapter
 
 class SqlDialectFactory {
-    + createSqlDialect(connectionFactory : ConnectionFactory, properties: AdapterProperties, dialectRegistry : SqlDialectRegistry) : SqlDialect
+    + createSqlDialect(connectionFactory : ConnectionFactory, properties: AdapterProperties) : SqlDialect
     + getSqlDialectName() : String
     + getSqlDialectVersion() : String
 }
@@ -19,17 +19,17 @@ abstract class AbstractSqlDialect {
 
 class PostgreSQLSqlDialect
 
-note right: this is just an example, there many other dialects
+note right: This is just an example, there many other dialects.
 
-JdbcAdapter -d-> SqlDialectFactory
+JDBCAdapter -d-> SqlDialectFactory
 note on link
-    inject JDBC connection and
-    user-defined properties
+    Inject JDBC connection and
+    user-defined properties.
 end note
 SqlDialectFactory -d-> SqlDialect : <<create>>
 note on link
-    inject JDBC connection and
-    user-defined properties
+    Inject JDBC connection and
+    user-defined properties.
 end note
 AbstractSqlDialect .u.|> SqlDialect
 PostgreSQLSqlDialect -u-|> AbstractSqlDialect
