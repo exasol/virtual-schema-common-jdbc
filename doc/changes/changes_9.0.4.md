@@ -1,10 +1,10 @@
 # Virtual Schema Common JDBC 9.0.4, released 2021-10-15
 
-Code name:Design model and dependency updates
+Code name: Design model and dependency updates
 
 ## Summary
 
-Version 9.0.4 of `virtual-schema-common-jdbc` updates the UML design diagrams and updates dependencies
+Version 9.0.4 of `virtual-schema-common-jdbc` updates the UML design diagrams and updates dependencies.
 
 ## Refactorings
 
@@ -13,7 +13,7 @@ Version 9.0.4 of `virtual-schema-common-jdbc` updates the UML design diagrams an
 
 ## Features
 
-* #91: High level design document
+* #91: Added high level design document
 
 ## Dependency Updates
 
