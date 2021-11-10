@@ -3,10 +3,10 @@ package com.exasol.adapter.adapternotes;
 import java.io.StringReader;
 import java.util.Collections;
 
-import javax.json.*;
-
 import com.exasol.adapter.AdapterException;
 import com.exasol.errorreporting.ExaError;
+
+import jakarta.json.*;
 
 /**
  * Converts column adapter Notes into JSON format and back.
