@@ -1,4 +1,4 @@
-# Virtual Schema Common JDBC 9.0.4, released 2021-10-15
+# Virtual Schema Common JDBC 9.0.4, released 2021-11-10
 
 Code name: Design model and dependency updates
 
@@ -10,6 +10,7 @@ Version 9.0.4 of `virtual-schema-common-jdbc` updates the UML design diagrams an
 
 * #73: Refactored table metadata reading with filtered tables.
 * #109: Switch the build to GitHub actions.
+* #112: Updated dependencies, prepared for a release.
 
 ## Features
 
@@ -19,11 +20,12 @@ Version 9.0.4 of `virtual-schema-common-jdbc` updates the UML design diagrams an
 
 ### Compile Dependency Updates
 
-* Updated `com.exasol:virtual-schema-common-java:15.1.0` to `15.2.0`
+* Updated `com.exasol:virtual-schema-common-java:15.1.0` to `15.3.0`
 
 ### Test Dependency Updates
 
-* Updated `nl.jqno.equalsverifier:equalsverifier:3.6.1` to `3.7.1`
+* Updated `nl.jqno.equalsverifier:equalsverifier:3.6.1` to `3.7.2`
+* Updated `org.junit.jupiter:junit-jupiter:5.7.2` to `5.8.1`
 * Updated `org.mockito:mockito-junit-jupiter:3.10.0` to `4.0.0`
 
 ### Plugin Dependency Updates
