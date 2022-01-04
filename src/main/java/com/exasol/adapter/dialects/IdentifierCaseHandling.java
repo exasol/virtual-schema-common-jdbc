@@ -4,10 +4,10 @@ package com.exasol.adapter.dialects;
  * This enumeration represents how unquoted or quoted identifiers in queries or DDLs are handled.
  */
 public enum IdentifierCaseHandling {
-    /** abC --> abc */
+    /** Everything is interpreted as lower-case */
     INTERPRET_AS_LOWER,
-    /** abC --> ABC */
+    /** Everything is interpreted as upper-case */
     INTERPRET_AS_UPPER,
-    /** abC --> abC */
+    /** Casing is preserved */
     INTERPRET_CASE_SENSITIVE
 }
