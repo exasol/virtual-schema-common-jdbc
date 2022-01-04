@@ -12,7 +12,9 @@ import jakarta.json.*;
  * Converts column adapter Notes into JSON format and back.
  */
 public final class ColumnAdapterNotesJsonConverter {
+    /** Key for the jdbc type in the adapter notes */
     protected static final String JDBC_DATA_TYPE = "jdbcDataType";
+    /** Key for the type namein the adapter notes */
     protected static final String TYPE_NAME = "typeName";
     private static final ColumnAdapterNotesJsonConverter COLUMN_ADAPTER_NOTES_JSON_CONVERTER = new ColumnAdapterNotesJsonConverter();
     private final JsonBuilderFactory factory = Json.createBuilderFactory(Collections.emptyMap());

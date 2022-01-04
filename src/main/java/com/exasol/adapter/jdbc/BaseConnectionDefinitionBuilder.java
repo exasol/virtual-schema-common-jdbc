@@ -31,6 +31,14 @@ public class BaseConnectionDefinitionBuilder implements ConnectionDefinitionBuil
         }
     }
 
+    /**
+     * Build a connection definition.
+     *
+     * @param connectionString connection string
+     * @param username         username
+     * @param password         password
+     * @return connection definition string
+     */
     protected String getConnectionDefinition(final String connectionString, final String username,
             final String password) {
         return "AT '" + connectionString.replace("'", "''") + "' USER '" + username.replace("'", "''")

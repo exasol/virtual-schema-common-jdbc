@@ -51,6 +51,11 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
         }
     }
 
+    /**
+     * Log a create virtual schema request.
+     * 
+     * @param request create request
+     */
     protected void logCreateVirtualSchemaRequestReceived(final CreateVirtualSchemaRequest request) {
         LOGGER.fine(() -> "Received request to create Virutal Schema \"" + request.getVirtualSchemaName() + "\".");
     }
@@ -82,6 +87,11 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
         return DropVirtualSchemaResponse.builder().build();
     }
 
+    /**
+     * Log drop virtual schema request.
+     * 
+     * @param request drop request
+     */
     protected void logDropVirtualSchemaRequestReceived(final DropVirtualSchemaRequest request) {
         LOGGER.fine(() -> "Received request to drop Virtual Schema \"" + request.getVirtualSchemaName() + "\".");
     }
@@ -109,13 +119,21 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
         }
     }
 
-    protected SchemaMetadata readMetadata(final AdapterProperties properties,
-            final List<String> whiteListedRemoteTables, final ExaMetadata exasolMetadata)
-            throws PropertyValidationException {
+    /**
+     * Read the schema metadata.
+     * 
+     * @param properties           adapter properties
+     * @param remoteTableAllowList allow list for remote tables
+     * @param exasolMetadata       exasol metadata
+     * @return schema metadata
+     * @throws PropertyValidationException if properties are invalid
+     */
+    protected SchemaMetadata readMetadata(final AdapterProperties properties, final List<String> remoteTableAllowList,
+            final ExaMetadata exasolMetadata) throws PropertyValidationException {
         final ConnectionFactory connectionFactory = new RemoteConnectionFactory(exasolMetadata, properties);
         final SqlDialect dialect = createDialect(connectionFactory, properties);
         dialect.validateProperties();
-        return dialect.readSchemaMetadata(whiteListedRemoteTables);
+        return dialect.readSchemaMetadata(remoteTableAllowList);
     }
 
     @Override

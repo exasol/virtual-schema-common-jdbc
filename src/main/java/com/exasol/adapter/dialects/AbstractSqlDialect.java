@@ -29,9 +29,12 @@ public abstract class AbstractSqlDialect implements SqlDialect {
             Pattern.CASE_INSENSITIVE);
     private static final Set<String> COMMON_SUPPORTED_PROPERTIES = Set.of(CONNECTION_NAME_PROPERTY,
             TABLE_FILTER_PROPERTY, EXCLUDED_CAPABILITIES_PROPERTY, DEBUG_ADDRESS_PROPERTY, LOG_LEVEL_PROPERTY);
+    /** Factory that creates JDBC connection to the data source */
     protected final ConnectionFactory connectionFactory;
     private final Set<String> supportedProperties;
+    /** Set of functions for which the adapter should omit parentheses */
     protected Set<ScalarFunction> omitParenthesesMap = EnumSet.noneOf(ScalarFunction.class);
+    /** Adapter properties */
     protected AdapterProperties properties;
 
     /**
@@ -146,6 +149,12 @@ public abstract class AbstractSqlDialect implements SqlDialect {
         return createRemoteMetadataReader().readRemoteSchemaMetadata(tables);
     }
 
+    /**
+     * Quote a string literal with single quotes.
+     * 
+     * @param value string literal
+     * @return quoted string
+     */
     public String quoteLiteralStringWithSingleQuote(final String value) {
         if (value == null) {
             return "NULL";
@@ -154,6 +163,12 @@ public abstract class AbstractSqlDialect implements SqlDialect {
         }
     }
 
+    /**
+     * Quote an identifier with double quotes.
+     * 
+     * @param identifier identifier to quote
+     * @return quoted identifier
+     */
     protected String quoteIdentifierWithDoubleQuotes(final String identifier) {
         return "\"" + identifier.replace("\"", "\"\"") + "\"";
     }
@@ -168,6 +183,11 @@ public abstract class AbstractSqlDialect implements SqlDialect {
         validateExceptionHandling();
     }
 
+    /**
+     * Validate that all given properties are supported by the dialect.
+     * 
+     * @throws PropertyValidationException if validation fails
+     */
     protected void validateSupportedPropertiesList() throws PropertyValidationException {
         final List<String> allProperties = new ArrayList<>(this.properties.keySet());
         for (final String property : allProperties) {
@@ -177,6 +197,13 @@ public abstract class AbstractSqlDialect implements SqlDialect {
         }
     }
 
+    /**
+     * Create an exception for an unsupported property.
+     * 
+     * @param unsupportedElement unsupported property name.
+     * @param property           unsupported property name
+     * @return exception
+     */
     protected String createUnsupportedElementMessage(final String unsupportedElement, final String property) {
         return ExaError.messageBuilder("E-VS-COM-JDBC-13")
                 .message("This dialect does not support {{unsupportedElement}} property.")
@@ -207,6 +234,12 @@ public abstract class AbstractSqlDialect implements SqlDialect {
         }
     }
 
+    /**
+     * Validate the input of a boolean property.
+     * 
+     * @param property property name
+     * @throws PropertyValidationException if validation fails
+     */
     protected void validateBooleanProperty(final String property) throws PropertyValidationException {
         if (this.properties.containsKey(property) //
                 && !BOOLEAN_PROPERTY_VALUE_PATTERN.matcher(this.properties.get(property)).matches()) {
@@ -273,6 +306,13 @@ public abstract class AbstractSqlDialect implements SqlDialect {
         }
     }
 
+    /**
+     * Check if the import properties make sense.
+     *
+     * @param importFromProperty import from property
+     * @param connectionProperty connection property
+     * @throws PropertyValidationException if check fails
+     */
     protected void checkImportPropertyConsistency(final String importFromProperty, final String connectionProperty)
             throws PropertyValidationException {
         final boolean isDirectImport = this.properties.isEnabled(importFromProperty);
@@ -297,6 +337,12 @@ public abstract class AbstractSqlDialect implements SqlDialect {
         }
     }
 
+    /**
+     * Validate the value of the castNumberToDecimalProperty.
+     * 
+     * @param castNumberToDecimalProperty property name
+     * @throws PropertyValidationException if validation fails
+     */
     protected void validateCastNumberToDecimalProperty(final String castNumberToDecimalProperty)
             throws PropertyValidationException {
         if (this.properties.containsKey(castNumberToDecimalProperty)) {

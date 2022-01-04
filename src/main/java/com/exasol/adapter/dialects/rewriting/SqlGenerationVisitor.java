@@ -2,9 +2,7 @@ package com.exasol.adapter.dialects.rewriting;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import com.exasol.adapter.AdapterException;
 import com.exasol.adapter.adapternotes.ColumnAdapterNotesJsonConverter;
@@ -54,12 +52,19 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String>, SqlGenerato
         return sqlNode.accept(this);
     }
 
+    /**
+     * Get the SQL dialect.
+     * 
+     * @return SQL dialect.
+     */
     protected SqlDialect getDialect() {
         return this.dialect;
     }
 
+    /**
+     * Check if dialect provided invalid aliases, which would never be applied.
+     */
     protected void checkDialectAliases() {
-        // Check if dialect provided invalid aliases, which would never be applied.
         for (final ScalarFunction function : this.dialect.getScalarFunctionAliases().keySet()) {
             if (!function.isSimple()) {
                 throw new UnsupportedOperationException(ExaError.messageBuilder("E-VS-COM-JDBC-9")
@@ -80,6 +85,12 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String>, SqlGenerato
         }
     }
 
+    /**
+     * Check if a column is directly in the select list.
+     * 
+     * @param column column name
+     * @return {@code true} if the column is directly in the select list of a query
+     */
     protected boolean isDirectlyInSelectList(final SqlColumn column) {
         return column.hasParent() && (column.getParent().getType() == SqlNodeType.SELECT_LIST);
     }
@@ -648,10 +659,16 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String>, SqlGenerato
         return "(" + predicate.getExpression().accept(this) + ") IS NOT NULL";
     }
 
+    /**
+     * Get the type name for a column
+     * 
+     * @param column column
+     * @return type name
+     * @throws AdapterException if something goes wrong
+     */
     protected String getTypeNameFromColumn(final SqlColumn column) throws AdapterException {
         final ColumnAdapterNotesJsonConverter converter = ColumnAdapterNotesJsonConverter.getInstance();
         return converter.convertFromJsonToColumnAdapterNotes(column.getMetadata().getAdapterNotes(), column.getName())
                 .getTypeName();
     }
-
 }

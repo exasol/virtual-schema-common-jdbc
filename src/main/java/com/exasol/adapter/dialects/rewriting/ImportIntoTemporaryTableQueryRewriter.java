@@ -14,6 +14,7 @@ import com.exasol.adapter.jdbc.*;
  */
 public class ImportIntoTemporaryTableQueryRewriter extends AbstractQueryRewriter {
     private static final Logger LOGGER = Logger.getLogger(ImportIntoTemporaryTableQueryRewriter.class.getName());
+    /** JDBC connection factory */
     protected final ConnectionFactory connectionFactory;
 
     /**

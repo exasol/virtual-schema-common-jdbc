@@ -20,6 +20,12 @@ public final class RemoteConnectionFactory implements ConnectionFactory {
     private final AdapterProperties properties;
     private Connection cachedConnection = null;
 
+    /**
+     * Create a new instance of {@link RemoteConnectionFactory}.
+     * 
+     * @param exaMetadata exasol metadata
+     * @param properties  adapter properties
+     */
     public RemoteConnectionFactory(final ExaMetadata exaMetadata, final AdapterProperties properties) {
         this.exaMetadata = exaMetadata;
         this.properties = properties;
@@ -85,6 +91,13 @@ public final class RemoteConnectionFactory implements ConnectionFactory {
                 () -> "Connecting to \"" + address + "\" as user \"" + username + "\" using Kerberos authentication.");
     }
 
+    /**
+     * Log details about the remote database.
+     * 
+     * @param connection     connection to the database
+     * @param connectionTime connection timeout
+     * @throws SQLException if connection fails
+     */
     protected void logRemoteDatabaseDetails(final Connection connection, final long connectionTime)
             throws SQLException {
         final String databaseProductName = connection.getMetaData().getDatabaseProductName();
@@ -102,6 +115,12 @@ public final class RemoteConnectionFactory implements ConnectionFactory {
         return connection;
     }
 
+    /**
+     * Log an attempt to connect to a remote database.
+     * 
+     * @param address  database address
+     * @param username username
+     */
     protected void logConnectionAttempt(final String address, final String username) {
         LOGGER.fine(
                 () -> "Connecting to \"" + address + "\" as user \"" + username + "\" using password authentication.");

@@ -24,16 +24,27 @@ import com.exasol.errorreporting.ExaError;
  * information.
  */
 public class BaseColumnMetadataReader extends AbstractMetadataReader implements ColumnMetadataReader {
+    /** Logger */
     public static final Logger LOGGER = Logger.getLogger(BaseColumnMetadataReader.class.getName());
+    /** Key for column name */
     public static final String NAME_COLUMN = "COLUMN_NAME";
+    /** Key for data type */
     public static final String DATA_TYPE_COLUMN = "DATA_TYPE";
+    /** Key for column size */
     public static final String SIZE_COLUMN = "COLUMN_SIZE";
+    /** Key for decimal digits */
     public static final String SCALE_COLUMN = "DECIMAL_DIGITS";
+    /** Key for char octet length */
     public static final String CHAR_OCTET_LENGTH_COLUMN = "CHAR_OCTET_LENGTH";
+    /** Key for type name */
     public static final String TYPE_NAME_COLUMN = "TYPE_NAME";
+    /** Key for the comment */
     public static final String REMARKS_COLUMN = "REMARKS";
+    /** Key for the default value */
     public static final String DEFAULT_VALUE_COLUMN = "COLUMN_DEF";
+    /** Key for autoincrement */
     public static final String AUTOINCREMENT_COLUMN = "IS_AUTOINCREMENT";
+    /** Key for is nullable */
     public static final String NULLABLE_COLUMN = "IS_NULLABLE";
     private static final boolean DEFAULT_NULLABLE = true;
     private final IdentifierConverter identifierConverter;
@@ -62,6 +73,14 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
         return mapColumns(getCatalogNameFilter(), getSchemaNameFilter(), tableName);
     }
 
+    /**
+     * Read the columns metadata from a result set.
+     * 
+     * @param catalogName catalog name
+     * @param schemaName  schema name
+     * @param tableName   table name
+     * @return list with column metadata
+     */
     protected List<ColumnMetadata> mapColumns(final String catalogName, final String schemaName,
             final String tableName) {
         try (final ResultSet remoteColumns = this.connection.getMetaData().getColumns(catalogName, schemaName,
@@ -74,6 +93,13 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
         }
     }
 
+    /**
+     * Read the columns result set.
+     * 
+     * @param remoteColumns column result set.
+     * @return list of column metadata
+     * @throws SQLException if read fails
+     */
     protected List<ColumnMetadata> getColumnsFromResultSet(final ResultSet remoteColumns) throws SQLException {
         final List<ColumnMetadata> columns = new ArrayList<>();
         while (remoteColumns.next()) {
@@ -82,6 +108,13 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
         return columns;
     }
 
+    /**
+     * Read the column metadata from result set if supported. Otherwise, skip.
+     * 
+     * @param remoteColumns column result set
+     * @param columns       list to append column to
+     * @throws SQLException if read fails
+     */
     public void mapOrSkipColumn(final ResultSet remoteColumns, final List<ColumnMetadata> columns) throws SQLException {
         final ColumnMetadata metadata = mapColumn(remoteColumns);
         if (metadata.getType().isSupported()) {
@@ -115,6 +148,13 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
                 .build();
     }
 
+    /**
+     * Read the JDBC type description of a column.
+     * 
+     * @param remoteColumn result set column
+     * @return JDBC type description
+     * @throws SQLException if read fails
+     */
     public JDBCTypeDescription readJdbcTypeDescription(final ResultSet remoteColumn) throws SQLException {
         final int jdbcType = readJdbcDataType(remoteColumn);
         final int decimalScale = readScale(remoteColumn);
@@ -144,6 +184,13 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
         return remoteColumn.getString(TYPE_NAME_COLUMN);
     }
 
+    /**
+     * Check if a column a nullable.
+     * 
+     * @param remoteColumn column result set
+     * @param columnName   column name
+     * @return {@code true} if remote column is nullable
+     */
     protected boolean isRemoteColumnNullable(final ResultSet remoteColumn, final String columnName) {
         try {
             return !JDBC_FALSE.equalsIgnoreCase(remoteColumn.getString(NULLABLE_COLUMN));
@@ -207,6 +254,13 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
         return (columnTypeName == null) ? "" : columnTypeName;
     }
 
+    /**
+     * Read the column name form result set.
+     * 
+     * @param columns column result set
+     * @return column name
+     * @throws SQLException if read fails
+     */
     protected String readColumnName(final ResultSet columns) throws SQLException {
         return this.identifierConverter.convert(columns.getString(NAME_COLUMN));
     }
@@ -276,6 +330,13 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
         }
     }
 
+    /**
+     * Build a data type for a decimal value.
+     * 
+     * @param jdbcPrecision precision
+     * @param scale         scale
+     * @return built data type
+     */
     protected DataType convertDecimal(final int jdbcPrecision, final int scale) {
         if (jdbcPrecision <= DataType.MAX_EXASOL_DECIMAL_PRECISION) {
             return DataType.createDecimal(jdbcPrecision, scale);
@@ -311,6 +372,12 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
         }
     }
 
+    /**
+     * Convert the column name.
+     * 
+     * @param columnName column name
+     * @return column name
+     */
     protected String mapColumnName(final String columnName) {
         return columnName;
     }
@@ -335,6 +402,12 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
         }
     }
 
+    /**
+     * Parse a number type property.
+     * 
+     * @param property formatted string: {@code <precision>.<scale>}
+     * @return data type
+     */
     protected DataType getNumberTypeFromProperty(final String property) {
         final Pattern pattern = Pattern.compile("\\s*(\\d+)\\s*,\\s*(\\d+)\\s*");
         final String precisionAndScale = this.properties.get(property);

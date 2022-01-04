@@ -16,9 +16,13 @@ import com.exasol.errorreporting.ExaError;
  *      <code>IMPORT</code> (Exasol online documentation)</a>
  */
 public class KerberosConfigurationCreator {
+    /** useSubjectCredsOnly property */
     public static final String USE_SUBJECT_CREDENTIALS_ONLY_PROPERTY = "javax.security.auth.useSubjectCredsOnly";
+    /** Kerberos config property */
     public static final String KERBEROS_CONFIG_PROPERTY = "java.security.krb5.conf";
+    /** Login config property */
     public static final String LOGIN_CONFIG_PROPERTY = "java.security.auth.login.config";
+    /** Kerberos authentication preamble */
     public static final String KERBEROS_AUTHENTICATION_PREAMBLE = "ExaAuthType=Kerberos";
     private static final Logger LOGGER = Logger.getLogger(KerberosConfigurationCreator.class.getName());
 

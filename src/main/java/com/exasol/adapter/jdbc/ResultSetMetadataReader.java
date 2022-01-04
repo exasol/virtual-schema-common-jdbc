@@ -112,6 +112,14 @@ public class ResultSetMetadataReader {
         }
     }
 
+    /**
+     * Get the jdbc type description from result set metadata.
+     * 
+     * @param metadata     result set metadata
+     * @param columnNumber column number to read
+     * @return JDBC type description
+     * @throws SQLException if reading fails
+     */
     protected static JDBCTypeDescription getJdbcTypeDescription(final ResultSetMetaData metadata,
             final int columnNumber) throws SQLException {
         final int jdbcType = metadata.getColumnType(columnNumber);
