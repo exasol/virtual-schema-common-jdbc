@@ -21,6 +21,7 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
     private static final Logger LOGGER = Logger.getLogger(BaseTableMetadataReader.class.getName());
     private static final Pattern UNQUOTED_IDENTIFIER_PATTERN = Pattern.compile("^[a-z][0-9a-z_]*");
     private static final int DEFAULT_MAX_MAPPED_TABLE_LIST_SIZE = 1000;
+    /** Column metadata reader */
     protected ColumnMetadataReader columnMetadataReader;
     private final IdentifierConverter identifierConverter;
 
@@ -77,6 +78,13 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
         return Optional.empty();
     }
 
+    /**
+     * Read the table name from a result set.
+     * 
+     * @param remoteTables result set
+     * @return table name
+     * @throws SQLException if something goes wrong
+     */
     protected String readTableName(final ResultSet remoteTables) throws SQLException {
         return remoteTables.getString(NAME_COLUMN);
     }
@@ -93,6 +101,14 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
         }
     }
 
+    /**
+     * Read the table metadata from a result set.
+     * 
+     * @param table     result set
+     * @param tableName table to read (name)
+     * @return table metadata
+     * @throws SQLException if reading fails
+     */
     protected TableMetadata mapTable(final ResultSet table, final String tableName) throws SQLException {
         final String comment = Optional.ofNullable(readComment(table)).orElse("");
         final List<ColumnMetadata> columns = this.columnMetadataReader.mapColumns(tableName);
@@ -103,10 +119,23 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
         return this.identifierConverter.convert(tableName);
     }
 
+    /**
+     * Read the comment from a result set.
+     *
+     * @param remoteTables result set
+     * @return comment
+     * @throws SQLException if something goes wrong
+     */
     protected String readComment(final ResultSet remoteTables) throws SQLException {
         return remoteTables.getString(REMARKS_COLUMN);
     }
 
+    /**
+     * Check if a table has columns.
+     * 
+     * @param tableMetadata table metadata
+     * @return {@code true} if table has columns
+     */
     protected boolean tableHasColumns(final TableMetadata tableMetadata) {
         return !tableMetadata.getColumns().isEmpty();
     }
@@ -121,6 +150,13 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
         }
     }
 
+    /**
+     * Check if a table is supported.
+     * 
+     * @param filteredTables filtered tables
+     * @param tableName      table to check
+     * @return {@code true} if table is supported
+     */
     protected boolean isTableSupported(final List<String> filteredTables, final String tableName) {
         if (isTableIncludedByMapping(tableName)) {
             return isFilteredTable(filteredTables, tableName);
@@ -135,6 +171,11 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
         return true;
     }
 
+    /**
+     * Log the skipping of an unsupported table.
+     * 
+     * @param tableName table name
+     */
     protected void logSkippingUnsupportedTable(final String tableName) {
         LOGGER.fine(() -> "Skipping unsupported table \"" + tableName + "\" when mapping remote metadata.");
     }
@@ -153,20 +194,44 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
         return this.isFiltered(tableName, this.properties.getFilteredTables());
     }
 
+    /**
+     * Check if a given table is filtered.
+     * 
+     * @param tableName      table to check
+     * @param filteredTables list of filtered tables
+     * @return {@code true} if the table is filtered
+     */
     private boolean isFiltered(final String tableName, final List<String> filteredTables) {
         return includeAllTables(filteredTables) || filteredTables.contains(tableName);
     }
 
+    /**
+     * Check if no tables are filtered.
+     * 
+     * @param filteredTables filtered tables
+     * @return {@code true} if no filter is applied
+     */
     protected boolean includeAllTables(final List<String> filteredTables) {
         return (filteredTables == null) || filteredTables.isEmpty();
     }
 
+    /**
+     * Log the skipping of a table with no columns.
+     * 
+     * @param tableName table name
+     */
     protected void logSkippingTableWithEmptyColumns(final String tableName) {
         LOGGER.fine(() -> "Not mapping table \"" + tableName + "\" because it has no columns."
                 + " This can happen if the view containing the columns is invalid"
                 + " or if the Virtual Schema adapter does not support mapping the column types.");
     }
 
+    /**
+     * Check if an identifier is unquoted.
+     * 
+     * @param identifier identifier to check
+     * @return {@code true} if it's unquoted
+     */
     protected boolean isUnquotedIdentifier(final String identifier) {
         return UNQUOTED_IDENTIFIER_PATTERN.matcher(identifier).matches();
     }

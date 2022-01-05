@@ -19,8 +19,11 @@ import com.exasol.errorreporting.ExaError;
  */
 public abstract class AbstractRemoteMetadataReader extends AbstractMetadataReader implements RemoteMetadataReader {
     private static final Logger LOGGER = Logger.getLogger(AbstractRemoteMetadataReader.class.getName());
+    /** Column metadata reader */
     protected final ColumnMetadataReader columnMetadataReader;
+    /** Table metadata reader */
     protected final TableMetadataReader tableMetadataReader;
+    /** Identifier converter */
     protected final IdentifierConverter identifierConverter;
 
     /**
@@ -135,6 +138,11 @@ public abstract class AbstractRemoteMetadataReader extends AbstractMetadataReade
         }
     }
 
+    /**
+     * Get the table type filter.
+     * 
+     * @return supported table types
+     */
     protected String[] getTableTypeFilter() {
         final Set<String> supportedTableTypes = getSupportedTableTypes();
         return ((supportedTableTypes == null) || supportedTableTypes.isEmpty()) //
@@ -147,6 +155,12 @@ public abstract class AbstractRemoteMetadataReader extends AbstractMetadataReade
         return RemoteMetadataReaderConstants.DEFAULT_SUPPORTED_TABLE_TYPES;
     }
 
+    /**
+     * Log the tables scanning.
+     * 
+     * @param catalogName catalog name
+     * @param schemaName  schema name
+     */
     protected void logTablesScan(final String catalogName, final String schemaName) {
         LOGGER.fine(() -> {
             final StringBuilder builder = new StringBuilder("Scanning ");

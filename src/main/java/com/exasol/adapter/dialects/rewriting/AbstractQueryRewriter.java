@@ -17,8 +17,11 @@ import com.exasol.errorreporting.ExaError;
  */
 public abstract class AbstractQueryRewriter implements QueryRewriter {
     private static final Logger LOGGER = Logger.getLogger(AbstractQueryRewriter.class.getName());
+    /** Dialect implementation */
     protected final SqlDialect dialect;
+    /** Remote metadata reader */
     protected final RemoteMetadataReader remoteMetadataReader;
+    /** Connection definition builder */
     protected final ConnectionDefinitionBuilder connectionDefinitionBuilder;
 
     /**
@@ -58,6 +61,14 @@ public abstract class AbstractQueryRewriter implements QueryRewriter {
         return pushdownQuery;
     }
 
+    /**
+     * Read the connection information from the metadata.
+     * 
+     * @param exaMetadata metadata
+     * @param properties  adapter properties
+     * @return connection information
+     * @throws AdapterException if access fails
+     */
     protected ExaConnectionInformation getConnectionInformation(final ExaMetadata exaMetadata,
             final AdapterProperties properties) throws AdapterException {
         if (properties.hasConnectionName()) {

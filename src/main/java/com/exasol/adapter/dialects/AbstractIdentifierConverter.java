@@ -7,7 +7,9 @@ import java.util.logging.Logger;
  */
 public abstract class AbstractIdentifierConverter implements IdentifierConverter {
     private static final Logger LOGGER = Logger.getLogger(AbstractIdentifierConverter.class.getName());
+    /** Strategy for handling unquoted identifiers. */
     protected final IdentifierCaseHandling unquotedIdentifierHandling;
+    /** Strategy for handling quoted identifiers. */
     protected final IdentifierCaseHandling quotedIdentifierHandling;
 
     /**

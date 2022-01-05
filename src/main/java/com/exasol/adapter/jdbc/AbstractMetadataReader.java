@@ -12,7 +12,9 @@ import com.exasol.adapter.AdapterProperties;
  * @see BaseColumnMetadataReader
  */
 public abstract class AbstractMetadataReader implements MetadataReader {
+    /** Adapter properties */
     protected final AdapterProperties properties;
+    /** Connection */
     protected final Connection connection;
 
     /**

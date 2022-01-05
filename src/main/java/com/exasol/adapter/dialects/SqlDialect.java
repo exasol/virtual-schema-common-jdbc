@@ -40,28 +40,30 @@ public interface SqlDialect {
 
     /**
      * Multiplicity that the remote data source supports for a structural element like catalogs or a schemas.
-     * <dl>
-     * <dt><code>NONE</code></dt>
-     * <dd>database does not support the structural element</dd>
-     * <dt><code>SINGLE</code></dt>
-     * <dd>database uses a single (pseudo) structural element</dd>
-     * <dt><code>MULTIPLE</code></dt>
-     * <dd>database truly supports this element with multiple possible entries</dd>
-     * <dt><code>AUTO_DETECT</code></dt>
-     * <dd>dialect auto-detects support for this element</dd>
-     * </dl>
+     * <p>
      * Dialects that support a single database should not use <code>AUTO_DETECT</code> because this unnecessarily costs
      * performance.
+     * </p>
      */
     public enum StructureElementSupport {
-        NONE, SINGLE, MULTIPLE, AUTO_DETECT
+        /** Database does not support the structural element */
+        NONE,
+        /** Database uses a single (pseudo) structural element */
+        SINGLE,
+        /** Database truly supports this element with multiple possible entries */
+        MULTIPLE,
+        /** Dialect auto-detects support for this element */
+        AUTO_DETECT
     }
 
     /**
      * This enumeration specifies different exception handling strategies.
      */
     public enum ExceptionHandlingMode {
-        IGNORE_INVALID_VIEWS, NONE
+        /** Ignore invalid views */
+        IGNORE_INVALID_VIEWS,
+        /** None */
+        NONE
     }
 
     /**
@@ -128,25 +130,29 @@ public interface SqlDialect {
     public String getTableCatalogAndSchemaSeparator();
 
     /**
-     * Definition of where <code>NULL</code> values appear in a search result.
-     *
-     * <dl>
-     * <dt><code>NULLS_SORTED_AT_END</code></dt>
-     * <dd>Independently of the actual search order <code>NULL</code> values always appear at the <em>end</em> of the
-     * result set</dd>
-     * <dt><code>NULLS_SORTED_AT_START</code></dt>
-     * <dd>Independently of the actual search order <code>NULL</code> values always appear at the <em>start</em> of the
-     * result set
-     * <dt><code>NULLS_SORTED_HIGH</code></dt>
-     * <dd><code>NULL</code> values appear at the start of the result set when sorted in descending order, and at the
-     * end when sorted ascending</dd>
-     * <dt><code>NULLS_SORTED_LOW</code></dt>
-     * <dd><code>NULL</code>values appear at the end of the result set when sorted in descending order, and at the start
-     * when sorted ascending</dd>
-     * </dl>
+     * Strategies for sorting {@code NULL} values.
      */
     public enum NullSorting {
-        NULLS_SORTED_AT_END, NULLS_SORTED_AT_START, NULLS_SORTED_HIGH, NULLS_SORTED_LOW
+        /**
+         * Independently of the actual search order <code>NULL</code> values always appear at the <em>end</em> of the
+         * result set
+         */
+        NULLS_SORTED_AT_END,
+        /**
+         * Independently of the actual search order <code>NULL</code> values always appear at the <em>start</em> of the
+         * result set
+         */
+        NULLS_SORTED_AT_START,
+        /**
+         * <code>NULL</code> values appear at the start of the result set when sorted in descending order, and at the
+         * end when sorted ascending
+         */
+        NULLS_SORTED_HIGH,
+        /**
+         * <code>NULL</code>values appear at the end of the result set when sorted in descending order, and at the start
+         * when sorted ascending
+         */
+        NULLS_SORTED_LOW
     }
 
     /**
