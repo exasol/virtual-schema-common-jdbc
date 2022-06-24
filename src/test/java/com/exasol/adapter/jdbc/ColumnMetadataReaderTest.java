@@ -391,7 +391,7 @@ class ColumnMetadataReaderTest {
         final BaseColumnMetadataReader defaultColumnMetadataReader = createDefaultColumnMetadataReader();
         final RemoteMetadataReaderException exception = assertThrows(RemoteMetadataReaderException.class,
                 () -> defaultColumnMetadataReader.mapColumns(""));
-        assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-1"));
+        assertThat(exception.getMessage(), containsString("E-VSCJDBC-1"));
 
     }
 

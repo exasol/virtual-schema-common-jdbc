@@ -111,6 +111,6 @@ class BaseColumnMetadataReaderTest {
                         IdentifierCaseHandling.INTERPRET_AS_UPPER, IdentifierCaseHandling.INTERPRET_CASE_SENSITIVE));
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> reader.getNumberTypeFromProperty("SOME_PROPERTY"));
-        assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-2"));
+        assertThat(exception.getMessage(), containsString("E-VSCJDBC-2"));
     }
 }

@@ -44,7 +44,7 @@ public final class RemoteConnectionFactory implements ConnectionFactory {
             if ((connectionName != null) && !connectionName.isEmpty()) {
                 this.cachedConnection = createConnection(connectionName, this.exaMetadata);
             } else {
-                throw new RemoteConnectionException(ExaError.messageBuilder("E-VS-COM-JDBC-28")
+                throw new RemoteConnectionException(ExaError.messageBuilder("E-VSCJDBC-28")
                         .message("{{connectionNameProperty}} property is missing or empty.")
                         .parameter("connectionNameProperty", CONNECTION_NAME_PROPERTY)
                         .mitigation("Please, check the property and try to connect again.").toString());
@@ -66,7 +66,7 @@ public final class RemoteConnectionFactory implements ConnectionFactory {
                 return establishConnectionWithRegularCredentials(password, username, address);
             }
         } catch (final ExaConnectionAccessException exception) {
-            throw new RemoteConnectionException(ExaError.messageBuilder("E-VS-COM-JDBC-29")
+            throw new RemoteConnectionException(ExaError.messageBuilder("E-VSCJDBC-29")
                     .message("Could not access the connection information of connection {{connectionName}}.")
                     .parameter("connectionName", connectionName).toString(), exception);
         }

@@ -1,5 +1,5 @@
 error-tags:
-  VS-COM-JDBC:
+  VSCJDBC:
     packages:
       - com.exasol
     highest-index: 40

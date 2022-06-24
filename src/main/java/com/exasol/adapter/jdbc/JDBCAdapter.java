@@ -44,7 +44,7 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
             final SchemaMetadata remoteMeta = readMetadata(properties, exasolMetadata);
             return CreateVirtualSchemaResponse.builder().schemaMetadata(remoteMeta).build();
         } catch (final SQLException exception) {
-            throw new AdapterException(ExaError.messageBuilder("E-VS-COM-JDBC-25")
+            throw new AdapterException(ExaError.messageBuilder("E-VSCJDBC-25")
                     .message("Unable create Virtual Schema \"{{virtualSchemaName|uq}}\". Cause: {{cause|uq}}",
                             request.getVirtualSchemaName(), exception.getMessage())
                     .toString(), exception);
@@ -102,7 +102,7 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
             final SchemaMetadata remoteMetadata = this.getRemoteMetadata(metadata, request);
             return RefreshResponse.builder().schemaMetadata(remoteMetadata).build();
         } catch (final SQLException | PropertyValidationException exception) {
-            throw new AdapterException(ExaError.messageBuilder("E-VS-COM-JDBC-26").message(
+            throw new AdapterException(ExaError.messageBuilder("E-VSCJDBC-26").message(
                     "Unable refresh metadata of Virtual Schema \"{{virtualSchemaName|uq}}\". Cause: {{cause|uq}}",
                     request.getSchemaMetadataInfo().getSchemaName(), exception.getMessage()).toString(), exception);
         }
@@ -243,7 +243,7 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
             final String importFromPushdownQuery = dialect.rewriteQuery(request.getSelect(), exaMetadata);
             return PushDownResponse.builder().pushDownSql(importFromPushdownQuery).build();
         } catch (final SQLException exception) {
-            throw new AdapterException(ExaError.messageBuilder("E-VS-COM-JDBC-27")
+            throw new AdapterException(ExaError.messageBuilder("E-VSCJDBC-27")
                     .message("Unable to execute push-down request. Cause: {{cause|uq}}", exception.getMessage())
                     .toString(), exception);
         }

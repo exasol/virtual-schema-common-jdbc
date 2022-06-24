@@ -111,7 +111,7 @@ class BaseTableMetadataReaderTest {
         final TableMetadataReader metadataReader = createDefaultTableMetadataReader();
         final RemoteMetadataReaderException exception = assertThrows(RemoteMetadataReaderException.class,
                 () -> metadataReader.mapTables(resultSetMock, Collections.emptyList()));
-        assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-24"));
+        assertThat(exception.getMessage(), containsString("E-VSCJDBC-24"));
     }
 
     @Test

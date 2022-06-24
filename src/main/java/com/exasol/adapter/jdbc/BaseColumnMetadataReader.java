@@ -87,7 +87,7 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
                 tableName, ANY_COLUMN)) {
             return getColumnsFromResultSet(remoteColumns);
         } catch (final SQLException exception) {
-            throw new RemoteMetadataReaderException(ExaError.messageBuilder("E-VS-COM-JDBC-1").message(
+            throw new RemoteMetadataReaderException(ExaError.messageBuilder("E-VSCJDBC-1").message(
                     "Unable to read column metadata from remote for catalog \"{{catalogName|uq}}\" and schema \"{{schemaName|uq}}\"",
                     schemaName, catalogName).toString(), exception);
         }
@@ -195,11 +195,11 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
         try {
             return !JDBC_FALSE.equalsIgnoreCase(remoteColumn.getString(NULLABLE_COLUMN));
         } catch (final SQLException exception) {
-            LOGGER.warning(() -> ExaError.messageBuilder("W-VS-COM-JDBC-20").message(
+            LOGGER.warning(() -> ExaError.messageBuilder("W-VSCJDBC-20").message(
                     "Caught an SQL exception trying to determine whether column \"{{columnName|uq}}\" is nullable: "
                             + "{{exceptionMessage|uq}}",
                     columnName, exception.getMessage()).toString());
-            LOGGER.warning(() -> ExaError.messageBuilder("W-VS-COM-JDBC-38")
+            LOGGER.warning(() -> ExaError.messageBuilder("W-VSCJDBC-38")
                     .message("Assuming column \"{{columnName|uq}}\" to be nullable.", columnName).toString());
             return DEFAULT_NULLABLE;
         }
@@ -210,13 +210,13 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
             final String identity = remoteColumn.getString(AUTOINCREMENT_COLUMN);
             return JDBC_TRUE.equalsIgnoreCase(identity);
         } catch (final SQLException exception) {
-            LOGGER.warning(() -> ExaError.messageBuilder("W-VS-COM-JDBC-37")
+            LOGGER.warning(() -> ExaError.messageBuilder("W-VSCJDBC-37")
                     .message(
                             "Caught an SQL exception trying to determine whether column \"{{columnName|uq}}\" is "
                                     + "an auto-increment column: {{exceptionMessage|uq}}",
                             columnName, exception.getMessage())
                     .toString());
-            LOGGER.warning(() -> ExaError.messageBuilder("W-VS-COM-JDBC-36")
+            LOGGER.warning(() -> ExaError.messageBuilder("W-VSCJDBC-36")
                     .message("Assuming  that column \"{{columnName|uq}}\" is not incremented automatically.",
                             columnName)
                     .toString());
@@ -417,7 +417,7 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
             final int scale = Integer.parseInt(matcher.group(2));
             return DataType.createDecimal(precision, scale);
         } else {
-            throw new IllegalArgumentException(ExaError.messageBuilder("E-VS-COM-JDBC-2").message(
+            throw new IllegalArgumentException(ExaError.messageBuilder("E-VSCJDBC-2").message(
                     "Unable to parse adapter property {{property|uq}} value {{precisionAndScale}} into a number precision "
                             + "and scale. The required format is '<precision>.<scale>', where both are integer numbers.",
                     property, precisionAndScale).toString());

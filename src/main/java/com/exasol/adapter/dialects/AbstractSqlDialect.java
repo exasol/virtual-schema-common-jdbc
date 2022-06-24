@@ -205,7 +205,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
      * @return exception
      */
     protected String createUnsupportedElementMessage(final String unsupportedElement, final String property) {
-        return ExaError.messageBuilder("E-VS-COM-JDBC-13")
+        return ExaError.messageBuilder("E-VSCJDBC-13")
                 .message("This dialect does not support {{unsupportedElement}} property.")
                 .parameter("unsupportedElement", unsupportedElement)
                 .mitigation(" Please, do not set the {{property}} property.") //
@@ -214,7 +214,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
 
     private void validateConnectionNameProperty() throws PropertyValidationException {
         if (!this.properties.hasConnectionName()) {
-            throw new PropertyValidationException(ExaError.messageBuilder("E-VS-COM-JDBC-14")
+            throw new PropertyValidationException(ExaError.messageBuilder("E-VSCJDBC-14")
                     .message("Please specify a connection using the property {{connectionNameProperty}}.")
                     .parameter("connectionNameProperty", CONNECTION_NAME_PROPERTY).toString());
         }
@@ -243,7 +243,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
     protected void validateBooleanProperty(final String property) throws PropertyValidationException {
         if (this.properties.containsKey(property) //
                 && !BOOLEAN_PROPERTY_VALUE_PATTERN.matcher(this.properties.get(property)).matches()) {
-            throw new PropertyValidationException(ExaError.messageBuilder("E-VS-COM-JDBC-15")
+            throw new PropertyValidationException(ExaError.messageBuilder("E-VSCJDBC-15")
                     .message("The value {{value}} for the property {{property}} is invalid. "
                             + "It has to be either 'true' or 'false' (case insensitive).")
                     .parameter("value", this.properties.get(property)) //
@@ -270,14 +270,14 @@ public abstract class AbstractSqlDialect implements SqlDialect {
             try {
                 final int port = Integer.parseInt(portAsString);
                 if ((port < 1) || (port > 65535)) {
-                    LOGGER.warning(() -> ExaError.messageBuilder("W-VS-COM-JDBC-40")
+                    LOGGER.warning(() -> ExaError.messageBuilder("W-VSCJDBC-40")
                             .message("Debug output port {{port|uq}} is out of range.", port) //
                             .mitigation("Port specified in property {{debugAddressProperty}} must have "
                                     + "the following format: <host>[:<port>], and be between 1 and 65535.")
                             .parameter("debugAddressProperty", DEBUG_ADDRESS_PROPERTY).toString());
                 }
             } catch (final NumberFormatException ex) {
-                LOGGER.warning(() -> ExaError.messageBuilder("W-VS-COM-JDBC-39").message(
+                LOGGER.warning(() -> ExaError.messageBuilder("W-VSCJDBC-39").message(
                         "Illegal debug output port {{portAsString}}. Property {{debugAddressProperty}} must have "
                                 + "the following format: <host>[:<port>], where port is a number between 1 and 65535.")
                         .parameter("debugAddressProperty", DEBUG_ADDRESS_PROPERTY)
@@ -292,7 +292,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
             if (!((exceptionHandling == null) || exceptionHandling.isEmpty())) {
                 for (final SqlDialect.ExceptionHandlingMode mode : SqlDialect.ExceptionHandlingMode.values()) {
                     if (!mode.name().equals(exceptionHandling)) {
-                        throw new PropertyValidationException(ExaError.messageBuilder("E-VS-COM-JDBC-16").message(
+                        throw new PropertyValidationException(ExaError.messageBuilder("E-VSCJDBC-16").message(
                                 "Invalid value {{exceptionHandlingValue}} for property {{exceptionHandlingProperty}}.")
                                 .parameter("exceptionHandlingValue", exceptionHandling)
                                 .parameter("exceptionHandlingProperty", EXCEPTION_HANDLING_PROPERTY)
@@ -320,7 +320,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
         final boolean connectionIsEmpty = ((value == null) || value.isEmpty());
         if (isDirectImport) {
             if (connectionIsEmpty) {
-                throw new PropertyValidationException(ExaError.messageBuilder("E-VS-COM-JDBC-17")
+                throw new PropertyValidationException(ExaError.messageBuilder("E-VSCJDBC-17")
                         .message("You defined the property {{importFromProperty}}.")
                         .parameter("importFromProperty", importFromProperty)
                         .mitigation("Please also define {{connectionProperty}}.")
@@ -328,7 +328,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
             }
         } else {
             if (!connectionIsEmpty) {
-                throw new PropertyValidationException(ExaError.messageBuilder("E-VS-COM-JDBC-18")
+                throw new PropertyValidationException(ExaError.messageBuilder("E-VSCJDBC-18")
                         .message("You defined the property {{connectionProperty}} without setting "
                                 + "{{importFromProperty}} to 'TRUE'. This is not allowed")
                         .parameter("connectionProperty", connectionProperty)
@@ -350,7 +350,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
             final String precisionAndScale = this.properties.get(castNumberToDecimalProperty);
             final Matcher matcher = pattern.matcher(precisionAndScale);
             if (!matcher.matches()) {
-                throw new PropertyValidationException(ExaError.messageBuilder("E-VS-COM-JDBC-19").message(
+                throw new PropertyValidationException(ExaError.messageBuilder("E-VSCJDBC-19").message(
                         "Unable to parse adapter property {{propertyName}} value {{value}} into a number's precision "
                                 + "and scale. The required format is '<precision>,<scale>' where both are integer numbers.")
                         .parameter("propertyName", castNumberToDecimalProperty) //

@@ -46,7 +46,7 @@ class AbstractSqlDialectTest {
         final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
                 sqlDialect::validateProperties);
         assertThat(exception.getMessage(),
-                containsString("E-VS-COM-JDBC-14: Please specify a connection using the property '"
+                containsString("E-VSCJDBC-14: Please specify a connection using the property '"
                         + CONNECTION_NAME_PROPERTY + "'."));
     }
 
@@ -106,7 +106,7 @@ class AbstractSqlDialectTest {
         final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
                 sqlDialect::validateProperties);
         assertThat(exception.getMessage(),
-                containsString("E-VS-COM-JDBC-16: Invalid value 'IGNORE_ALL' for property 'EXCEPTION_HANDLING'. "
+                containsString("E-VSCJDBC-16: Invalid value 'IGNORE_ALL' for property 'EXCEPTION_HANDLING'. "
                         + "Choose one of: [IGNORE_INVALID_VIEWS, NONE]."));
     }
 
@@ -174,7 +174,7 @@ class AbstractSqlDialectTest {
         final SqlDialect sqlDialect = new DummySqlDialect(null, new AdapterProperties(this.rawProperties));
         final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
                 sqlDialect::validateProperties);
-        assertAll(() -> assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-13")),
+        assertAll(() -> assertThat(exception.getMessage(), containsString("E-VSCJDBC-13")),
                 () -> assertThat(exception.getMessage(), containsString("SOME_PROPERTY")));
     }
 
@@ -185,7 +185,7 @@ class AbstractSqlDialectTest {
         final SqlDialect sqlDialect = new DummySqlDialect(null, new AdapterProperties(this.rawProperties));
         final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
                 sqlDialect::validateProperties);
-        assertAll(() -> assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-13")),
+        assertAll(() -> assertThat(exception.getMessage(), containsString("E-VSCJDBC-13")),
                 () -> assertThat(exception.getMessage(), containsString(CATALOG_NAME_PROPERTY)));
     }
 
@@ -196,7 +196,7 @@ class AbstractSqlDialectTest {
         final SqlDialect sqlDialect = new DummySqlDialect(null, new AdapterProperties(this.rawProperties));
         final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
                 sqlDialect::validateProperties);
-        assertAll(() -> assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-13")),
+        assertAll(() -> assertThat(exception.getMessage(), containsString("E-VSCJDBC-13")),
                 () -> assertThat(exception.getMessage(), containsString(SCHEMA_NAME_PROPERTY)));
     }
 
@@ -206,7 +206,7 @@ class AbstractSqlDialectTest {
         final DummySqlDialect sqlDialect = new DummySqlDialect(null, new AdapterProperties(this.rawProperties));
         final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
                 () -> sqlDialect.validateBooleanProperty(IS_LOCAL_PROPERTY));
-        assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-15"));
+        assertThat(exception.getMessage(), containsString("E-VSCJDBC-15"));
     }
 
     @Test
@@ -216,7 +216,7 @@ class AbstractSqlDialectTest {
         final SqlDialect sqlDialect = new DummySqlDialect(null, new AdapterProperties(this.rawProperties));
         final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
                 sqlDialect::validateProperties);
-        assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-16"));
+        assertThat(exception.getMessage(), containsString("E-VSCJDBC-16"));
     }
 
     @Test
@@ -226,7 +226,7 @@ class AbstractSqlDialectTest {
         final DummySqlDialect sqlDialect = new DummySqlDialect(null, new AdapterProperties(this.rawProperties));
         final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
                 () -> sqlDialect.checkImportPropertyConsistency("SOME_PROPERTY", CONNECTION_NAME_PROPERTY));
-        assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-18"));
+        assertThat(exception.getMessage(), containsString("E-VSCJDBC-18"));
     }
 
     @Test
@@ -236,7 +236,7 @@ class AbstractSqlDialectTest {
         final DummySqlDialect sqlDialect = new DummySqlDialect(null, new AdapterProperties(this.rawProperties));
         final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
                 () -> sqlDialect.checkImportPropertyConsistency("SOME_PROPERTY", CONNECTION_NAME_PROPERTY));
-        assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-17"));
+        assertThat(exception.getMessage(), containsString("E-VSCJDBC-17"));
     }
 
     @Test
@@ -245,6 +245,6 @@ class AbstractSqlDialectTest {
         final DummySqlDialect sqlDialect = new DummySqlDialect(null, new AdapterProperties(this.rawProperties));
         final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
                 () -> sqlDialect.validateCastNumberToDecimalProperty("SOME_PROPERTY"));
-        assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-19"));
+        assertThat(exception.getMessage(), containsString("E-VSCJDBC-19"));
     }
 }

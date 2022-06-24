@@ -48,7 +48,7 @@ public class ResultSetMetadataReader {
             LOGGER.fine(() -> "Columns description: " + columnsDescription);
             return columnsDescription;
         } catch (final SQLException exception) {
-            throw new RemoteMetadataReaderException(ExaError.messageBuilder("E-VS-COM-JDBC-30").message(
+            throw new RemoteMetadataReaderException(ExaError.messageBuilder("E-VSCJDBC-30").message(
                     "Unable to read remote metadata for push-down query trying to generate result column description.")
                     .mitigation("Please, make sure that you provided valid CATALOG_NAME "
                             + "and SCHEMA_NAME properties if required. Caused by: {{cause}}")
@@ -66,7 +66,7 @@ public class ResultSetMetadataReader {
             ++column;
         }
         if (!illegalColumns.isEmpty()) {
-            throw new RemoteMetadataReaderException(ExaError.messageBuilder("E-VS-COM-JDBC-31")
+            throw new RemoteMetadataReaderException(ExaError.messageBuilder("E-VSCJDBC-31")
                     .message("Unsupported data type(s) in column(s) in query: {{unsupportedColumns|uq}}.",
                             illegalColumns.stream().map(String::valueOf).collect(Collectors.joining(", ")))
                     .mitigation("Please remove those columns from your query:\n{{query|uq}}", query)
@@ -104,7 +104,7 @@ public class ResultSetMetadataReader {
 
     private void validateMetadata(final ResultSetMetaData metadata) {
         if (metadata == null) {
-            throw new RemoteMetadataReaderException(ExaError.messageBuilder("F-VS-COM-JDBC-34") //
+            throw new RemoteMetadataReaderException(ExaError.messageBuilder("F-VSCJDBC-34") //
                     .message(
                             "Metadata is missing in the ResultSet. This can happen if the generated query was incorrect,"
                                     + " but the JDBC driver didn't throw an exception.")

@@ -27,7 +27,7 @@ class AbstractQueryRewriterTest {
         final AdapterException exception = assertThrows(AdapterException.class,
                 () -> dummyQueryRewriter.getConnectionInformation(exaMetadataMock,
                         new AdapterProperties(Map.of("CONNECTION_NAME", "my_connection"))));
-        assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-8"));
+        assertThat(exception.getMessage(), containsString("E-VSCJDBC-8"));
     }
 
     static class DummyQueryRewriter extends AbstractQueryRewriter {

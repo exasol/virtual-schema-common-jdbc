@@ -637,7 +637,7 @@ class SqlGenerationVisitorTest {
         final SqlFunctionScalar functionScalar = new SqlFunctionScalar(ScalarFunction.ADD, List.of());
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> sqlGenerationVisitor.visit(functionScalar));
-        assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-11"));
+        assertThat(exception.getMessage(), containsString("E-VSCJDBC-11"));
     }
 
     @Test
@@ -645,7 +645,7 @@ class SqlGenerationVisitorTest {
         final SqlFunctionScalar functionScalar = new SqlFunctionScalar(ScalarFunction.NEG, List.of());
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> sqlGenerationVisitor.visit(functionScalar));
-        assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-12"));
+        assertThat(exception.getMessage(), containsString("E-VSCJDBC-12"));
     }
 
     private static class TestDialect extends DummySqlDialect {
