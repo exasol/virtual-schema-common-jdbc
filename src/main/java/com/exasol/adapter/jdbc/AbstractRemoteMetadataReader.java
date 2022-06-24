@@ -107,7 +107,7 @@ public abstract class AbstractRemoteMetadataReader extends AbstractMetadataReade
         try {
             return this.getSchemaMetadata(selectedTables);
         } catch (final SQLException exception) {
-            throw new RemoteMetadataReaderException(ExaError.messageBuilder("E-VS-COM-JDBC-21")
+            throw new RemoteMetadataReaderException(ExaError.messageBuilder("E-VSCJDBC-21")
                     .message("Unable to read remote schema metadata. SQL error: {{exceptionMessage|uq}}",
                             exception.getMessage())
                     .toString(), exception);
@@ -206,7 +206,7 @@ public abstract class AbstractRemoteMetadataReader extends AbstractMetadataReade
                     .build();
         } catch (final SQLException exception) {
             throw new RemoteMetadataReaderException(
-                    ExaError.messageBuilder("E-VS-COM-JDBC-22")
+                    ExaError.messageBuilder("E-VSCJDBC-22")
                             .message("Unable to create schema adapter notes from remote schema.").toString(),
                     exception);
         }

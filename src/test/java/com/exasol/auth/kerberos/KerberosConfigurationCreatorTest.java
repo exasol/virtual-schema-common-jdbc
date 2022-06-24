@@ -104,6 +104,6 @@ class KerberosConfigurationCreatorTest {
         final KerberosConfigurationCreatorException exception = assertThrows(
                 KerberosConfigurationCreatorException.class,
                 () -> this.creator.writeKerberosConfigurationFiles("anyone", password));
-        assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-32"));
+        assertThat(exception.getMessage(), containsString("E-VSCJDBC-32"));
     }
 }

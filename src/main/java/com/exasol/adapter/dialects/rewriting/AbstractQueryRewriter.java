@@ -76,7 +76,7 @@ public abstract class AbstractQueryRewriter implements QueryRewriter {
             try {
                 return exaMetadata.getConnection(connectionName);
             } catch (final ExaConnectionAccessException exception) {
-                throw new AdapterException(ExaError.messageBuilder("E-VS-COM-JDBC-8").message(
+                throw new AdapterException(ExaError.messageBuilder("E-VSCJDBC-8").message(
                         "Unable to access information about the Exasol connection named {{connectionName}} trying to"
                                 + " create a connection definition for rewritten query.")
                         .parameter("connectionName", connectionName).toString(), exception);

@@ -51,21 +51,21 @@ class SchemaAdapterNotesJsonConverterTest {
     void testConvertFromJsonToSchemaAdapterNotesThrowsExceptionWhenEmptyAdapterNotesAreBzkk() {
         final AdapterException exception = assertThrows(AdapterException.class,
                 () -> this.converter.convertFromJsonToSchemaAdapterNotes(null, ""));
-        assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-5"));
+        assertThat(exception.getMessage(), containsString("E-VSCJDBC-5"));
     }
 
     @Test
     void testConvertFromJsonToSchemaAdapterNotesThrowsExceptionWithEmptyAdapterNotes() {
         final AdapterException exception = assertThrows(AdapterException.class,
                 () -> this.converter.convertFromJsonToSchemaAdapterNotes("", ""));
-        assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-5"));
+        assertThat(exception.getMessage(), containsString("E-VSCJDBC-5"));
     }
 
     @Test
     void testConvertFromJsonToSchemaAdapterNotesThrowsExceptionWithWrongAdapterNotes() {
         final AdapterException exception = assertThrows(AdapterException.class,
                 () -> this.converter.convertFromJsonToSchemaAdapterNotes("testNotes", ""));
-        assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-6"));
+        assertThat(exception.getMessage(), containsString("E-VSCJDBC-6"));
     }
 
     @Test
@@ -74,6 +74,6 @@ class SchemaAdapterNotesJsonConverterTest {
                 + "\"areNullsSortedLow\":false}";
         final AdapterException exception = assertThrows(AdapterException.class,
                 () -> this.converter.convertFromJsonToSchemaAdapterNotes(serializedString, ""));
-        assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-7"));
+        assertThat(exception.getMessage(), containsString("E-VSCJDBC-7"));
     }
 }

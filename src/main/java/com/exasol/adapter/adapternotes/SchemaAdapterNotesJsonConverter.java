@@ -67,6 +67,16 @@ public final class SchemaAdapterNotesJsonConverter {
         return builder.build().toString();
     }
 
+    private static void checkKey(final JsonObject root, final String key, final String schemaName)
+            throws AdapterException {
+        if (!root.containsKey(key)) {
+            throw new AdapterException(ExaError.messageBuilder("E-VSCJDBC-7")
+                    .message("Adapter notes of virtual schema \"{{schemaName|uq}}\" don't have the key {{key}}.",
+                            schemaName, key)
+                    .mitigation("Please refresh the virtual schema").toString());
+        }
+    }
+
     /**
      * Converts JSON representation of schema adapter notes into instance of {@link SchemaAdapterNotes} class.
      *
@@ -78,7 +88,7 @@ public final class SchemaAdapterNotesJsonConverter {
     public SchemaAdapterNotes convertFromJsonToSchemaAdapterNotes(final String adapterNotes, final String schemaName)
             throws AdapterException {
         if ((adapterNotes == null) || adapterNotes.isEmpty()) {
-            throw new AdapterException(ExaError.messageBuilder("E-VS-COM-JDBC-5")
+            throw new AdapterException(ExaError.messageBuilder("E-VSCJDBC-5")
                     .message("Adapter notes for virtual schema \"{{schemaName|uq}}\" are empty or NULL.", schemaName)
                     .mitigation("Please refresh the virtual schema.").toString());
         }
@@ -86,7 +96,7 @@ public final class SchemaAdapterNotesJsonConverter {
         try (final JsonReader jr = Json.createReader(new StringReader(adapterNotes))) {
             root = jr.readObject();
         } catch (final RuntimeException exception) {
-            throw new AdapterException(ExaError.messageBuilder("E-VS-COM-JDBC-6")
+            throw new AdapterException(ExaError.messageBuilder("E-VSCJDBC-6")
                     .message("Could not parse the schema adapter notes of virtual schema \"{{schemaName|uq}}\".",
                             schemaName)
                     .mitigation("Please refresh the virtual schema.").toString(), exception);
@@ -121,15 +131,5 @@ public final class SchemaAdapterNotesJsonConverter {
                 .areNullsSortedHigh(root.getBoolean(NULLS_ARE_SORTED_HIGH)) //
                 .areNullsSortedLow(root.getBoolean(NULLS_ARE_SORTED_LOW)) //
                 .build();
-    }
-
-    private static void checkKey(final JsonObject root, final String key, final String schemaName)
-            throws AdapterException {
-        if (!root.containsKey(key)) {
-            throw new AdapterException(ExaError.messageBuilder("E-VS-COM-JDBC-7")
-                    .message("Adapter notes of virtual schema \"{{schemaName|uq}}\" don't have the key {{key}}.",
-                            schemaName, key)
-                    .mitigation("Please refresh the virtual schema").toString());
-        }
     }
 }

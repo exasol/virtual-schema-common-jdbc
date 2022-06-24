@@ -46,7 +46,7 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
         if (remoteTables.next()) {
             return extractTableMetadata(remoteTables, filteredTables);
         } else {
-            LOGGER.warning(() -> ExaError.messageBuilder("W-VS-COM-JDBC-35")
+            LOGGER.warning(() -> ExaError.messageBuilder("W-VSCJDBC-35")
                     .message("Table scan did not find any tables. This can mean that either" //
                             + " a) the source does not contain tables (yet)," + " b) the table type is not supported" //
                             + " c) the table scan filter criteria is incorrect or" //
@@ -142,7 +142,7 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
 
     private void validateMappedTablesListSize(final List<TableMetadata> selectedTables) {
         if (selectedTables.size() > DEFAULT_MAX_MAPPED_TABLE_LIST_SIZE) {
-            throw new RemoteMetadataReaderException(ExaError.messageBuilder("E-VS-COM-JDBC-24")
+            throw new RemoteMetadataReaderException(ExaError.messageBuilder("E-VSCJDBC-24")
                     .message("The size of the list of the selected tables exceeded the default allowed maximum: "
                             + DEFAULT_MAX_MAPPED_TABLE_LIST_SIZE)
                     .mitigation("Please, use the 'TABLE_FILTER' property to define the list of tables you need.")

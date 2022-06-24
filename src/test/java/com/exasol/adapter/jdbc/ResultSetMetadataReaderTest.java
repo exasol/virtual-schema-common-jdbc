@@ -56,7 +56,7 @@ class ResultSetMetadataReaderTest {
         final RemoteMetadataReaderException thrown = assertThrows(RemoteMetadataReaderException.class,
                 () -> reader.describeColumns("FOOBAR"));
         assertThat(thrown.getMessage(),
-                containsString("E-VS-COM-JDBC-31: Unsupported data type(s) in column(s) in query: 2, 4"));
+                containsString("E-VSCJDBC-31: Unsupported data type(s) in column(s) in query: 2, 4"));
     }
 
     @Test
@@ -68,6 +68,6 @@ class ResultSetMetadataReaderTest {
                 columnMetadataReader);
         final RemoteMetadataReaderException exception = assertThrows(RemoteMetadataReaderException.class,
                 () -> metadataReader.describeColumns("FOOBAR"));
-        assertThat(exception.getMessage(), containsString("F-VS-COM-JDBC-34"));
+        assertThat(exception.getMessage(), containsString("F-VSCJDBC-34"));
     }
 }

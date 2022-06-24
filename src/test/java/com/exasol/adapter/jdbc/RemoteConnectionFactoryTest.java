@@ -69,7 +69,7 @@ class RemoteConnectionFactoryTest {
         this.rawProperties.put("CONNECTION_NAME", "");
         final RemoteConnectionException exception = assertThrows(RemoteConnectionException.class,
                 this::createConnection);
-        assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-28"));
+        assertThat(exception.getMessage(), containsString("E-VSCJDBC-28"));
     }
 
     @Test
@@ -79,7 +79,7 @@ class RemoteConnectionFactoryTest {
         this.rawProperties.put("CONNECTION_NAME", CONNECTION_NAME);
         final RemoteConnectionException exception = assertThrows(RemoteConnectionException.class,
                 this::createConnection);
-        assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-29"));
+        assertThat(exception.getMessage(), containsString("E-VSCJDBC-29"));
     }
 
     @Test

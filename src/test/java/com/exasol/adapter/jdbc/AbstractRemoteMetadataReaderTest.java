@@ -46,6 +46,6 @@ class AbstractRemoteMetadataReaderTest {
         final List<String> tables = Collections.emptyList();
         final RemoteMetadataReaderException exception = assertThrows(RemoteMetadataReaderException.class,
                 () -> reader.readRemoteSchemaMetadata(tables));
-        assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-22"));
+        assertThat(exception.getMessage(), containsString("E-VSCJDBC-22"));
     }
 }

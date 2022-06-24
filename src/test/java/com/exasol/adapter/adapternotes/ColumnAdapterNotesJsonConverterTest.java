@@ -56,20 +56,20 @@ class ColumnAdapterNotesJsonConverterTest {
     void testConvertFromJsonToColumnAdapterNotesThrowsExceptionWhenAdapterNotesAreNull() {
         final AdapterException exception = assertThrows(AdapterException.class,
                 () -> this.converter.convertFromJsonToColumnAdapterNotes(null, ""));
-        assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-3"));
+        assertThat(exception.getMessage(), containsString("E-VSCJDBC-3"));
     }
 
     @Test
     void testConvertFromJsonToColumnAdapterNotesThrowsExceptionWithEmptyAdapterNotes() {
         final AdapterException exception = assertThrows(AdapterException.class,
                 () -> this.converter.convertFromJsonToColumnAdapterNotes("", ""));
-        assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-3"));
+        assertThat(exception.getMessage(), containsString("E-VSCJDBC-3"));
     }
 
     @Test
     void testConvertFromJsonToColumnAdapterNotesThrowsExceptionWithWrongAdapterNotes() {
         final AdapterException exception = assertThrows(AdapterException.class,
                 () -> this.converter.convertFromJsonToColumnAdapterNotes("testNotes", ""));
-        assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-4"));
+        assertThat(exception.getMessage(), containsString("E-VSCJDBC-4"));
     }
 }

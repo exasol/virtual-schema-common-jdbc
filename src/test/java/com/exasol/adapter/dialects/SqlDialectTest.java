@@ -94,7 +94,7 @@ class SqlDialectTest {
                 final SqlDialect dialect = new AliasesSqlDialect(Map.of(), scalarAliases, Map.of(), Map.of());
                 final UnsupportedOperationException exception = assertThrows(UnsupportedOperationException.class,
                         () -> new SqlGenerationVisitor(dialect, context));
-                assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-9"));
+                assertThat(exception.getMessage(), containsString("E-VSCJDBC-9"));
             }
         }
         for (final AggregateFunction function : AggregateFunction.values()) {
@@ -103,7 +103,7 @@ class SqlDialectTest {
                 final SqlDialect dialect = new AliasesSqlDialect(aggregateAliases, Map.of(), Map.of(), Map.of());
                 final UnsupportedOperationException exception = assertThrows(UnsupportedOperationException.class,
                         () -> new SqlGenerationVisitor(dialect, context));
-                assertThat(exception.getMessage(), containsString("E-VS-COM-JDBC-10"));
+                assertThat(exception.getMessage(), containsString("E-VSCJDBC-10"));
             }
         }
     }

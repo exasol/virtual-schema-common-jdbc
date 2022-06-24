@@ -25,7 +25,7 @@ public class BaseConnectionDefinitionBuilder implements ConnectionDefinitionBuil
         if (properties.hasConnectionName()) {
             return "AT " + properties.getConnectionName();
         } else {
-            throw new IllegalArgumentException(ExaError.messageBuilder("E-VS-COM-JDBC-23")
+            throw new IllegalArgumentException(ExaError.messageBuilder("E-VSCJDBC-23")
                     .message("Please, provide a mandatory property {{connectionNameProperty}}.")
                     .parameter("connectionNameProperty", CONNECTION_NAME_PROPERTY).toString());
         }
