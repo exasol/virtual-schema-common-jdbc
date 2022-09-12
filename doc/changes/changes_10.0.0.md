@@ -14,7 +14,7 @@ Starting with major version 8 Exasol database uses the capabilities reported by 
 
 ### Compile Dependency Updates
 
-* Updated `com.exasol:virtual-schema-common-java:15.3.2` to `16.0.0`
+* Updated `com.exasol:virtual-schema-common-java:15.3.2` to `16.1.0`
 
 ### Plugin Dependency Updates
 
