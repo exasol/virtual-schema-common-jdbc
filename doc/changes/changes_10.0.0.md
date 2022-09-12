@@ -1,4 +1,4 @@
-# Virtual Schema Common JDBC 10.0.0, released 2022-??-??
+# Virtual Schema Common JDBC 10.0.0, released 2022-09-12
 
 Code name: Read Expected Datatypes From Request
 
