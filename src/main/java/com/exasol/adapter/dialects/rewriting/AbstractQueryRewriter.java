@@ -1,6 +1,7 @@
 package com.exasol.adapter.dialects.rewriting;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.logging.Logger;
 
 import com.exasol.*;
@@ -9,6 +10,7 @@ import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.dialects.*;
 import com.exasol.adapter.jdbc.ConnectionDefinitionBuilder;
 import com.exasol.adapter.jdbc.RemoteMetadataReader;
+import com.exasol.adapter.metadata.DataType;
 import com.exasol.adapter.sql.SqlStatement;
 import com.exasol.errorreporting.ExaError;
 
@@ -39,13 +41,14 @@ public abstract class AbstractQueryRewriter implements QueryRewriter {
     }
 
     @Override
-    public String rewrite(final SqlStatement statement, final ExaMetadata exaMetadata,
-            final AdapterProperties properties) throws AdapterException, SQLException {
+    public String rewrite(final SqlStatement statement, final List<DataType> selectListDataTypes,
+            final ExaMetadata exaMetadata, final AdapterProperties properties) throws AdapterException, SQLException {
         final String pushdownQuery = createPushdownQuery(statement, properties);
         final ExaConnectionInformation exaConnectionInformation = getConnectionInformation(exaMetadata, properties);
         final String connectionDefinition = this.connectionDefinitionBuilder.buildConnectionDefinition(properties,
                 exaConnectionInformation);
-        final String importStatement = generateImportStatement(connectionDefinition, pushdownQuery);
+        final String importStatement = generateImportStatement(connectionDefinition, selectListDataTypes,
+                pushdownQuery);
         LOGGER.finer(() -> "Import push-down statement:\n" + importStatement);
         return importStatement;
     }
@@ -63,7 +66,7 @@ public abstract class AbstractQueryRewriter implements QueryRewriter {
 
     /**
      * Read the connection information from the metadata.
-     * 
+     *
      * @param exaMetadata metadata
      * @param properties  adapter properties
      * @return connection information
@@ -90,10 +93,11 @@ public abstract class AbstractQueryRewriter implements QueryRewriter {
      * executed in the external source be as source data.
      *
      * @param connectionDefinition connection definition to be used when connecting to the external source
+     * @param selectListDataTypes  TODO
      * @param pushdownQuery        source data for the `IMPORT...FROM` statement
      * @return IMPORT statement to be executed on the Exasol database
      * @throws SQLException if any problem occurs
      */
-    protected abstract String generateImportStatement(final String connectionDefinition, final String pushdownQuery)
-            throws SQLException;
+    protected abstract String generateImportStatement(final String connectionDefinition,
+            List<DataType> selectListDataTypes, final String pushdownQuery) throws SQLException;
 }

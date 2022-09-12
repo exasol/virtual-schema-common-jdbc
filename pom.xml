@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.exasol</groupId>
     <artifactId>virtual-schema-common-jdbc</artifactId>
-    <version>9.0.5</version>
+    <version>10.0.0</version>
     <name>Virtual Schema Common JDBC</name>
     <description>Common module for JDBC-based data access from Virtual Schemas.</description>
     <url>https://github.com/exasol/virtual-schema-common-jdbc/</url>
@@ -28,7 +27,7 @@
         <dependency>
             <groupId>com.exasol</groupId>
             <artifactId>virtual-schema-common-java</artifactId>
-            <version>15.3.2</version>
+            <version>16.0.0</version>
         </dependency>
         <dependency>
             <groupId>javax.xml.bind</groupId>
@@ -144,7 +143,7 @@
     <parent>
         <artifactId>virtual-schema-common-jdbc-generated-parent</artifactId>
         <groupId>com.exasol</groupId>
-        <version>9.0.5</version>
+        <version>10.0.0</version>
         <relativePath>pk_generated_parent.pom</relativePath>
     </parent>
 </project>

@@ -16,6 +16,7 @@ import com.exasol.adapter.dialects.rewriting.SqlGenerationContext;
 import com.exasol.adapter.dialects.rewriting.SqlGenerationVisitor;
 import com.exasol.adapter.jdbc.ConnectionFactory;
 import com.exasol.adapter.jdbc.RemoteMetadataReader;
+import com.exasol.adapter.metadata.DataType;
 import com.exasol.adapter.metadata.SchemaMetadata;
 import com.exasol.adapter.sql.*;
 import com.exasol.errorreporting.ExaError;
@@ -134,9 +135,9 @@ public abstract class AbstractSqlDialect implements SqlDialect {
     }
 
     @Override
-    public String rewriteQuery(final SqlStatement statement, final ExaMetadata exaMetadata)
-            throws AdapterException, SQLException {
-        return createQueryRewriter().rewrite(statement, exaMetadata, this.properties);
+    public String rewriteQuery(final SqlStatement statement, final List<DataType> selectListDataTypes,
+            final ExaMetadata exaMetadata) throws AdapterException, SQLException {
+        return createQueryRewriter().rewrite(statement, selectListDataTypes, exaMetadata, this.properties);
     }
 
     @Override
@@ -151,7 +152,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
 
     /**
      * Quote a string literal with single quotes.
-     * 
+     *
      * @param value string literal
      * @return quoted string
      */
@@ -165,7 +166,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
 
     /**
      * Quote an identifier with double quotes.
-     * 
+     *
      * @param identifier identifier to quote
      * @return quoted identifier
      */
@@ -185,7 +186,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
 
     /**
      * Validate that all given properties are supported by the dialect.
-     * 
+     *
      * @throws PropertyValidationException if validation fails
      */
     protected void validateSupportedPropertiesList() throws PropertyValidationException {
@@ -199,7 +200,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
 
     /**
      * Create an exception for an unsupported property.
-     * 
+     *
      * @param unsupportedElement unsupported property name.
      * @param property           unsupported property name
      * @return exception
@@ -236,7 +237,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
 
     /**
      * Validate the input of a boolean property.
-     * 
+     *
      * @param property property name
      * @throws PropertyValidationException if validation fails
      */
@@ -339,7 +340,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
 
     /**
      * Validate the value of the castNumberToDecimalProperty.
-     * 
+     *
      * @param castNumberToDecimalProperty property name
      * @throws PropertyValidationException if validation fails
      */

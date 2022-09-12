@@ -1,10 +1,12 @@
 package com.exasol.adapter.dialects;
 
 import java.sql.SQLException;
+import java.util.List;
 
 import com.exasol.ExaMetadata;
 import com.exasol.adapter.AdapterException;
 import com.exasol.adapter.AdapterProperties;
+import com.exasol.adapter.metadata.DataType;
 import com.exasol.adapter.sql.SqlStatement;
 
 /**
@@ -28,13 +30,14 @@ public interface QueryRewriter {
     /**
      * Set the original push-down statement.
      *
-     * @param statement   SQL statement that represents the original push-down query
-     * @param properties  user-defined adapter properties
-     * @param exaMetadata Exasol metadata
+     * @param statement           SQL statement that represents the original push-down query
+     * @param selectListDataTypes expected data types of result set
+     * @param properties          user-defined adapter properties
+     * @param exaMetadata         Exasol metadata
      * @return rewritten query
      * @throws AdapterException if rewriting fails
      * @throws SQLException     if any SQL commands executed on the remote data source failed during rewriting
      */
-    public String rewrite(final SqlStatement statement, final ExaMetadata exaMetadata,
-            final AdapterProperties properties) throws AdapterException, SQLException;
+    public String rewrite(final SqlStatement statement, List<DataType> selectListDataTypes,
+            final ExaMetadata exaMetadata, final AdapterProperties properties) throws AdapterException, SQLException;
 }

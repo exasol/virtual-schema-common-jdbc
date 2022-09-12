@@ -5,6 +5,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,7 @@ import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.dialects.SqlDialect;
 import com.exasol.adapter.jdbc.BaseConnectionDefinitionBuilder;
 import com.exasol.adapter.jdbc.RemoteMetadataReader;
+import com.exasol.adapter.metadata.DataType;
 
 class AbstractQueryRewriterTest {
     @Test
@@ -42,7 +44,7 @@ class AbstractQueryRewriterTest {
         }
 
         @Override
-        protected String generateImportStatement(final String connectionDefinition, final String pushdownQuery) {
+        protected String generateImportStatement(final String connectionDefinition, List<DataType> selectListDataTypes, final String pushdownQuery) {
             return "";
         }
     }

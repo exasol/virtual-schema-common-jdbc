@@ -24,6 +24,7 @@ import com.exasol.adapter.sql.SqlStatement;
 import com.exasol.adapter.sql.TestSqlStatementFactory;
 
 class JDBCAdapterTest {
+
     private static final String SCHEMA_NAME = "THE_SCHEMA";
     private static final ExaConnectionInformation EXA_CONNECTION_INFORMATION = ExaConnectionInformationStub.builder() //
             .user("") //
@@ -52,8 +53,9 @@ class JDBCAdapterTest {
         setDerbyConnectionNameProperty();
         this.rawProperties.put(SCHEMA_NAME_PROPERTY, "SYSIBM");
         final List<TableMetadata> involvedTablesMetadata = null;
+        final List<DataType> selectListDataTypes = null;
         final PushDownRequest request = new PushDownRequest(createSchemaMetadataInfo(), statement,
-                involvedTablesMetadata);
+                involvedTablesMetadata, selectListDataTypes);
         final ExaMetadata exaMetadataMock = mock(ExaMetadata.class);
         when(exaMetadataMock.getConnection("DERBY_CONNECTION")).thenReturn(EXA_CONNECTION_INFORMATION);
         return this.adapter.pushdown(exaMetadataMock, request);

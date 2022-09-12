@@ -6,7 +6,7 @@ import static org.mockito.Mockito.when;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Map;
+import java.util.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,10 +22,13 @@ import com.exasol.adapter.dialects.dummy.DummyConnectionDefinitionBuilder;
 import com.exasol.adapter.dialects.dummy.DummySqlDialect;
 import com.exasol.adapter.jdbc.BaseRemoteMetadataReader;
 import com.exasol.adapter.jdbc.ConnectionFactory;
+import com.exasol.adapter.metadata.DataType;
 import com.exasol.adapter.sql.TestSqlStatementFactory;
 
 @ExtendWith(MockitoExtension.class)
 class ImportIntoTemporaryTableQueryRewriterTest extends AbstractQueryRewriterTestBase {
+    private static final List<DataType> EMPTY_SELECT_LIST_DATA_TYPES = Collections.emptyList();
+
     @Mock
     private ConnectionFactory connectionFactoryMock;
     private Connection connectionMock;
@@ -43,7 +46,8 @@ class ImportIntoTemporaryTableQueryRewriterTest extends AbstractQueryRewriterTes
         final BaseRemoteMetadataReader metadataReader = new BaseRemoteMetadataReader(this.connectionMock, properties);
         final QueryRewriter queryRewriter = new ImportIntoTemporaryTableQueryRewriter(dialect, metadataReader,
                 this.connectionFactoryMock);
-        assertThat(queryRewriter.rewrite(TestSqlStatementFactory.createSelectOneFromDual(), EXA_METADATA, properties),
+        assertThat(queryRewriter.rewrite(TestSqlStatementFactory.createSelectOneFromDual(), //
+                EMPTY_SELECT_LIST_DATA_TYPES, EXA_METADATA, properties),
                 equalTo("IMPORT INTO (c1 DECIMAL(18, 0)) FROM JDBC AT " + CONNECTION_NAME
                         + " STATEMENT 'SELECT 1 FROM \"DUAL\"'"));
     }
@@ -55,9 +59,8 @@ class ImportIntoTemporaryTableQueryRewriterTest extends AbstractQueryRewriterTes
                 AdapterProperties.emptyProperties());
         final QueryRewriter queryRewriter = new ImportIntoTemporaryTableQueryRewriter(dialect, metadataReader,
                 this.connectionFactoryMock, new DummyConnectionDefinitionBuilder());
-        assertThat(
-                queryRewriter.rewrite(TestSqlStatementFactory.createSelectOneFromDual(), EXA_METADATA,
-                        AdapterProperties.emptyProperties()),
+        assertThat(queryRewriter.rewrite(TestSqlStatementFactory.createSelectOneFromDual(), //
+                EMPTY_SELECT_LIST_DATA_TYPES, EXA_METADATA, AdapterProperties.emptyProperties()),
                 equalTo("IMPORT INTO (c1 DECIMAL(18, 0)) FROM JDBC MY DUMMY DEFINITION BUILDER"
                         + " STATEMENT 'SELECT 1 FROM \"DUAL\"'"));
     }

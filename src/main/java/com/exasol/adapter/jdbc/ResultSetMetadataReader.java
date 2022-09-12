@@ -69,8 +69,7 @@ public class ResultSetMetadataReader {
             throw new RemoteMetadataReaderException(ExaError.messageBuilder("E-VSCJDBC-31")
                     .message("Unsupported data type(s) in column(s) in query: {{unsupportedColumns|uq}}.",
                             illegalColumns.stream().map(String::valueOf).collect(Collectors.joining(", ")))
-                    .mitigation("Please remove those columns from your query:\n{{query|uq}}", query)
-                    .toString());
+                    .mitigation("Please remove those columns from your query:\n{{query|uq}}", query).toString());
         }
     }
 
@@ -114,7 +113,7 @@ public class ResultSetMetadataReader {
 
     /**
      * Get the jdbc type description from result set metadata.
-     * 
+     *
      * @param metadata     result set metadata
      * @param columnNumber column number to read
      * @return JDBC type description

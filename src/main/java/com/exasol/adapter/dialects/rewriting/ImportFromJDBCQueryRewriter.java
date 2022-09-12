@@ -1,9 +1,11 @@
 package com.exasol.adapter.dialects.rewriting;
 
 import java.sql.SQLException;
+import java.util.List;
 
 import com.exasol.adapter.dialects.SqlDialect;
 import com.exasol.adapter.jdbc.*;
+import com.exasol.adapter.metadata.DataType;
 
 /**
  * Implementation of {@link AbstractQueryRewriter} to generate {@code IMPORT FROM JDBC} queries.
@@ -34,7 +36,7 @@ public class ImportFromJDBCQueryRewriter extends AbstractQueryRewriter {
     }
 
     @Override
-    protected String generateImportStatement(final String connectionDefinition, final String pushdownQuery)
+    protected String generateImportStatement(final String connectionDefinition, List<DataType> selectListDataTypes, final String pushdownQuery)
             throws SQLException {
         return "IMPORT FROM JDBC " + connectionDefinition + " STATEMENT '" + pushdownQuery.replace("'", "''") + "'";
     }
