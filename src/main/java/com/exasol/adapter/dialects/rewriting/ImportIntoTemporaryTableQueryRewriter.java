@@ -70,18 +70,6 @@ public class ImportIntoTemporaryTableQueryRewriter extends AbstractQueryRewriter
     }
 
     private String createColumnsDescriptionFromExpectedResult(final List<DataType> types) {
-        final StringBuilder builder = new StringBuilder();
-        int columnNumber = 1;
-        for (final DataType type : types) {
-            if (columnNumber > 1) {
-                builder.append(", ");
-            }
-            builder.append("c");
-            builder.append(columnNumber);
-            builder.append(" ");
-            builder.append(type.toString());
-            ++columnNumber;
-        }
-        return builder.toString();
+        return SqlGenerationHelper.createColumnsDescriptionFromDataTypes(types);
     }
 }

@@ -93,7 +93,7 @@ public abstract class AbstractQueryRewriter implements QueryRewriter {
      * executed in the external source be as source data.
      *
      * @param connectionDefinition connection definition to be used when connecting to the external source
-     * @param selectListDataTypes  TODO
+     * @param selectListDataTypes  expected data types of result set
      * @param pushdownQuery        source data for the `IMPORT...FROM` statement
      * @return IMPORT statement to be executed on the Exasol database
      * @throws SQLException if any problem occurs

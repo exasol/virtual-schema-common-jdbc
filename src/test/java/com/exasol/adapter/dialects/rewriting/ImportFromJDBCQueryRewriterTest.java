@@ -45,10 +45,4 @@ class ImportFromJDBCQueryRewriterTest extends AbstractQueryRewriterTestBase {
                         EXA_METADATA, AdapterProperties.emptyProperties()),
                 equalTo("IMPORT FROM JDBC MY DUMMY DEFINITION BUILDER STATEMENT 'SELECT 1 FROM \"DUAL\"'"));
     }
-
-    @Test
-    void rewriteWithSelectListDataTypes() throws AdapterException, SQLException {
-    }
-    // TODO
-
 }
