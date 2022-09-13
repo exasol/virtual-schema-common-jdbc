@@ -8,7 +8,7 @@ Starting with major version 8 Exasol database uses the capabilities reported by 
 
 ## Features
 
-* #120: Supported using the push down request to specify the datatypes of result set.
+* #120: Using the push down request to specify the data types of result set when available (8.x.x and later).
 
 ## Dependency Updates
 
