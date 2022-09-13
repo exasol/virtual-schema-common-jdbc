@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import com.exasol.adapter.dialects.rewriting.SqlGenerationHelper;
 import com.exasol.adapter.metadata.DataType;
 import com.exasol.errorreporting.ExaError;
 
@@ -16,6 +17,7 @@ import com.exasol.errorreporting.ExaError;
  * executed.
  */
 public class ResultSetMetadataReader {
+
     private static final Logger LOGGER = Logger.getLogger(ResultSetMetadataReader.class.getName());
     private final Connection connection;
     private final ColumnMetadataReader columnMetadataReader;
@@ -44,7 +46,7 @@ public class ResultSetMetadataReader {
             final ResultSetMetaData metadata = statement.getMetaData();
             final List<DataType> types = mapResultMetadataToExasolDataTypes(metadata);
             validateColumnTypes(types, query);
-            final String columnsDescription = createColumnDescriptionFromDataTypes(types);
+            final String columnsDescription = SqlGenerationHelper.createColumnsDescriptionFromDataTypes(types);
             LOGGER.fine(() -> "Columns description: " + columnsDescription);
             return columnsDescription;
         } catch (final SQLException exception) {
@@ -69,25 +71,8 @@ public class ResultSetMetadataReader {
             throw new RemoteMetadataReaderException(ExaError.messageBuilder("E-VSCJDBC-31")
                     .message("Unsupported data type(s) in column(s) in query: {{unsupportedColumns|uq}}.",
                             illegalColumns.stream().map(String::valueOf).collect(Collectors.joining(", ")))
-                    .mitigation("Please remove those columns from your query:\n{{query|uq}}", query)
-                    .toString());
+                    .mitigation("Please remove those columns from your query:\n{{query|uq}}", query).toString());
         }
-    }
-
-    private String createColumnDescriptionFromDataTypes(final List<DataType> types) {
-        final StringBuilder builder = new StringBuilder();
-        int columnNumber = 1;
-        for (final DataType type : types) {
-            if (columnNumber > 1) {
-                builder.append(", ");
-            }
-            builder.append("c");
-            builder.append(columnNumber);
-            builder.append(" ");
-            builder.append(type.toString());
-            ++columnNumber;
-        }
-        return builder.toString();
     }
 
     private List<DataType> mapResultMetadataToExasolDataTypes(final ResultSetMetaData metadata) throws SQLException {
@@ -114,7 +99,7 @@ public class ResultSetMetadataReader {
 
     /**
      * Get the jdbc type description from result set metadata.
-     * 
+     *
      * @param metadata     result set metadata
      * @param columnNumber column number to read
      * @return JDBC type description

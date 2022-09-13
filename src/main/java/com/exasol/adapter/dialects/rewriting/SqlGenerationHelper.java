@@ -4,8 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
-import com.exasol.adapter.metadata.ColumnMetadata;
-import com.exasol.adapter.metadata.TableMetadata;
+import com.exasol.adapter.metadata.*;
 import com.exasol.adapter.sql.*;
 
 /**
@@ -16,6 +15,28 @@ import com.exasol.adapter.sql.*;
 public final class SqlGenerationHelper {
     private SqlGenerationHelper() {
         // intentionally left blank
+    }
+
+    /**
+     * Create SQL columns description for the provided list of data types.
+     *
+     * @param types data types to create columns description for
+     * @return SQL columns description for {@code types}
+     */
+    public static String createColumnsDescriptionFromDataTypes(final List<DataType> types) {
+        final StringBuilder builder = new StringBuilder();
+        int columnNumber = 1;
+        for (final DataType type : types) {
+            if (columnNumber > 1) {
+                builder.append(", ");
+            }
+            builder.append("c");
+            builder.append(columnNumber);
+            builder.append(" ");
+            builder.append(type.toString());
+            ++columnNumber;
+        }
+        return builder.toString();
     }
 
     /**

@@ -21,8 +21,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 class KerberosConfigurationCreatorTest {
     private static final String KEY_TAB_NAME = "ktbname";
     private static final String KERBEROS_CONFIG_NAME = "kbcname";
-    private static final String JAAS_CONFIG_PATTERN = ".*/jaas_.*\\.conf";
-    private static final String KERBEROS_CONFIG_PATTERN = ".*/krb_.*\\.conf";
+
     private static final String USER = "kerberos_user";
     private static final String PW = "ExaAuthType=Kerberos;" + KEY_TAB_NAME + ";" + KERBEROS_CONFIG_NAME;
     private KerberosConfigurationCreator creator;
@@ -59,12 +58,13 @@ class KerberosConfigurationCreatorTest {
     }
 
     private void assertJaasConfigurationPathProperty() {
-        assertThat("JAAS configuration path", getJaasConfigPathFromProperty(), matchesPattern(JAAS_CONFIG_PATTERN));
+        assertThat("JAAS configuration path", getJaasConfigPathFromProperty(),
+                matchesPattern(FilePatterns.JAAS_CONFIG_PATTERN));
     }
 
     private void assertKerberosConfigurationPathProperty() {
         assertThat("Kerberos configuration path", getKerberosConfigFromProperty(), //
-                matchesPattern(KERBEROS_CONFIG_PATTERN));
+                matchesPattern(FilePatterns.KERBEROS_CONFIG_PATTERN));
     }
 
     private String getKerberosConfigFromProperty() {

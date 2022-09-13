@@ -8,6 +8,7 @@ import com.exasol.ExaMetadata;
 import com.exasol.adapter.AdapterException;
 import com.exasol.adapter.capabilities.Capabilities;
 import com.exasol.adapter.dialects.rewriting.SqlGenerationContext;
+import com.exasol.adapter.metadata.DataType;
 import com.exasol.adapter.metadata.SchemaMetadata;
 import com.exasol.adapter.sql.*;
 
@@ -239,11 +240,13 @@ public interface SqlDialect {
      * Rewrite the given query so that data from the remote data source is imported into Exasol when that query is
      * executed on the Virtual Schema frontend.
      *
-     * @param statement   original query as sent by the Virtual Schema frontend
-     * @param exaMetadata Exasol metadata
+     * @param statement           original query as sent by the Virtual Schema frontend
+     * @param selectListDataTypes expected datatypes of the result set
+     * @param exaMetadata         Exasol metadata
      * @return rewritten query
      * @throws SQLException     if execution of any SQL command on the remote data source failed
      * @throws AdapterException if rewriting the query failed
      */
-    public String rewriteQuery(SqlStatement statement, ExaMetadata exaMetadata) throws AdapterException, SQLException;
+    public String rewriteQuery(SqlStatement statement, List<DataType> selectListDataTypes, ExaMetadata exaMetadata)
+            throws AdapterException, SQLException;
 }

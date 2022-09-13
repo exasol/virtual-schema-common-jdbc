@@ -7,7 +7,7 @@ import com.exasol.adapter.jdbc.*;
 
 /**
  * Implementation of {@link AbstractQueryRewriter} to generate {@code IMPORT FROM JDBC} queries.
- * 
+ *
  * @see <a href="https://docs.exasol.com/sql/import.htm">https://docs.exasol.com/sql/import.htm</a>
  */
 public class ImportFromJDBCQueryRewriter extends AbstractQueryRewriter {

@@ -24,6 +24,8 @@ import com.exasol.adapter.sql.SqlStatement;
 import com.exasol.adapter.sql.TestSqlStatementFactory;
 
 class JDBCAdapterTest {
+
+    private static final List<DataType> EMPTY_SELECT_LIST_DATA_TYPES = Collections.emptyList();
     private static final String SCHEMA_NAME = "THE_SCHEMA";
     private static final ExaConnectionInformation EXA_CONNECTION_INFORMATION = ExaConnectionInformationStub.builder() //
             .user("") //
@@ -40,20 +42,32 @@ class JDBCAdapterTest {
 
     @Test
     void testPushdown() throws AdapterException, ExaConnectionAccessException {
-        final PushDownResponse response = pushStatementDown(TestSqlStatementFactory.createSelectOneFromSysDummy());
+        final PushDownResponse response = pushStatementDown(TestSqlStatementFactory.createSelectOneFromSysDummy(),
+                EMPTY_SELECT_LIST_DATA_TYPES);
         assertThat(response.getPushDownSql(), equalTo("IMPORT INTO (c1 DECIMAL(10, 0))" //
                 + " FROM JDBC" //
                 + " AT DERBY_CONNECTION"//
                 + " STATEMENT 'SELECT 1 FROM \"SYSIBM\".\"SYSDUMMY1\"'"));
     }
 
-    private PushDownResponse pushStatementDown(final SqlStatement statement)
+    @Test
+    void pushdownWithSelectListDataTypes() throws AdapterException, ExaConnectionAccessException {
+        final List<DataType> dataTypes = List.of(DataType.createIntervalDaySecond(1, 2), DataType.createGeometry(12));
+        final PushDownResponse response = pushStatementDown(TestSqlStatementFactory.createSelectOneFromSysDummy(),
+                dataTypes);
+        assertThat(response.getPushDownSql(), equalTo("IMPORT INTO (c1 INTERVAL DAY (1) TO SECOND (2), c2 GEOMETRY(12))" //
+                + " FROM JDBC" //
+                + " AT DERBY_CONNECTION"//
+                + " STATEMENT 'SELECT 1 FROM \"SYSIBM\".\"SYSDUMMY1\"'"));
+    }
+
+    private PushDownResponse pushStatementDown(final SqlStatement statement, final List<DataType> selectListDataTypes)
             throws AdapterException, ExaConnectionAccessException {
         setDerbyConnectionNameProperty();
         this.rawProperties.put(SCHEMA_NAME_PROPERTY, "SYSIBM");
         final List<TableMetadata> involvedTablesMetadata = null;
         final PushDownRequest request = new PushDownRequest(createSchemaMetadataInfo(), statement,
-                involvedTablesMetadata);
+                involvedTablesMetadata, selectListDataTypes);
         final ExaMetadata exaMetadataMock = mock(ExaMetadata.class);
         when(exaMetadataMock.getConnection("DERBY_CONNECTION")).thenReturn(EXA_CONNECTION_INFORMATION);
         return this.adapter.pushdown(exaMetadataMock, request);
@@ -70,7 +84,8 @@ class JDBCAdapterTest {
     @Test
     void testPushdownWithIllegalStatementThrowsException() {
         final RemoteMetadataReaderException exception = assertThrows(RemoteMetadataReaderException.class,
-                () -> pushStatementDown(TestSqlStatementFactory.createSelectOneFromDual()));
+                () -> pushStatementDown(TestSqlStatementFactory.createSelectOneFromDual(),
+                        EMPTY_SELECT_LIST_DATA_TYPES));
         assertThat(exception.getMessage(), containsString("E-VSCJDBC-30"));
     }
 

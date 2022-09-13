@@ -54,7 +54,7 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String>, SqlGenerato
 
     /**
      * Get the SQL dialect.
-     * 
+     *
      * @return SQL dialect.
      */
     protected SqlDialect getDialect() {
@@ -87,7 +87,7 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String>, SqlGenerato
 
     /**
      * Check if a column is directly in the select list.
-     * 
+     *
      * @param column column name
      * @return {@code true} if the column is directly in the select list of a query
      */
@@ -460,7 +460,10 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String>, SqlGenerato
      */
     @Override
     public String visit(final SqlLiteralDouble literal) {
-        final NumberFormat numFormat = new DecimalFormat("0.################E0");
+        final NumberFormat numFormat = NumberFormat.getNumberInstance(Locale.US);
+        if (numFormat instanceof DecimalFormat) {
+            ((DecimalFormat) numFormat).applyPattern("0.################E0");
+        }
         return numFormat.format(literal.getValue());
     }
 
@@ -661,7 +664,7 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String>, SqlGenerato
 
     /**
      * Get the type name for a column
-     * 
+     *
      * @param column column
      * @return type name
      * @throws AdapterException if something goes wrong

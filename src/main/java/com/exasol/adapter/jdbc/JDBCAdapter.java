@@ -53,7 +53,7 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
 
     /**
      * Log a create virtual schema request.
-     * 
+     *
      * @param request create request
      */
     protected void logCreateVirtualSchemaRequestReceived(final CreateVirtualSchemaRequest request) {
@@ -89,7 +89,7 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
 
     /**
      * Log drop virtual schema request.
-     * 
+     *
      * @param request drop request
      */
     protected void logDropVirtualSchemaRequestReceived(final DropVirtualSchemaRequest request) {
@@ -121,7 +121,7 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
 
     /**
      * Read the schema metadata.
-     * 
+     *
      * @param properties           adapter properties
      * @param remoteTableAllowList allow list for remote tables
      * @param exasolMetadata       exasol metadata
@@ -240,7 +240,8 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
             final AdapterProperties properties = getPropertiesFromRequest(request);
             final ConnectionFactory connectionFactory = new RemoteConnectionFactory(exaMetadata, properties);
             final SqlDialect dialect = createDialect(connectionFactory, properties);
-            final String importFromPushdownQuery = dialect.rewriteQuery(request.getSelect(), exaMetadata);
+            final String importFromPushdownQuery = dialect.rewriteQuery(request.getSelect(),
+                    request.getSelectListDataTypes(), exaMetadata);
             return PushDownResponse.builder().pushDownSql(importFromPushdownQuery).build();
         } catch (final SQLException exception) {
             throw new AdapterException(ExaError.messageBuilder("E-VSCJDBC-27")
