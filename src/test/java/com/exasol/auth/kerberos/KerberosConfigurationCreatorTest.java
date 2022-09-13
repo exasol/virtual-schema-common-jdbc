@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Base64;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -51,6 +52,14 @@ class KerberosConfigurationCreatorTest {
                 () -> assertJaasConfigurationFileContent(getJaasConfigPathFromProperty()), //
                 () -> assertKerberosFileContent(), //
                 () -> assertKeyTableFileContent(getJaasConfigPathFromProperty()));
+    }
+
+    @Test
+    void base64() {
+        final byte[] raw = "some string".getBytes();
+        final byte[] encoded = Base64.getEncoder().encode(raw);
+        final byte[] decoded = Base64.getDecoder().decode(encoded);
+        assertThat(decoded, equalTo(raw));
     }
 
     private String getJaasConfigPathFromProperty() {

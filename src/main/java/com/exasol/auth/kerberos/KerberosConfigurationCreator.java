@@ -1,10 +1,9 @@
 package com.exasol.auth.kerberos;
 
-import static javax.xml.bind.DatatypeConverter.parseBase64Binary;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Base64;
 import java.util.logging.Logger;
 
 import com.exasol.errorreporting.ExaError;
@@ -82,12 +81,14 @@ public class KerberosConfigurationCreator {
 
     private Path createTemporaryKerberosConfigFile(final String base64EncodedKerberosConfig,
             final Path temporaryDirectory) throws IOException {
-        return createTemporaryFile(temporaryDirectory, "krb_", ".conf", parseBase64Binary(base64EncodedKerberosConfig));
+        return createTemporaryFile(temporaryDirectory, "krb_", ".conf",
+                Base64.getDecoder().decode(base64EncodedKerberosConfig.getBytes()));
     }
 
     private Path createTemporaryKeyTabFile(final String base64EncodedKeyTab, final Path temporaryDirectory)
             throws IOException {
-        return createTemporaryFile(temporaryDirectory, "kt_", ".keytab", parseBase64Binary(base64EncodedKeyTab));
+        return createTemporaryFile(temporaryDirectory, "kt_", ".keytab",
+                Base64.getDecoder().decode(base64EncodedKeyTab.getBytes()));
     }
 
     private Path createTemporaryFile(final Path temporaryDirectory, final String prefix, final String suffix,
