@@ -63,7 +63,7 @@ public class ImportIntoTemporaryTableQueryRewriter extends AbstractQueryRewriter
     }
 
     private String generateImportStatement(final String columnsDescription, final String connectionDefinition,
-            final String pushdownQuery) throws SQLException {
+            final String pushdownQuery) {
         return "IMPORT INTO (" + columnsDescription + ") FROM JDBC " //
                 + connectionDefinition + " STATEMENT '" //
                 + pushdownQuery.replace("'", "''") + "'";
