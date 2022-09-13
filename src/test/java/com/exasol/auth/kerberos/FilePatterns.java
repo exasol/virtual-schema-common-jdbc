@@ -7,7 +7,6 @@ import java.util.regex.Pattern;
  * Provides OS-independent file name patterns for tests -- <3 M$.
  */
 public class FilePatterns {
-
     private static final String SEPARATOR_PATTERN = Pattern.quote(File.separator).toString();
 
     private static String pattern(final String originalPattern) {
