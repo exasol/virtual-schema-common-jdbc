@@ -1,7 +1,7 @@
 package com.exasol.auth.kerberos;
 
-import java.io.File;
 import java.util.regex.Pattern;
+import java.io.File;
 
 /**
  * Provides OS-independent file name patterns for tests.
