@@ -10,6 +10,11 @@ Starting with major version 8 Exasol database uses the capabilities reported by 
 
 * #120: Supported using the push down request to specify the datatypes of result set.
 
+## Bug Fixes
+
+* #119: Changed SQL generator to format decimals always with decimal point `.` independent of the locale.<br />
+Before method `SqlGenerationVisitor.visit(SqlLiteralDouble)` for instance returned values with decimal point `,` when the locale was set to `en_DE`.
+
 ## Dependency Updates
 
 ### Compile Dependency Updates
