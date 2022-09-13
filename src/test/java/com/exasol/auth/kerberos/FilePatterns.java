@@ -20,5 +20,4 @@ public class FilePatterns {
     public static final String JAAS_CONFIG_PATTERN = pattern(".*/jaas_.*\\.conf");
     /** KERBEROS_CONFIG_PATTERN */
     public static final String KERBEROS_CONFIG_PATTERN = pattern(".*/krb_.*\\.conf");
-
 }
