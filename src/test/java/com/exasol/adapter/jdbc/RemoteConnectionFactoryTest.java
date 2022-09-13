@@ -27,6 +27,7 @@ import org.mockito.quality.Strictness;
 
 import com.exasol.*;
 import com.exasol.adapter.AdapterProperties;
+import com.exasol.auth.kerberos.FilePatterns;
 
 @MockitoSettings(strictness = Strictness.LENIENT)
 @ExtendWith(MockitoExtension.class)
@@ -95,7 +96,10 @@ class RemoteConnectionFactoryTest {
         when(this.exaMetadataMock.getConnection(CONNECTION_NAME)).thenReturn(this.exaConnectionMock);
         this.rawProperties.put("CONNECTION_NAME", CONNECTION_NAME);
         createConnection(); // return value ignored on purpose
-        assertAll(() -> assertThat(System.getProperty(KERBEROS_CONFIG_PROPERTY), matchesPattern(".*/krb_.*\\.conf")),
-                () -> assertThat(System.getProperty(LOGIN_CONFIG_PROPERTY), matchesPattern(".*/jaas_.*\\.conf")));
+        assertAll(
+                () -> assertThat(System.getProperty(KERBEROS_CONFIG_PROPERTY),
+                        matchesPattern(FilePatterns.KERBEROS_CONFIG_PATTERN)),
+                () -> assertThat(System.getProperty(LOGIN_CONFIG_PROPERTY),
+                        matchesPattern(FilePatterns.JAAS_CONFIG_PATTERN)));
     }
 }

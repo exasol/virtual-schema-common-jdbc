@@ -46,17 +46,26 @@ public class ImportIntoTemporaryTableQueryRewriter extends AbstractQueryRewriter
         this.connectionFactory = connectionFactory;
     }
 
-    /*
-     * If selectListDataTypes is provided then use columns description from there otherwise infer columns description
-     * from query.
-     */
     @Override
     protected String generateImportStatement(final String connectionDefinition,
             final List<DataType> selectListDataTypes, final String pushdownQuery) throws SQLException {
-        final String columnsDescription = (selectListDataTypes.isEmpty() //
-                ? createColumnsDescriptionFromQuery(pushdownQuery)
-                : createColumnsDescriptionFromExpectedResult(selectListDataTypes));
-        return "IMPORT INTO (" + columnsDescription + ") FROM JDBC " + connectionDefinition + " STATEMENT '"
+        return generateImportStatement(SqlGenerationHelper.createColumnsDescriptionFromDataTypes(selectListDataTypes),
+                connectionDefinition, //
+                pushdownQuery);
+    }
+
+    @Override
+    protected String generateImportStatement(final String connectionDefinition, final String pushdownQuery)
+            throws SQLException {
+        return generateImportStatement(createColumnsDescriptionFromQuery(pushdownQuery), //
+                connectionDefinition, //
+                pushdownQuery);
+    }
+
+    private String generateImportStatement(final String columnsDescription, final String connectionDefinition,
+            final String pushdownQuery) throws SQLException {
+        return "IMPORT INTO (" + columnsDescription + ") FROM JDBC " //
+                + connectionDefinition + " STATEMENT '" //
                 + pushdownQuery.replace("'", "''") + "'";
     }
 
@@ -67,9 +76,5 @@ public class ImportIntoTemporaryTableQueryRewriter extends AbstractQueryRewriter
         final String columnsDescription = resultSetMetadataReader.describeColumns(query);
         LOGGER.finer(() -> "Import columns: " + columnsDescription);
         return columnsDescription;
-    }
-
-    private String createColumnsDescriptionFromExpectedResult(final List<DataType> types) {
-        return SqlGenerationHelper.createColumnsDescriptionFromDataTypes(types);
     }
 }

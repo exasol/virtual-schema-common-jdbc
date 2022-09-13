@@ -47,8 +47,9 @@ public abstract class AbstractQueryRewriter implements QueryRewriter {
         final ExaConnectionInformation exaConnectionInformation = getConnectionInformation(exaMetadata, properties);
         final String connectionDefinition = this.connectionDefinitionBuilder.buildConnectionDefinition(properties,
                 exaConnectionInformation);
-        final String importStatement = generateImportStatement(connectionDefinition, selectListDataTypes,
-                pushdownQuery);
+        final String importStatement = selectListDataTypes.isEmpty()
+                ? generateImportStatement(connectionDefinition, pushdownQuery)
+                : generateImportStatement(connectionDefinition, selectListDataTypes, pushdownQuery);
         LOGGER.finer(() -> "Import push-down statement:\n" + importStatement);
         return importStatement;
     }
@@ -89,8 +90,14 @@ public abstract class AbstractQueryRewriter implements QueryRewriter {
     }
 
     /**
-     * Generate an IMPORT statement to be executed in the Exasol database, using the passed pushdown query to be
-     * executed in the external source be as source data.
+     * This method provides backwards compatibility. A class extending the {@link AbstractQueryRewriter} has two
+     * options:
+     * <ul>
+     * <li>Option (O1): override the new method {@link #generateImportStatement(String, List, String)} enabling to use
+     * the new parameter {@code selectListDataTypes} to determine the data types of the result set of the query.</li>
+     * <li>Option (O2): only override the old method {@link #generateImportStatement(String, String)} and by that
+     * falling back to the old way, i.e. inferring the data types of the result set by inspecting its values.</li>
+     * </ul>
      *
      * @param connectionDefinition connection definition to be used when connecting to the external source
      * @param selectListDataTypes  expected data types of result set
@@ -98,6 +105,20 @@ public abstract class AbstractQueryRewriter implements QueryRewriter {
      * @return IMPORT statement to be executed on the Exasol database
      * @throws SQLException if any problem occurs
      */
-    protected abstract String generateImportStatement(final String connectionDefinition,
-            List<DataType> selectListDataTypes, final String pushdownQuery) throws SQLException;
+    protected String generateImportStatement(final String connectionDefinition,
+            final List<DataType> selectListDataTypes, final String pushdownQuery) throws SQLException {
+        return generateImportStatement(connectionDefinition, pushdownQuery);
+    }
+
+    /**
+     * Generate an IMPORT statement to be executed in the Exasol database, using the passed pushdown query to be
+     * executed in the external source be as source data.
+     *
+     * @param connectionDefinition connection definition to be used when connecting to the external source
+     * @param pushdownQuery        source data for the `IMPORT...FROM` statement
+     * @return IMPORT statement to be executed on the Exasol database
+     * @throws SQLException if any problem occurs
+     */
+    protected abstract String generateImportStatement(final String connectionDefinition, final String pushdownQuery)
+            throws SQLException;
 }
