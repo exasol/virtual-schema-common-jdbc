@@ -15,11 +15,21 @@ Starting with major version 8 Exasol database uses the capabilities reported by 
 * #119: Changed SQL generator to format decimals always with decimal point `.` independent of the locale.<br />
 Before method `SqlGenerationVisitor.visit(SqlLiteralDouble)` for instance returned values with decimal point `,` when the locale was set to `en_DE`.
 
+## Refactoring
+
+* #117 Removed unnecessary dependency
+
 ## Dependency Updates
 
 ### Compile Dependency Updates
 
+* Removed `com.exasol:java-util-logging-testing:2.0.1`
 * Updated `com.exasol:virtual-schema-common-java:15.3.2` to `16.1.0`
+* Removed `javax.xml.bind:jaxb-api:2.4.0-b180830.0359`
+
+### Test Dependency Updates
+
+* Added `com.exasol:java-util-logging-testing:2.0.1`
 
 ### Plugin Dependency Updates
 

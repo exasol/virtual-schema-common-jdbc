@@ -12,10 +12,7 @@ import static org.mockito.Mockito.when;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.xml.bind.DatatypeConverter;
+import java.util.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -86,8 +83,8 @@ class RemoteConnectionFactoryTest {
     @Test
     void testGetConnectionWithKerberosDetailsInNamedConnection() throws SQLException, ExaConnectionAccessException {
         final String principal = "the_kerberos_principal";
-        final String base64EncodedKerberosConfig = DatatypeConverter.printBase64Binary("<a></a>".getBytes());
-        final String base64EncodedKeyTab = DatatypeConverter.printBase64Binary("<b></b>".getBytes());
+        final String base64EncodedKerberosConfig = Base64.getEncoder().encodeToString("<a></a>".getBytes());
+        final String base64EncodedKeyTab = Base64.getEncoder().encodeToString("<b></b>".getBytes());
         final String credentialString = "ExaAuthType=Kerberos;" + base64EncodedKerberosConfig + ";"
                 + base64EncodedKeyTab;
         when(this.exaConnectionMock.getUser()).thenReturn(principal);
