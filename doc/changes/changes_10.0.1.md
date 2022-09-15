@@ -1,4 +1,4 @@
-# Virtual Schema Common JDBC 10.0.1, released 2022-??-??
+# Virtual Schema Common JDBC 10.0.1, released 2022-09-15
 
 Code name: Update dependency to virtual-schema-common-java
 
