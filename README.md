@@ -19,6 +19,9 @@
 
 This module contains common parts for Virtual Schema Adapters that use JDBC to access the remote data source.
 
+This module is part of a larger project called [Virtual Schemas](https://github.com/exasol/virtual-schemas) covering JDBC based dialects as well as others, see complete list of [dialects](https://github.com/exasol/virtual-schemas/blob/main/doc/user-guide/dialects.md).
+
+
 ## Customer Support
 
 This is an open source project which is officially supported by Exasol. For any question, you can contact our support team.
