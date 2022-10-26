@@ -1,4 +1,4 @@
-# Virtual Schema Common JDBC 10.0.2, released 2022-10-26
+# Virtual Schema Common JDBC 10.0.2, released 2022-??-??
 
 Code name: Documentation Update
 
