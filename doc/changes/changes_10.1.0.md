@@ -1,6 +1,6 @@
 # Virtual Schema Common JDBC 10.1.0, released 2022-??-??
 
-Code name:
+Code name: Adapter Property to Configure Data Type Detection for Import Statement
 
 ## Summary
 
@@ -28,7 +28,6 @@ The current release therefore introduces an additional adapter property `IMPORT_
 
 * Updated `com.exasol:java-util-logging-testing:2.0.1` to `2.0.2`
 * Updated `nl.jqno.equalsverifier:equalsverifier:3.10` to `3.11.1`
-* Updated `org.apache.derby:derby:10.15.2.0` to `10.16.1.1`
 * Updated `org.junit.jupiter:junit-jupiter:5.8.2` to `5.9.1`
 * Updated `org.mockito:mockito-junit-jupiter:4.6.1` to `4.9.0`
 * Updated `org.skyscreamer:jsonassert:1.5.0` to `1.5.1`
