@@ -31,6 +31,37 @@ This is an open source project which is officially supported by Exasol. For any 
 * [Changelog](doc/changes/changelog.md)
 * [Dependencies](dependencies.md)
 
+### Adapter Properties for JDBC-Based Virtual Schemas
+
+Besides the properties for all Virtual Schemas there is a property specific to JDBC-based Virtual Schemas.
+
+#### Property `IMPORT_DATA_TYPES`
+
+Supported values:
+
+| Value | Description |
+|-------|-------------|
+| `EXASOL_CALCULATED` (default) | Use data types calculated by Exasol database from the query and connection metadata. |
+| `FROM_RESULT_SET` | Infer data types from values of the result set. |
+
+The algorithm behind `EXASOL_CALCULATED` was introduced with VSCJDBC version 10.0.0 and is only available with Exasol 7.1.14, Exasol 8.6.0 and above.
+
+Unfortunately the new algorithm shows problems in scenarios with     
+* data type `CHAR` or `VARCHAR`
+* 8-bit character sets with encodings like `latin1` or `ISO-8859-1`
+* characters being not strictly ASCII, e.g. German umlaut "Ü"
+
+In such scenarios using property `IMPORT_DATA_TYPES` you can deactivate the new algorithm. VSCJDBC will then infer encoding UTF-8 from the data values in the result set which allows Exasol database to accept these values.
+
+Here is an example:
+
+```sql
+CREATE VIRTUAL SCHEMA <virtual schema name>
+    USING SCHEMA_FOR_VS_SCRIPT.<adapter>
+    WITH CONNECTION_NAME = '<connection>'
+    IMPORT_DATA_TYPES = 'FROM_RESULT_SET' ;
+```
+
 ## Information for Developers
 
 * [Virtual Schema API Documentation][vs-api]

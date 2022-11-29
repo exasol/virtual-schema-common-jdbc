@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import com.exasol.ExaMetadata;
 import com.exasol.adapter.AdapterException;
 import com.exasol.adapter.AdapterProperties;
+import com.exasol.adapter.dialects.JdbcAdapterProperties.DataTypeDetection;
 import com.exasol.adapter.dialects.rewriting.SqlGenerationContext;
 import com.exasol.adapter.dialects.rewriting.SqlGenerationVisitor;
 import com.exasol.adapter.jdbc.ConnectionFactory;
@@ -29,7 +30,8 @@ public abstract class AbstractSqlDialect implements SqlDialect {
     private static final Pattern BOOLEAN_PROPERTY_VALUE_PATTERN = Pattern.compile("^TRUE$|^FALSE$",
             Pattern.CASE_INSENSITIVE);
     private static final Set<String> COMMON_SUPPORTED_PROPERTIES = Set.of(CONNECTION_NAME_PROPERTY,
-            TABLE_FILTER_PROPERTY, EXCLUDED_CAPABILITIES_PROPERTY, DEBUG_ADDRESS_PROPERTY, LOG_LEVEL_PROPERTY);
+            TABLE_FILTER_PROPERTY, EXCLUDED_CAPABILITIES_PROPERTY, DEBUG_ADDRESS_PROPERTY, LOG_LEVEL_PROPERTY,
+            JdbcAdapterProperties.DataTypeDetection.KEY);
     /** Factory that creates JDBC connection to the data source */
     protected final ConnectionFactory connectionFactory;
     private final Set<String> supportedProperties;
@@ -182,6 +184,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
         validateSchemaNameProperty();
         validateDebugOutputAddress();
         validateExceptionHandling();
+        DataTypeDetection.validate(this.properties);
     }
 
     /**
