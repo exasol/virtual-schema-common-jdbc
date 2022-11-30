@@ -6,7 +6,8 @@ Code name: Adapter Property to Configure Data Type Detection for Import Statemen
 
 Version 10.0.0 introduced enhanced detection for data types of result sets.
 
-Unfortunately the new algorithm shows problems in scenarios with
+Unfortunately with the new algorithm compatibility problems with the source database can happen under the following circumstances:
+
 * data type `CHAR` or `VARCHAR`
 * 8-bit character sets with encodings like `latin1` or `ISO-8859-1`
 * characters being not strictly ASCII, e.g. German umlaut "Ü"

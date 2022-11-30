@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 import com.exasol.ExaMetadata;
 import com.exasol.adapter.AdapterException;
 import com.exasol.adapter.AdapterProperties;
-import com.exasol.adapter.dialects.JdbcAdapterProperties.DataTypeDetection;
 import com.exasol.adapter.dialects.rewriting.SqlGenerationContext;
 import com.exasol.adapter.dialects.rewriting.SqlGenerationVisitor;
 import com.exasol.adapter.jdbc.ConnectionFactory;
@@ -31,7 +30,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
             Pattern.CASE_INSENSITIVE);
     private static final Set<String> COMMON_SUPPORTED_PROPERTIES = Set.of(CONNECTION_NAME_PROPERTY,
             TABLE_FILTER_PROPERTY, EXCLUDED_CAPABILITIES_PROPERTY, DEBUG_ADDRESS_PROPERTY, LOG_LEVEL_PROPERTY,
-            JdbcAdapterProperties.DataTypeDetection.KEY);
+            DataTypeDetection.STRATEGY_PROPERTY);
     /** Factory that creates JDBC connection to the data source */
     protected final ConnectionFactory connectionFactory;
     private final Set<String> supportedProperties;
@@ -184,7 +183,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
         validateSchemaNameProperty();
         validateDebugOutputAddress();
         validateExceptionHandling();
-        DataTypeDetection.validate(this.properties);
+        validateDataTypeDetectionStrategy();
     }
 
     /**
@@ -306,6 +305,20 @@ public abstract class AbstractSqlDialect implements SqlDialect {
                                 .toString());
                     }
                 }
+            }
+        }
+    }
+
+    private void validateDataTypeDetectionStrategy() throws PropertyValidationException {
+        if (this.properties.containsKey(DataTypeDetection.STRATEGY_PROPERTY)) {
+            final String propertyValue = this.properties.get(DataTypeDetection.STRATEGY_PROPERTY);
+            if (!DataTypeDetection.strategies(Collectors.toSet()).contains(propertyValue)) {
+                throw new PropertyValidationException(ExaError.messageBuilder("E-VSCJDBC-41")
+                        .message("Invalid value {{value}} for property {{property}}.", propertyValue,
+                                DataTypeDetection.STRATEGY_PROPERTY)
+                        .mitigation("Choose one of: {{availableValues|uq}}.",
+                                DataTypeDetection.strategies(Collectors.joining(", ")))
+                        .toString());
             }
         }
     }

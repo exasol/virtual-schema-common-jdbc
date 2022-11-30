@@ -8,7 +8,7 @@ import com.exasol.*;
 import com.exasol.adapter.AdapterException;
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.dialects.*;
-import com.exasol.adapter.dialects.JdbcAdapterProperties.DataTypeDetection;
+import com.exasol.adapter.dialects.DataTypeDetection.Strategy;
 import com.exasol.adapter.jdbc.ConnectionDefinitionBuilder;
 import com.exasol.adapter.jdbc.RemoteMetadataReader;
 import com.exasol.adapter.metadata.DataType;
@@ -56,7 +56,7 @@ public abstract class AbstractQueryRewriter implements QueryRewriter {
     }
 
     private boolean calculateDatatypes(final List<DataType> selectListDataTypes, final AdapterProperties properties) {
-        return (DataTypeDetection.from(properties) == DataTypeDetection.EXASOL_CALCULATED)
+        return (DataTypeDetection.from(properties).getStrategy() == Strategy.EXASOL_CALCULATED)
                 && !selectListDataTypes.isEmpty();
     }
 
