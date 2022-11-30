@@ -18,18 +18,18 @@ public class JdbcAdapterProperties {
      * Select method for specification of data types for {@code IMPORT} statement.
      */
     public enum DataTypeDetection {
-        /** infer data types for {@code IMPORT} statement from values of the result set */
+        /** Infer data types for {@code IMPORT} statement from values of the result set */
         FROM_RESULT_SET,
-        /** let Exasol database calculate the data types for {@code IMPORT} statement based on metadata of connection */
+        /** Let Exasol database calculate the data types for {@code IMPORT} statement based on metadata of connection */
         EXASOL_CALCULATED;
 
-        /** name of adapter property to be passed to CREATE VIRTUAL SCHEMA */
+        /** Name of the adapter property to be passed to {@code CREATE VIRTUAL SCHEMA} */
         public static final String KEY = "IMPORT_DATA_TYPES";
 
         /**
          * Read strategy for data type detection from {@link AdapterProperties}.
          *
-         * @param properties Adapter properties to read data type detection strategy from
+         * @param properties Adapter properties that contain the property for switching the data type detection strategy
          * @return strategy for data type detection
          */
         public static DataTypeDetection from(final AdapterProperties properties) {
@@ -41,9 +41,8 @@ public class JdbcAdapterProperties {
             if (valueOrDefault(string, null) == null) {
                 throw new PropertyValidationException(ExaError.messageBuilder("E-VSCJDBC-41")
                         .message("Invalid value {{value}} for property {{property}}.", string, KEY)
-                        .mitigation("Choose one of: {{availableValues|uq}}.", Arrays.stream(DataTypeDetection.values())
-                                .map(Enum::toString).collect(Collectors.toList()).toString())
-                        .toString());
+                        .mitigation("Choose one of: {{availableValues|uq}}.", EnumSet.allOf(DataTypeDetection.class).stream()
+                                .map(Enum::toString).collect(Collectors.joining(", "));
             }
         }
 

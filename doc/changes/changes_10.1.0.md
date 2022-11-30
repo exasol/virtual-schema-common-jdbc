@@ -15,7 +15,7 @@ The current release therefore introduces an additional adapter property `IMPORT_
 
 ## Features
 
-* #130: Enabled configuration of Data Type Detection for `IMPORT` statement.
+* #130: Added switch for data type detection strategy for `IMPORT` statement.
 
 ## Dependency Updates
 
