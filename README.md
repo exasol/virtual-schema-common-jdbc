@@ -44,7 +44,7 @@ Supported values:
 | `EXASOL_CALCULATED` (default) | Use data types calculated by Exasol database from the query and connection metadata. |
 | `FROM_RESULT_SET` | Infer data types from values of the result set. |
 
-The algorithm behind `EXASOL_CALCULATED` was introduced with VSCJDBC version 10.0.0 and is only available with Exasol 7.1.14, Exasol 8.6.0 and above.
+The algorithm behind `EXASOL_CALCULATED` was introduced with VSCJDBC version 10.0.0 and is only available with from Exasol 7.1.14 on in the 7.1.x series and from Exasol 8.6.0 on and above.
 
 Unfortunately with the new algorithm compatibility problems with the source database can happen under the following circumstances:
 
