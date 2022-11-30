@@ -39,10 +39,10 @@ Besides the [common properties for all Virtual Schemas](https://docs.exasol.com/
 
 Supported values:
 
-| Value | Description |
-|-------|-------------|
+| Value                         | Description                                                                          |
+|-------------------------------|--------------------------------------------------------------------------------------|
 | `EXASOL_CALCULATED` (default) | Use data types calculated by Exasol database from the query and connection metadata. |
-| `FROM_RESULT_SET` | Infer data types from values of the result set. |
+| `FROM_RESULT_SET`             | Infer data types from values of the result set.                                      |
 
 The algorithm behind `EXASOL_CALCULATED` was introduced with VSCJDBC version 10.0.0 and is only available with Exasol 7.1.14, Exasol 8.6.0 and above.
 
