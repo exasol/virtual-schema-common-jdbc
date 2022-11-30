@@ -45,9 +45,8 @@ class AbstractSqlDialectTest {
         final SqlDialect sqlDialect = new DummySqlDialect(null, adapterProperties);
         final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
                 sqlDialect::validateProperties);
-        assertThat(exception.getMessage(),
-                containsString("E-VSCJDBC-14: Please specify a connection using the property '"
-                        + CONNECTION_NAME_PROPERTY + "'."));
+        assertThat(exception.getMessage(), containsString(
+                "E-VSCJDBC-14: Please specify a connection using the property '" + CONNECTION_NAME_PROPERTY + "'."));
     }
 
     private void getMinimumMandatory() {
@@ -217,6 +216,16 @@ class AbstractSqlDialectTest {
         final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
                 sqlDialect::validateProperties);
         assertThat(exception.getMessage(), containsString("E-VSCJDBC-16"));
+    }
+
+    @Test
+    void validateDataTypeDetectionStrategy() {
+        this.rawProperties.put(CONNECTION_NAME_PROPERTY, "");
+        this.rawProperties.put("IMPORT_DATA_TYPES", "xyz");
+        final SqlDialect sqlDialect = new DummySqlDialect(null, new AdapterProperties(this.rawProperties));
+        final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
+                sqlDialect::validateProperties);
+        assertThat(exception.getMessage(), containsString("E-VSCJDBC-41"));
     }
 
     @Test
