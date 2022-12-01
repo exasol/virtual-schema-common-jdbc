@@ -29,7 +29,8 @@ public abstract class AbstractSqlDialect implements SqlDialect {
     private static final Pattern BOOLEAN_PROPERTY_VALUE_PATTERN = Pattern.compile("^TRUE$|^FALSE$",
             Pattern.CASE_INSENSITIVE);
     private static final Set<String> COMMON_SUPPORTED_PROPERTIES = Set.of(CONNECTION_NAME_PROPERTY,
-            TABLE_FILTER_PROPERTY, EXCLUDED_CAPABILITIES_PROPERTY, DEBUG_ADDRESS_PROPERTY, LOG_LEVEL_PROPERTY);
+            TABLE_FILTER_PROPERTY, EXCLUDED_CAPABILITIES_PROPERTY, DEBUG_ADDRESS_PROPERTY, LOG_LEVEL_PROPERTY,
+            DataTypeDetection.STRATEGY_PROPERTY);
     /** Factory that creates JDBC connection to the data source */
     protected final ConnectionFactory connectionFactory;
     private final Set<String> supportedProperties;
@@ -182,6 +183,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
         validateSchemaNameProperty();
         validateDebugOutputAddress();
         validateExceptionHandling();
+        validateDataTypeDetectionStrategy();
     }
 
     /**
@@ -303,6 +305,20 @@ public abstract class AbstractSqlDialect implements SqlDialect {
                                 .toString());
                     }
                 }
+            }
+        }
+    }
+
+    private void validateDataTypeDetectionStrategy() throws PropertyValidationException {
+        if (this.properties.containsKey(DataTypeDetection.STRATEGY_PROPERTY)) {
+            final String propertyValue = this.properties.get(DataTypeDetection.STRATEGY_PROPERTY);
+            if (!DataTypeDetection.strategies(Collectors.toSet()).contains(propertyValue)) {
+                throw new PropertyValidationException(ExaError.messageBuilder("E-VSCJDBC-41")
+                        .message("Invalid value {{value}} for property {{property}}.", propertyValue,
+                                DataTypeDetection.STRATEGY_PROPERTY)
+                        .mitigation("Choose one of: {{availableValues|uq}}.",
+                                DataTypeDetection.strategies(Collectors.joining(", ")))
+                        .toString());
             }
         }
     }

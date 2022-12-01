@@ -8,6 +8,7 @@ import com.exasol.*;
 import com.exasol.adapter.AdapterException;
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.dialects.*;
+import com.exasol.adapter.dialects.DataTypeDetection.Strategy;
 import com.exasol.adapter.jdbc.ConnectionDefinitionBuilder;
 import com.exasol.adapter.jdbc.RemoteMetadataReader;
 import com.exasol.adapter.metadata.DataType;
@@ -47,11 +48,16 @@ public abstract class AbstractQueryRewriter implements QueryRewriter {
         final ExaConnectionInformation exaConnectionInformation = getConnectionInformation(exaMetadata, properties);
         final String connectionDefinition = this.connectionDefinitionBuilder.buildConnectionDefinition(properties,
                 exaConnectionInformation);
-        final String importStatement = selectListDataTypes.isEmpty()
-                ? generateImportStatement(connectionDefinition, pushdownQuery)
-                : generateImportStatement(connectionDefinition, selectListDataTypes, pushdownQuery);
+        final String importStatement = calculateDatatypes(selectListDataTypes, properties) //
+                ? generateImportStatement(connectionDefinition, selectListDataTypes, pushdownQuery)
+                : generateImportStatement(connectionDefinition, pushdownQuery);
         LOGGER.finer(() -> "Import push-down statement:\n" + importStatement);
         return importStatement;
+    }
+
+    private boolean calculateDatatypes(final List<DataType> selectListDataTypes, final AdapterProperties properties) {
+        return (DataTypeDetection.from(properties).getStrategy() == Strategy.EXASOL_CALCULATED)
+                && !selectListDataTypes.isEmpty();
     }
 
     private String createPushdownQuery(final SqlStatement statement, final AdapterProperties properties)

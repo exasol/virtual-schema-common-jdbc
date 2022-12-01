@@ -4,8 +4,7 @@ import static com.exasol.adapter.AdapterProperties.*;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -45,9 +44,8 @@ class AbstractSqlDialectTest {
         final SqlDialect sqlDialect = new DummySqlDialect(null, adapterProperties);
         final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
                 sqlDialect::validateProperties);
-        assertThat(exception.getMessage(),
-                containsString("E-VSCJDBC-14: Please specify a connection using the property '"
-                        + CONNECTION_NAME_PROPERTY + "'."));
+        assertThat(exception.getMessage(), containsString(
+                "E-VSCJDBC-14: Please specify a connection using the property '" + CONNECTION_NAME_PROPERTY + "'."));
     }
 
     private void getMinimumMandatory() {
@@ -168,36 +166,10 @@ class AbstractSqlDialectTest {
         assertThat(sqlDialect.getPrefixFunctionAliases().get(ScalarFunction.NEG), equalTo("-"));
     }
 
-    @Test
-    void testValidateSupportedPropertiesList() {
-        this.rawProperties.put("SOME_PROPERTY", "");
-        final SqlDialect sqlDialect = new DummySqlDialect(null, new AdapterProperties(this.rawProperties));
-        final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
-                sqlDialect::validateProperties);
-        assertAll(() -> assertThat(exception.getMessage(), containsString("E-VSCJDBC-13")),
-                () -> assertThat(exception.getMessage(), containsString("SOME_PROPERTY")));
-    }
-
-    @Test
-    void testValidateCatalogNameProperty() {
-        this.rawProperties.put(CONNECTION_NAME_PROPERTY, "");
-        this.rawProperties.put(CATALOG_NAME_PROPERTY, "");
-        final SqlDialect sqlDialect = new DummySqlDialect(null, new AdapterProperties(this.rawProperties));
-        final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
-                sqlDialect::validateProperties);
-        assertAll(() -> assertThat(exception.getMessage(), containsString("E-VSCJDBC-13")),
-                () -> assertThat(exception.getMessage(), containsString(CATALOG_NAME_PROPERTY)));
-    }
-
-    @Test
-    void testValidateSchemaNameProperty() {
-        this.rawProperties.put(CONNECTION_NAME_PROPERTY, "");
-        this.rawProperties.put(SCHEMA_NAME_PROPERTY, "");
-        final SqlDialect sqlDialect = new DummySqlDialect(null, new AdapterProperties(this.rawProperties));
-        final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
-                sqlDialect::validateProperties);
-        assertAll(() -> assertThat(exception.getMessage(), containsString("E-VSCJDBC-13")),
-                () -> assertThat(exception.getMessage(), containsString(SCHEMA_NAME_PROPERTY)));
+    @ParameterizedTest
+    @ValueSource(strings = { "SOME_PROPERTY", CATALOG_NAME_PROPERTY, SCHEMA_NAME_PROPERTY })
+    void testEmptyProperties(final String propertyName) {
+        verifyValidationException(propertyName, "", "E-VSCJDBC-13");
     }
 
     @Test
@@ -211,12 +183,33 @@ class AbstractSqlDialectTest {
 
     @Test
     void testValidateExceptionHandling() {
+        verifyValidationException(EXCEPTION_HANDLING_PROPERTY, "unknown mode", "E-VSCJDBC-16");
+    }
+
+    @Test
+    void validateDataTypeDetectionStrategy() {
+        verifyValidationException(DataTypeDetection.STRATEGY_PROPERTY, "unknown strategy", "E-VSCJDBC-41");
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "", "EXASOL_CALCULATED", "FROM_RESULT_SET" })
+    void validDataTypeDetectionStrategies(final String strategy) {
         this.rawProperties.put(CONNECTION_NAME_PROPERTY, "");
-        this.rawProperties.put(EXCEPTION_HANDLING_PROPERTY, "unknown mode");
+        if (!strategy.isEmpty()) {
+            this.rawProperties.put(DataTypeDetection.STRATEGY_PROPERTY, strategy);
+        }
+        final SqlDialect sqlDialect = new DummySqlDialect(null, new AdapterProperties(this.rawProperties));
+        assertDoesNotThrow(sqlDialect::validateProperties);
+    }
+
+    private void verifyValidationException(final String property, final String value, final String errorcode) {
+        this.rawProperties.put(CONNECTION_NAME_PROPERTY, "");
+        this.rawProperties.put(property, value);
         final SqlDialect sqlDialect = new DummySqlDialect(null, new AdapterProperties(this.rawProperties));
         final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
                 sqlDialect::validateProperties);
-        assertThat(exception.getMessage(), containsString("E-VSCJDBC-16"));
+        assertAll(() -> assertThat(exception.getMessage(), containsString(errorcode)),
+                () -> assertThat(exception.getMessage(), containsString(property)));
     }
 
     @Test
