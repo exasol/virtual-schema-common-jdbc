@@ -1,4 +1,4 @@
-# Virtual Schema Common JDBC 10.1.0, released 2022-11-30
+# Virtual Schema Common JDBC 10.1.0, released 2022-12-01
 
 Code name: Adapter Property to Configure Data Type Detection for Import Statement
 
