@@ -10,7 +10,7 @@
         <dependency>
             <groupId>com.exasol</groupId>
             <artifactId>virtual-schema-common-java</artifactId>
-            <version>16.1.2</version>
+            <version>16.2.0</version>
         </dependency>
         <dependency>
             <groupId>com.exasol</groupId>
