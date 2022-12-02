@@ -1,4 +1,4 @@
-# Virtual Schema Common JDBC 10.1.0, released 2022-12-01
+# Virtual Schema Common JDBC 10.1.0, released 2022-12-02
 
 Code name: Adapter Property to Configure Data Type Detection for Import Statement
 
@@ -23,7 +23,7 @@ The current release therefore introduces an additional adapter property `IMPORT_
 ### Compile Dependency Updates
 
 * Updated `com.exasol:error-reporting-java:0.4.1` to `1.0.0`
-* Updated `com.exasol:virtual-schema-common-java:16.1.1` to `16.1.2`
+* Updated `com.exasol:virtual-schema-common-java:16.1.1` to `16.2.0`
 
 ### Test Dependency Updates
 
