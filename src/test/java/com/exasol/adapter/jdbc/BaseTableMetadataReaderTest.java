@@ -4,24 +4,28 @@ import static com.exasol.adapter.jdbc.BaseTableMetadataReader.NAME_COLUMN;
 import static com.exasol.adapter.jdbc.TableMetadataMockUtils.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 import java.sql.*;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.dialects.BaseIdentifierConverter;
 import com.exasol.adapter.metadata.*;
 import com.exasol.logging.CapturingLogHandler;
+import org.mockito.stubbing.Answer;
+
+import static com.exasol.adapter.jdbc.JDBCAdapterProperties.JDBC_MAXTABLES_PROPERTY;
 
 @ExtendWith(MockitoExtension.class)
 class BaseTableMetadataReaderTest {
@@ -112,10 +116,62 @@ class BaseTableMetadataReaderTest {
         final TableMetadataReader metadataReader = createDefaultTableMetadataReader();
         final RemoteMetadataReaderException exception = assertThrows(RemoteMetadataReaderException.class,
                 () -> metadataReader.mapTables(resultSetMock, Collections.emptyList()));
-        assertAll(
-                () -> assertThat(exception.getMessage(), containsString("E-VSCJDBC-42")),
-                () -> assertThat(exception.getMessage(), containsString("1000"))
+        assertAll( //
+                () -> assertThat(exception.getMessage(), containsString("E-VSCJDBC-42")) //
+                , () -> assertThat(exception.getMessage(), containsString("1000")) //
         );
+    }
+
+    @Test
+    void testValidateMappedTablesListSizeWithParam() throws SQLException {
+        final ResultSet resultSetMock = Mockito.mock(ResultSet.class);
+        when(resultSetMock.next()).thenReturn(true);
+        when(resultSetMock.getString(NAME_COLUMN)).thenReturn("table");
+        when(this.columnMetadataReaderMock.mapColumns("table"))
+                .thenReturn(List.of(ColumnMetadata.builder().name("column").type(DataType.createBool()).build()));
+        final TableMetadataReader metadataReader = createDefaultTableMetadataReader();
+        final RemoteMetadataReaderException exception = assertThrows(RemoteMetadataReaderException.class,
+                () -> metadataReader.mapTables(resultSetMock, Collections.emptyList()));
+        assertAll( //
+                () -> assertThat(exception.getMessage(), containsString("E-VSCJDBC-42")) //
+                , () -> assertThat(exception.getMessage(), containsString("2000")) //
+        );
+    }
+
+    // verify that the actual table limit is part of the error message
+    @Test
+    void testValidateMappedTablesListSizeWithProperty2000() throws SQLException {
+        final ResultSet resultSetMock = Mockito.mock(ResultSet.class);
+        when(resultSetMock.next()).thenReturn(true);
+        when(resultSetMock.getString(NAME_COLUMN)).thenReturn("table");
+        when(this.columnMetadataReaderMock.mapColumns("table"))
+                .thenReturn(List.of(ColumnMetadata.builder().name("column").type(DataType.createBool()).build()));
+        final TableMetadataReader metadataReader = createTableMetadataReaderWithProperties(
+                new AdapterProperties(Map.of(JDBC_MAXTABLES_PROPERTY, "2000")));
+        final RemoteMetadataReaderException exception = assertThrows(RemoteMetadataReaderException.class,
+                () -> metadataReader.mapTables(resultSetMock, Collections.emptyList()));
+        assertAll(() -> assertThat(exception.getMessage(), containsString("E-VSCJDBC-42")),
+                () -> assertThat(exception.getMessage(), containsString("2000")));
+    }
+
+    // verify that it does map 3000 tables when the parameter is set so
+    @Test
+    void testValidateMappedTablesListSizeWithProperty3000() throws SQLException {
+        final ResultSet resultSetMock = Mockito.mock(ResultSet.class);
+        // limit number of returned tables, so we can confirm it does map 3000 tables
+        final AtomicInteger tableNumber = new AtomicInteger(0);
+        final int sourceTableCount = 3000;
+        when(resultSetMock.next()).then( //
+                (Answer<Boolean>) invocationOnMock -> tableNumber.getAndIncrement() < sourceTableCount //
+        );
+        when(resultSetMock.getString(NAME_COLUMN)).thenReturn("table");
+        when(this.columnMetadataReaderMock.mapColumns("table"))
+                .thenReturn(List.of(ColumnMetadata.builder().name("column").type(DataType.createBool()).build()));
+        final TableMetadataReader metadataReader = createTableMetadataReaderWithProperties(
+                new AdapterProperties(Map.of(JDBC_MAXTABLES_PROPERTY, "3000")));
+        List<TableMetadata> mappedTables = assertDoesNotThrow(
+                () -> metadataReader.mapTables(resultSetMock, Collections.emptyList()));
+        assertThat(mappedTables.size(), equalTo(3000));
     }
 
     @Test
