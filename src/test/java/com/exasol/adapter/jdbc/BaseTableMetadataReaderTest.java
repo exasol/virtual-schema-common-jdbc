@@ -122,22 +122,6 @@ class BaseTableMetadataReaderTest {
         );
     }
 
-    @Test
-    void testValidateMappedTablesListSizeWithParam() throws SQLException {
-        final ResultSet resultSetMock = Mockito.mock(ResultSet.class);
-        when(resultSetMock.next()).thenReturn(true);
-        when(resultSetMock.getString(NAME_COLUMN)).thenReturn("table");
-        when(this.columnMetadataReaderMock.mapColumns("table"))
-                .thenReturn(List.of(ColumnMetadata.builder().name("column").type(DataType.createBool()).build()));
-        final TableMetadataReader metadataReader = createDefaultTableMetadataReader();
-        final RemoteMetadataReaderException exception = assertThrows(RemoteMetadataReaderException.class,
-                () -> metadataReader.mapTables(resultSetMock, Collections.emptyList()));
-        assertAll( //
-                () -> assertThat(exception.getMessage(), containsString("E-VSCJDBC-42")) //
-                , () -> assertThat(exception.getMessage(), containsString("2000")) //
-        );
-    }
-
     // verify that the actual table limit is part of the error message
     @Test
     void testValidateMappedTablesListSizeWithProperty2000() throws SQLException {
