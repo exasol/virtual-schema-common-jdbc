@@ -20,7 +20,7 @@ import static com.exasol.adapter.jdbc.JDBCAdapterProperties.JDBC_MAXTABLES_PROPE
 public class BaseTableMetadataReader extends AbstractMetadataReader implements TableMetadataReader {
     static final String NAME_COLUMN = "TABLE_NAME";
     static final String REMARKS_COLUMN = "REMARKS";
-    static final String DEFAULT_TABLE_ADAPTER_NOTES = "";
+    protected static final String DEFAULT_TABLE_ADAPTER_NOTES = "";
     private static final Logger LOGGER = Logger.getLogger(BaseTableMetadataReader.class.getName());
     private static final Pattern UNQUOTED_IDENTIFIER_PATTERN = Pattern.compile("^[a-z][0-9a-z_]*");
     private static final int DEFAULT_MAX_MAPPED_TABLE_LIST_SIZE = 1000;
@@ -120,7 +120,7 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
         return new TableMetadata(adjustIdentifierCase(tableName), DEFAULT_TABLE_ADAPTER_NOTES, columns, comment);
     }
 
-    private String adjustIdentifierCase(final String tableName) {
+    protected String adjustIdentifierCase(final String tableName) {
         return this.identifierConverter.convert(tableName);
     }
 
