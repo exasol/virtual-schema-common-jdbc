@@ -11,6 +11,9 @@ import com.exasol.adapter.metadata.ColumnMetadata;
 import com.exasol.adapter.metadata.TableMetadata;
 import com.exasol.errorreporting.ExaError;
 
+import static com.exasol.adapter.AdapterProperties.TABLE_FILTER_PROPERTY;
+import static com.exasol.adapter.jdbc.JDBCAdapterProperties.JDBC_MAXTABLES_PROPERTY;
+
 /**
  * This class maps metadata of tables from the remote source to Exasol.
  */
@@ -21,7 +24,9 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
     private static final Logger LOGGER = Logger.getLogger(BaseTableMetadataReader.class.getName());
     private static final Pattern UNQUOTED_IDENTIFIER_PATTERN = Pattern.compile("^[a-z][0-9a-z_]*");
     private static final int DEFAULT_MAX_MAPPED_TABLE_LIST_SIZE = 1000;
-    /** Column metadata reader */
+    /**
+     * Column metadata reader
+     */
     protected ColumnMetadataReader columnMetadataReader;
     private final IdentifierConverter identifierConverter;
 
@@ -80,7 +85,7 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
 
     /**
      * Read the table name from a result set.
-     * 
+     *
      * @param remoteTables result set
      * @return table name
      * @throws SQLException if something goes wrong
@@ -103,7 +108,7 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
 
     /**
      * Read the table metadata from a result set.
-     * 
+     *
      * @param table     result set
      * @param tableName table to read (name)
      * @return table metadata
@@ -132,7 +137,7 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
 
     /**
      * Check if a table has columns.
-     * 
+     *
      * @param tableMetadata table metadata
      * @return {@code true} if table has columns
      */
@@ -140,19 +145,46 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
         return !tableMetadata.getColumns().isEmpty();
     }
 
-    private void validateMappedTablesListSize(final List<TableMetadata> selectedTables) {
-        if (selectedTables.size() > DEFAULT_MAX_MAPPED_TABLE_LIST_SIZE) {
-            throw new RemoteMetadataReaderException(ExaError.messageBuilder("E-VSCJDBC-24")
-                    .message("The size of the list of the selected tables exceeded the default allowed maximum: "
-                            + DEFAULT_MAX_MAPPED_TABLE_LIST_SIZE)
-                    .mitigation("Please, use the 'TABLE_FILTER' property to define the list of tables you need.")
+    /**
+     * Method to look up and validate the configured maximum table count
+     * 
+     * @return Number of tables to map at most
+     */
+    private int getMaxMappedTableCount() {
+        if (!this.properties.containsKey(JDBC_MAXTABLES_PROPERTY)) {
+            return DEFAULT_MAX_MAPPED_TABLE_LIST_SIZE;
+        }
+        try {
+            return Integer.parseInt(this.properties.get(JDBC_MAXTABLES_PROPERTY));
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException(ExaError.messageBuilder("E-VSCJDBC-43") //
+                    .message("Invalid parameter value") //
+                    .mitigation(
+                            "The adapter property {{max_tables_property}}" + " if present, must be a positive integer.") //
+                    .parameter("max_tables_property", JDBC_MAXTABLES_PROPERTY) //
+                    .toString());
+        }
+    }
+
+    protected void validateMappedTablesListSize(final List<TableMetadata> selectedTables) {
+        int maxTableCount = getMaxMappedTableCount();
+        if (selectedTables.size() > maxTableCount) {
+            throw new RemoteMetadataReaderException(ExaError.messageBuilder("E-VSCJDBC-42")
+                    .message("The size of the list of the selected tables exceeds" //
+                            + " the configured allowed maximum of {{current_limit}}.")
+                    .mitigation(
+                            "Please use the {{table_filter_property}} property to define the list of tables you need" //
+                                    + " or increase the limit using the {{max_tables_property}} property.") //
+                    .parameter("current_limit", maxTableCount) //
+                    .parameter("table_filter_property", TABLE_FILTER_PROPERTY) //
+                    .parameter("max_tables_property", JDBC_MAXTABLES_PROPERTY) //
                     .toString());
         }
     }
 
     /**
      * Check if a table is supported.
-     * 
+     *
      * @param filteredTables filtered tables
      * @param tableName      table to check
      * @return {@code true} if table is supported
@@ -173,7 +205,7 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
 
     /**
      * Log the skipping of an unsupported table.
-     * 
+     *
      * @param tableName table name
      */
     protected void logSkippingUnsupportedTable(final String tableName) {
@@ -196,7 +228,7 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
 
     /**
      * Check if a given table is filtered.
-     * 
+     *
      * @param tableName      table to check
      * @param filteredTables list of filtered tables
      * @return {@code true} if the table is filtered
@@ -207,7 +239,7 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
 
     /**
      * Check if no tables are filtered.
-     * 
+     *
      * @param filteredTables filtered tables
      * @return {@code true} if no filter is applied
      */
@@ -217,7 +249,7 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
 
     /**
      * Log the skipping of a table with no columns.
-     * 
+     *
      * @param tableName table name
      */
     protected void logSkippingTableWithEmptyColumns(final String tableName) {
@@ -228,7 +260,7 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
 
     /**
      * Check if an identifier is unquoted.
-     * 
+     *
      * @param identifier identifier to check
      * @return {@code true} if it's unquoted
      */

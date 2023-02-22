@@ -35,7 +35,7 @@ class BaseTableMetadataReaderTest {
     private ColumnMetadataReader columnMetadataReaderMock;
 
     @Test
-    void testIsTableIncludedByMapping() throws SQLException {
+    void testIsTableIncludedByMapping() {
         assertThat(createDefaultTableMetadataReader().isTableIncludedByMapping("any name"), equalTo(true));
     }
 
@@ -104,6 +104,7 @@ class BaseTableMetadataReaderTest {
     @Test
     void testValidateMappedTablesListSize() throws SQLException {
         final ResultSet resultSetMock = Mockito.mock(ResultSet.class);
+        // TODO: limit number of returned tables, validate that changing the MAX_TABLE_COUNT property fixes problem
         when(resultSetMock.next()).thenReturn(true);
         when(resultSetMock.getString(NAME_COLUMN)).thenReturn("table");
         when(this.columnMetadataReaderMock.mapColumns("table"))
@@ -111,7 +112,10 @@ class BaseTableMetadataReaderTest {
         final TableMetadataReader metadataReader = createDefaultTableMetadataReader();
         final RemoteMetadataReaderException exception = assertThrows(RemoteMetadataReaderException.class,
                 () -> metadataReader.mapTables(resultSetMock, Collections.emptyList()));
-        assertThat(exception.getMessage(), containsString("E-VSCJDBC-24"));
+        assertAll(
+                () -> assertThat(exception.getMessage(), containsString("E-VSCJDBC-42")),
+                () -> assertThat(exception.getMessage(), containsString("1000"))
+        );
     }
 
     @Test

@@ -1,6 +1,7 @@
 package com.exasol.adapter.dialects;
 
 import static com.exasol.adapter.AdapterProperties.*;
+import static com.exasol.adapter.jdbc.JDBCAdapterProperties.JDBC_MAXTABLES_PROPERTY;
 
 import java.sql.SQLException;
 import java.util.*;
@@ -30,7 +31,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
             Pattern.CASE_INSENSITIVE);
     private static final Set<String> COMMON_SUPPORTED_PROPERTIES = Set.of(CONNECTION_NAME_PROPERTY,
             TABLE_FILTER_PROPERTY, EXCLUDED_CAPABILITIES_PROPERTY, DEBUG_ADDRESS_PROPERTY, LOG_LEVEL_PROPERTY,
-            DataTypeDetection.STRATEGY_PROPERTY);
+            DataTypeDetection.STRATEGY_PROPERTY, JDBC_MAXTABLES_PROPERTY);
     /** Factory that creates JDBC connection to the data source */
     protected final ConnectionFactory connectionFactory;
     private final Set<String> supportedProperties;
