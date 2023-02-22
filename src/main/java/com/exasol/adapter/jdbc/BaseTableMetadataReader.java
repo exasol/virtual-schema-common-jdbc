@@ -20,6 +20,9 @@ import static com.exasol.adapter.jdbc.JDBCAdapterProperties.JDBC_MAXTABLES_PROPE
 public class BaseTableMetadataReader extends AbstractMetadataReader implements TableMetadataReader {
     static final String NAME_COLUMN = "TABLE_NAME";
     static final String REMARKS_COLUMN = "REMARKS";
+    /**
+     * Default adapter notes to be added to tables (empty)
+     */
     protected static final String DEFAULT_TABLE_ADAPTER_NOTES = "";
     private static final Logger LOGGER = Logger.getLogger(BaseTableMetadataReader.class.getName());
     private static final Pattern UNQUOTED_IDENTIFIER_PATTERN = Pattern.compile("^[a-z][0-9a-z_]*");
@@ -120,6 +123,11 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
         return new TableMetadata(adjustIdentifierCase(tableName), DEFAULT_TABLE_ADAPTER_NOTES, columns, comment);
     }
 
+    /**
+     * Convert the given identifier to the proper casing using the underlying IdentifierConverter
+     * @param tableName Table name as provided by source
+     * @return Table name as required by the virtual schema host database
+     */
     protected String adjustIdentifierCase(final String tableName) {
         return this.identifierConverter.convert(tableName);
     }
@@ -166,7 +174,12 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
         }
     }
 
-    protected void validateMappedTablesListSize(final List<TableMetadata> selectedTables) {
+    /**
+     * Verify that the given list of mapped tables does not exceed the configured max table limit.
+     * @param selectedTables List of tables mapped so far
+     * @throws RemoteMetadataReaderException if the table limit has been exceeded
+     */
+    protected void validateMappedTablesListSize(final List<TableMetadata> selectedTables) throws RemoteMetadataReaderException {
         int maxTableCount = getMaxMappedTableCount();
         if (selectedTables.size() > maxTableCount) {
             throw new RemoteMetadataReaderException(ExaError.messageBuilder("E-VSCJDBC-42")
