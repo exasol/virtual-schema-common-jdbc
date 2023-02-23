@@ -16,7 +16,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.exasol.adapter.AdapterProperties;
@@ -114,8 +113,9 @@ class BaseTableMetadataReaderTest {
         when(this.columnMetadataReaderMock.mapColumns("table"))
                 .thenReturn(List.of(ColumnMetadata.builder().name("column").type(DataType.createBool()).build()));
         final TableMetadataReader metadataReader = createDefaultTableMetadataReader();
+        final List<String> noFilter = Collections.emptyList();
         final RemoteMetadataReaderException exception = assertThrows(RemoteMetadataReaderException.class,
-                () -> metadataReader.mapTables(resultSetMock, Collections.emptyList()));
+                () -> metadataReader.mapTables(resultSetMock, noFilter));
         assertAll( //
                 () -> assertThat(exception.getMessage(), containsString("E-VSCJDBC-42")) //
                 , () -> assertThat(exception.getMessage(), containsString("1000")) //
@@ -132,8 +132,9 @@ class BaseTableMetadataReaderTest {
                 .thenReturn(List.of(ColumnMetadata.builder().name("column").type(DataType.createBool()).build()));
         final TableMetadataReader metadataReader = createTableMetadataReaderWithProperties(
                 new AdapterProperties(Map.of(JDBC_MAXTABLES_PROPERTY, "2000")));
+        final List<String> noFilter = Collections.emptyList();
         final RemoteMetadataReaderException exception = assertThrows(RemoteMetadataReaderException.class,
-                () -> metadataReader.mapTables(resultSetMock, Collections.emptyList()));
+                () -> metadataReader.mapTables(resultSetMock, noFilter));
         assertAll(() -> assertThat(exception.getMessage(), containsString("E-VSCJDBC-42")),
                 () -> assertThat(exception.getMessage(), containsString("2000")));
     }

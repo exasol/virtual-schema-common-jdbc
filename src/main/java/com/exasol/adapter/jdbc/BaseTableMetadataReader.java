@@ -154,24 +154,15 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
     }
 
     /**
-     * Method to look up and validate the configured maximum table count
+     * Unchecked method to look up the configured maximum table count
      * 
      * @return Number of tables to map at most
      */
-    private int getMaxMappedTableCount() {
+    private int getMaxMappedTableCountRaw() {
         if (!this.properties.containsKey(JDBC_MAXTABLES_PROPERTY)) {
             return DEFAULT_MAX_MAPPED_TABLE_LIST_SIZE;
         }
-        try {
-            return Integer.parseInt(this.properties.get(JDBC_MAXTABLES_PROPERTY));
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException(ExaError.messageBuilder("E-VSCJDBC-43") //
-                    .message("Invalid parameter value") //
-                    .mitigation(
-                            "The adapter property {{max_tables_property}}" + " if present, must be a positive integer.") //
-                    .parameter("max_tables_property", JDBC_MAXTABLES_PROPERTY) //
-                    .toString());
-        }
+        return Integer.parseUnsignedInt(this.properties.get(JDBC_MAXTABLES_PROPERTY));
     }
 
     /**
@@ -180,7 +171,7 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
      * @throws RemoteMetadataReaderException if the table limit has been exceeded
      */
     protected void validateMappedTablesListSize(final List<TableMetadata> selectedTables) throws RemoteMetadataReaderException {
-        int maxTableCount = getMaxMappedTableCount();
+        int maxTableCount = getMaxMappedTableCountRaw();
         if (selectedTables.size() > maxTableCount) {
             throw new RemoteMetadataReaderException(ExaError.messageBuilder("E-VSCJDBC-42")
                     .message("The size of the list of the selected tables exceeds" //

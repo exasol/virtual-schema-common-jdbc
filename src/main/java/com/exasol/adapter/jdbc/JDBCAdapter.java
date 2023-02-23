@@ -14,6 +14,8 @@ import com.exasol.adapter.request.*;
 import com.exasol.adapter.response.*;
 import com.exasol.errorreporting.ExaError;
 
+import static com.exasol.adapter.jdbc.JDBCAdapterProperties.JDBC_MAXTABLES_PROPERTY;
+
 /**
  * This class implements main logic for different types of requests a virtual schema JDBC adapter can receive.
  */
@@ -40,6 +42,7 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
             final CreateVirtualSchemaRequest request) throws AdapterException {
         logCreateVirtualSchemaRequestReceived(request);
         final AdapterProperties properties = getPropertiesFromRequest(request);
+        validateProperties(properties);
         try {
             final SchemaMetadata remoteMeta = readMetadata(properties, exasolMetadata);
             return CreateVirtualSchemaResponse.builder().schemaMetadata(remoteMeta).build();
@@ -144,12 +147,49 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
         final Map<String, String> mergedRawProperties = mergeProperties(schemaMetadataInfo.getProperties(),
                 requestRawProperties);
         final AdapterProperties mergedProperties = new AdapterProperties(mergedRawProperties);
+
+        validateProperties(mergedProperties);
+
         if (AdapterProperties.isRefreshingVirtualSchemaRequired(requestRawProperties)) {
             final List<String> tableFilter = getTableFilter(mergedRawProperties);
             final SchemaMetadata remoteMeta = readMetadata(mergedProperties, tableFilter, metadata);
             return SetPropertiesResponse.builder().schemaMetadata(remoteMeta).build();
         }
         return SetPropertiesResponse.builder().schemaMetadata(null).build();
+    }
+
+    /**
+     * Validate the given properties to be compatible / complete for the adapter
+     *
+     * Any overriding implementation should call the super method to avoid missing checks!
+     *
+     * @param properties The complete set of properties to be validated
+     */
+    protected  void validateAdapterProperties(AdapterProperties properties) throws PropertyValidationException {
+        if (properties.containsKey(JDBC_MAXTABLES_PROPERTY)) {
+            int result = 0;
+            try {
+                result = Integer.parseUnsignedInt(properties.get(JDBC_MAXTABLES_PROPERTY));
+            } catch (NumberFormatException e) {
+                // pass
+            }
+            if( result == 0 ) {
+                throw new PropertyValidationException(ExaError.messageBuilder("E-VSCJDBC-43") //
+                        .message("Invalid parameter value.") //
+                        .mitigation(
+                                "The adapter property {{max_tables_property}}" + " if present, must be a positive integer.") //
+                        .parameter("max_tables_property", JDBC_MAXTABLES_PROPERTY) //
+                        .toString());
+            }
+        }
+    }
+
+    // Validate properties for both the base adapter and the sql dialect
+    private void validateProperties(AdapterProperties properties) throws PropertyValidationException {
+        validateAdapterProperties(properties);
+        if( this.sqlDialectFactory != null ) {
+            this.sqlDialectFactory.createSqlDialect(null, properties).validateProperties();
+        }
     }
 
     private Map<String, String> mergeProperties(final Map<String, String> previousRawProperties,
