@@ -164,6 +164,7 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
      * Any overriding implementation should call the super method to avoid missing checks!
      *
      * @param properties The complete set of properties to be validated
+     * @throws PropertyValidationException if any single property or combination is invalid or missing
      */
     protected  void validateAdapterProperties(AdapterProperties properties) throws PropertyValidationException {
         if (properties.containsKey(JDBC_MAXTABLES_PROPERTY)) {
