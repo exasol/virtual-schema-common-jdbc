@@ -202,7 +202,7 @@ class JDBCAdapterTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"hello", "0", "-1", ""})
+    @ValueSource(strings = {"hello", "0", "-1", "", "1,700"})
     void testValidateMaxTablesAtCreate(String paramValue) {
         setDerbyConnectionNameProperty();
         final SchemaMetadataInfo schemaMetadataInfo = createSchemaMetadataInfo();
@@ -215,7 +215,7 @@ class JDBCAdapterTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"hello", "0", "-1", ""})
+    @ValueSource(strings = {"hello", "0", "-1", "", "1,700"})
     void testValidateMaxTablesAtUpdate(String paramValue) throws ExaConnectionAccessException {
         setDerbyConnectionNameProperty();
         final CreateVirtualSchemaRequest request = new CreateVirtualSchemaRequest(createSchemaMetadataInfo());

@@ -107,7 +107,6 @@ class BaseTableMetadataReaderTest {
     @Test
     void testValidateMappedTablesListSize() throws SQLException {
         final ResultSet resultSetMock = Mockito.mock(ResultSet.class);
-        // TODO: limit number of returned tables, validate that changing the MAX_TABLE_COUNT property fixes problem
         when(resultSetMock.next()).thenReturn(true);
         when(resultSetMock.getString(NAME_COLUMN)).thenReturn("table");
         when(this.columnMetadataReaderMock.mapColumns("table"))
