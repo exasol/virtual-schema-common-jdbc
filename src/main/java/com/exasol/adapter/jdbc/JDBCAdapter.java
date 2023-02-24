@@ -116,10 +116,9 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
      *
      * @param properties           adapter properties
      * @param remoteTableAllowList allow list for remote tables
-     * @param exasolMetadata       exasol metadata
+     * @param exasolMetadata       ExaMetadata
      * @return schema metadata
      * @throws PropertyValidationException if properties are invalid
-     * @throws SQLException
      */
     // Do we really need this method?
     // had only been called in tests.

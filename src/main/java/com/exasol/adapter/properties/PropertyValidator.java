@@ -50,8 +50,8 @@ public class PropertyValidator {
     /**
      * Validate the property
      *
-     * @param properties
-     * @throws PropertyValidationException
+     * @param properties adapter properties to validate
+     * @throws PropertyValidationException in case validation fails
      */
     public void validate(final AdapterProperties properties) throws PropertyValidationException {
         if (properties.containsKey(this.propertyName)) {

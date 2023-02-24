@@ -56,7 +56,7 @@ public final class TableCountLimit {
     private final int maxNumberOfTables;
 
     /**
-     * @param maxNumberOfTables
+     * @param maxNumberOfTables maximum number of tables to be accepted
      */
     public TableCountLimit(final int maxNumberOfTables) {
         this.maxNumberOfTables = maxNumberOfTables;
