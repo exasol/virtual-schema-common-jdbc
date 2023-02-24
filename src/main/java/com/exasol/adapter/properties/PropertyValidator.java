@@ -46,6 +46,7 @@ public interface PropertyValidator {
      *
      * @param propertyName   name of the property
      * @param valueValidator Validator for the value of the current property if the property is set
+     * @return property validator for a property ignoring an empty value for this property
      */
     public static PropertyValidator ignoreEmpty(final String propertyName,
             final PropertyValueValidator valueValidator) {

@@ -63,14 +63,6 @@ public final class TableCountLimit {
     }
 
     /**
-     * @param numberOfTables actual number of tables
-     * @return {@code true} if the provided actual number of tables is accepted.
-     */
-    public boolean accepts(final int numberOfTables) {
-        return numberOfTables <= this.maxNumberOfTables;
-    }
-
-    /**
      * Verify that the given number of mapped tables does not exceed the configured max table limit.
      *
      * @param numberOfTables actual size of mapped tables
