@@ -20,7 +20,7 @@ public class DataTypeDetection {
      * @return validator for the property controlling the strategy for data type detection.
      */
     public static PropertyValidator getValidator() {
-        return new PropertyValidator(STRATEGY_PROPERTY, DataTypeDetection::validatePropertyValue);
+        return PropertyValidator.optional(STRATEGY_PROPERTY, DataTypeDetection::validatePropertyValue);
     }
 
     private static void validatePropertyValue(final String value) throws PropertyValidationException {

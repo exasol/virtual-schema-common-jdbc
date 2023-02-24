@@ -22,7 +22,7 @@ public final class TableCountLimit {
      * @return validator for the property controlling the maximum number of tables to be mapped.
      */
     public static PropertyValidator getValidator() {
-        return new PropertyValidator(MAXTABLES_PROPERTY, TableCountLimit::validatePropertyValue);
+        return PropertyValidator.optional(MAXTABLES_PROPERTY, TableCountLimit::validatePropertyValue);
     }
 
     private static void validatePropertyValue(final String value) throws PropertyValidationException {

@@ -27,7 +27,7 @@ public class ValidatorChain {
      * Validate the specified properties by applying all property validators subsequently.
      *
      * @param properties adapter properties to be verified
-     * @throws PropertyValidationException in case one of the validators fails to validate it's corresponding property
+     * @throws PropertyValidationException in case one of the validators fails to validate its corresponding property
      */
     public void validate(final AdapterProperties properties) throws PropertyValidationException {
         for (final PropertyValidator validator : this.propertyValidators) {

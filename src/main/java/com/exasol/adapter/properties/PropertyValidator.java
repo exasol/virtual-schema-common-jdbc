@@ -1,11 +1,12 @@
 package com.exasol.adapter.properties;
 
 import com.exasol.adapter.AdapterProperties;
+import com.exasol.adapter.dialects.SqlDialect.StructureElementSupport;
 
 /**
  * Abstract class for validators for adapter properties
  */
-public class PropertyValidator {
+public interface PropertyValidator {
 
     /**
      * @return empty chain of property validators, enabling to add arbitrary property validators and validate a given
@@ -15,25 +16,40 @@ public class PropertyValidator {
         return new ValidatorChain();
     }
 
-    private final String propertyName;
-    private final PropertyValueValidator valueValidator;
-
     /**
-     * Create a new instance of PropertyValidator
+     * Create property validator for an optional property.
      *
      * @param propertyName   name of the property
-     * @param valueValidator Validator for the value of the current property in the the property is set
+     * @param valueValidator Validator for the value of the current property if the property is set
+     * @return property validator for an optional property
      */
-    public PropertyValidator(final String propertyName, final PropertyValueValidator valueValidator) {
-        this.propertyName = propertyName;
-        this.valueValidator = valueValidator;
+    public static PropertyValidator optional(final String propertyName, final PropertyValueValidator valueValidator) {
+        return new OptionalPropertyValidator(false, propertyName, valueValidator);
     }
 
     /**
-     * @return name of the property to validate
+     * Create property validator for an optional property specifying a structure element.
+     *
+     * @param availableSupport type of support provided by the dialect
+     * @param elementName      name of the structure element to be included in the message of the validation exception
+     * @param propertyName     name of the property
+     * @return property validator for a property specifying a structure element
      */
-    public String propertyName() {
-        return this.propertyName;
+    public static PropertyValidator forStructureElement(final StructureElementSupport availableSupport,
+            final String elementName, final String propertyName) {
+        return optional(propertyName,
+                new StructureElementSupportValidator(availableSupport, elementName, propertyName));
+    }
+
+    /**
+     * Create property validator for an optional property allowing an empty value.
+     *
+     * @param propertyName   name of the property
+     * @param valueValidator Validator for the value of the current property if the property is set
+     */
+    public static PropertyValidator ignoreEmpty(final String propertyName,
+            final PropertyValueValidator valueValidator) {
+        return new OptionalPropertyValidator(true, propertyName, valueValidator);
     }
 
     /**
@@ -42,11 +58,7 @@ public class PropertyValidator {
      * @param properties adapter properties to validate
      * @throws PropertyValidationException in case validation fails
      */
-    public void validate(final AdapterProperties properties) throws PropertyValidationException {
-        if (properties.containsKey(this.propertyName)) {
-            this.valueValidator.validate(properties.get(this.propertyName));
-        }
-    }
+    public void validate(final AdapterProperties properties) throws PropertyValidationException;
 
     /**
      * Validator for the value of the current property in the the property is set.
