@@ -154,7 +154,7 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
     }
 
     /**
-     * Unchecked method to look up the configured maximum table count
+     * Look up the configured maximum table count
      * 
      * @return Number of tables to map at most
      */
