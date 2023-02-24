@@ -104,13 +104,18 @@ class BaseTableMetadataReaderTest {
         assertThat(capturingLogHandler.getCapturedData(), containsString("Table scan did not find any tables."));
     }
 
-    @Test
-    void testValidateMappedTablesListSize() throws SQLException {
-        final ResultSet resultSetMock = Mockito.mock(ResultSet.class);
-        when(resultSetMock.next()).thenReturn(true);
-        when(resultSetMock.getString(NAME_COLUMN)).thenReturn("table");
+    private ResultSet resultSetWithUnlimitedSize() throws SQLException {
+        final ResultSet resultSet = Mockito.mock(ResultSet.class);
+        when(resultSet.next()).thenReturn(true);
+        when(resultSet.getString(NAME_COLUMN)).thenReturn("table");
         when(this.columnMetadataReaderMock.mapColumns("table"))
                 .thenReturn(List.of(ColumnMetadata.builder().name("column").type(DataType.createBool()).build()));
+        return resultSet;
+    }
+
+    @Test
+    void testValidateMappedTablesListSize() throws SQLException {
+        final ResultSet resultSetMock = resultSetWithUnlimitedSize();
         final TableMetadataReader metadataReader = createDefaultTableMetadataReader();
         final List<String> noFilter = Collections.emptyList();
         final RemoteMetadataReaderException exception = assertThrows(RemoteMetadataReaderException.class,
@@ -124,11 +129,7 @@ class BaseTableMetadataReaderTest {
     // verify that the actual table limit is part of the error message
     @Test
     void testValidateMappedTablesListSizeWithProperty2000() throws SQLException {
-        final ResultSet resultSetMock = Mockito.mock(ResultSet.class);
-        when(resultSetMock.next()).thenReturn(true);
-        when(resultSetMock.getString(NAME_COLUMN)).thenReturn("table");
-        when(this.columnMetadataReaderMock.mapColumns("table"))
-                .thenReturn(List.of(ColumnMetadata.builder().name("column").type(DataType.createBool()).build()));
+        final ResultSet resultSetMock = resultSetWithUnlimitedSize();
         final TableMetadataReader metadataReader = createTableMetadataReaderWithProperties(
                 new AdapterProperties(Map.of(JDBC_MAXTABLES_PROPERTY, "2000")));
         final List<String> noFilter = Collections.emptyList();
@@ -137,6 +138,7 @@ class BaseTableMetadataReaderTest {
         assertAll(() -> assertThat(exception.getMessage(), containsString("E-VSCJDBC-42")),
                 () -> assertThat(exception.getMessage(), containsString("2000")));
     }
+
 
     // verify that it does map 3000 tables when the parameter is set so
     @Test
