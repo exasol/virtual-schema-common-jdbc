@@ -1,7 +1,5 @@
 package com.exasol.adapter.properties;
 
-import java.util.Map;
-
 import com.exasol.adapter.AdapterProperties;
 
 /**
@@ -15,15 +13,6 @@ public class PropertyValidator {
      */
     public static ValidatorChain chain() {
         return new ValidatorChain();
-    }
-
-    /**
-     * @param properties
-     * @return {@code true} if one of the keys of parameter {properties} requires to refresh the virtual schema.
-     */
-    public static boolean requiresRefreshOfVirtualSchema(final Map<String, String> properties) {
-        return properties.containsKey(TableCountLimit.MAXTABLES_PROPERTY)
-                || AdapterProperties.isRefreshingVirtualSchemaRequired(properties);
     }
 
     private final String propertyName;

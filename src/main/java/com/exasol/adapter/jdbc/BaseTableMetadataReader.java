@@ -67,10 +67,11 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
     private List<TableMetadata> extractTableMetadata(final ResultSet remoteTables, final List<String> filteredTables)
             throws SQLException {
         final List<TableMetadata> mappedTables = new ArrayList<>();
+        final TableCountLimit tableCountLimit = TableCountLimit.from(this.properties);
         do {
             final Optional<TableMetadata> tableMetadata = getTableMetadata(remoteTables, filteredTables);
             tableMetadata.ifPresent(mappedTables::add);
-            TableCountLimit.from(this.properties).validateNumberOfTables(mappedTables.size());
+            tableCountLimit.validateNumberOfTables(mappedTables.size());
         } while (remoteTables.next());
         return mappedTables;
     }
