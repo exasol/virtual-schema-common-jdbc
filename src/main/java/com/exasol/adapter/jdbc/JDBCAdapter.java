@@ -1,7 +1,5 @@
 package com.exasol.adapter.jdbc;
 
-import static com.exasol.adapter.jdbc.JDBCAdapterProperties.JDBC_MAXTABLES_PROPERTY;
-
 import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Logger;
@@ -9,9 +7,12 @@ import java.util.logging.Logger;
 import com.exasol.ExaMetadata;
 import com.exasol.adapter.*;
 import com.exasol.adapter.capabilities.*;
-import com.exasol.adapter.dialects.*;
+import com.exasol.adapter.dialects.SqlDialect;
+import com.exasol.adapter.dialects.SqlDialectFactory;
 import com.exasol.adapter.metadata.SchemaMetadata;
 import com.exasol.adapter.metadata.SchemaMetadataInfo;
+import com.exasol.adapter.properties.PropertyValidationException;
+import com.exasol.adapter.properties.PropertyValidator;
 import com.exasol.adapter.request.*;
 import com.exasol.adapter.response.*;
 import com.exasol.errorreporting.ExaError;
@@ -42,10 +43,10 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
             final CreateVirtualSchemaRequest request) throws AdapterException {
         logCreateVirtualSchemaRequestReceived(request);
         final AdapterProperties properties = getPropertiesFromRequest(request);
-        // dialect properties will be validated in method readMetaData()
-        validateAdapterProperties(properties);
         try {
-            final SchemaMetadata remoteMeta = readMetadata(properties, exasolMetadata);
+            final SqlDialect dialect = createDialect(exasolMetadata, properties);
+            dialect.validateProperties();
+            final SchemaMetadata remoteMeta = getRemoteMetadata(dialect, properties.getFilteredTables());
             return CreateVirtualSchemaResponse.builder().schemaMetadata(remoteMeta).build();
         } catch (final SQLException exception) {
             throw new AdapterException(ExaError.messageBuilder("E-VSCJDBC-25")
@@ -68,10 +69,6 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
         return new AdapterProperties(request.getSchemaMetadataInfo().getProperties());
     }
 
-    private SqlDialect createDialect(final ConnectionFactory connectionFactory, final AdapterProperties properties) {
-        return this.sqlDialectFactory.createSqlDialect(connectionFactory, properties);
-    }
-
     @Override
     public DropVirtualSchemaResponse dropVirtualSchema(final ExaMetadata metadata,
             final DropVirtualSchemaRequest request) {
@@ -91,7 +88,12 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
     @Override
     public RefreshResponse refresh(final ExaMetadata metadata, final RefreshRequest request) throws AdapterException {
         try {
-            final SchemaMetadata remoteMetadata = this.getRemoteMetadata(metadata, request);
+            final AdapterProperties properties = getPropertiesFromRequest(request);
+            final SqlDialect dialect = createDialect(metadata, properties);
+            dialect.validateProperties();
+            final SchemaMetadata remoteMetadata = request.refreshesOnlySelectedTables() //
+                    ? dialect.readSchemaMetadata(request.getTables())
+                    : getRemoteMetadata(dialect, properties.getFilteredTables());
             return RefreshResponse.builder().schemaMetadata(remoteMetadata).build();
         } catch (final SQLException | PropertyValidationException exception) {
             throw new AdapterException(ExaError.messageBuilder("E-VSCJDBC-26").message(
@@ -100,14 +102,12 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
         }
     }
 
-    private SchemaMetadata getRemoteMetadata(final ExaMetadata metadata, final RefreshRequest request)
-            throws PropertyValidationException, SQLException {
-        final AdapterProperties properties = getPropertiesFromRequest(request);
-        if (request.refreshesOnlySelectedTables()) {
-            final List<String> tables = request.getTables();
-            return readMetadata(properties, tables, metadata);
+    private SchemaMetadata getRemoteMetadata(final SqlDialect sqlDialect, final List<String> tables)
+            throws SQLException {
+        if (tables.isEmpty()) {
+            return sqlDialect.readSchemaMetadata();
         } else {
-            return readMetadata(properties, metadata);
+            return sqlDialect.readSchemaMetadata(tables);
         }
     }
 
@@ -121,78 +121,39 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
      * @throws PropertyValidationException if properties are invalid
      * @throws SQLException
      */
+    // Do we really need this method?
+    // had only been called in tests.
+    @Deprecated
     protected SchemaMetadata readMetadata(final AdapterProperties properties, final List<String> remoteTableAllowList,
             final ExaMetadata exasolMetadata) throws PropertyValidationException {
-        return createDialect(properties, exasolMetadata).readSchemaMetadata(remoteTableAllowList);
-    }
-
-    private SchemaMetadata readMetadata(final AdapterProperties properties, final ExaMetadata exasolMetadata)
-            throws SQLException, PropertyValidationException {
-        final SqlDialect dialect = createDialect(properties, exasolMetadata);
-        final List<String> tables = properties.getFilteredTables();
-        if (tables.isEmpty()) {
-            return dialect.readSchemaMetadata();
-        } else {
-            return dialect.readSchemaMetadata(tables);
-        }
-    }
-
-    private SqlDialect createDialect(final AdapterProperties properties, final ExaMetadata exasolMetadata)
-            throws PropertyValidationException {
-        final ConnectionFactory connectionFactory = new RemoteConnectionFactory(exasolMetadata, properties);
-        final SqlDialect dialect = createDialect(connectionFactory, properties);
+        final SqlDialect dialect = createDialect(exasolMetadata, properties);
         dialect.validateProperties();
-        return dialect;
+        return dialect.readSchemaMetadata(remoteTableAllowList);
     }
 
     @Override
     public SetPropertiesResponse setProperties(final ExaMetadata metadata, final SetPropertiesRequest request)
             throws AdapterException {
         final Map<String, String> requestRawProperties = request.getProperties();
+
+        if (!PropertyValidator.requiresRefreshOfVirtualSchema(requestRawProperties)) {
+            return SetPropertiesResponse.builder().schemaMetadata(null).build();
+        }
         final SchemaMetadataInfo schemaMetadataInfo = request.getSchemaMetadataInfo();
         final Map<String, String> mergedRawProperties = mergeProperties(schemaMetadataInfo.getProperties(),
                 requestRawProperties);
         final AdapterProperties mergedProperties = new AdapterProperties(mergedRawProperties);
-        // dialect properties will be validated in method readMetaData()
-        validateAdapterProperties(mergedProperties);
-
-        if (AdapterProperties.isRefreshingVirtualSchemaRequired(requestRawProperties)) {
-            final List<String> tableFilter = getTableFilter(mergedRawProperties);
-            final SchemaMetadata remoteMeta = readMetadata(mergedProperties, tableFilter, metadata);
-            return SetPropertiesResponse.builder().schemaMetadata(remoteMeta).build();
-        }
-        return SetPropertiesResponse.builder().schemaMetadata(null).build();
+        final List<String> tableFilter = getTableFilter(mergedRawProperties);
+        final SqlDialect dialect = createDialect(metadata, mergedProperties);
+        dialect.validateProperties();
+        final SchemaMetadata remoteMeta = dialect.readSchemaMetadata(tableFilter);
+        return SetPropertiesResponse.builder().schemaMetadata(remoteMeta).build();
     }
 
-    /**
-     * Validate the given properties to be compatible / complete for the adapter
-     *
-     * Any overriding implementation should call the super method to avoid missing checks!
-     *
-     * @param properties The complete set of properties to be validated
-     * @throws PropertyValidationException if any single property or combination is invalid or missing
-     */
-    protected void validateAdapterProperties(final AdapterProperties properties) throws PropertyValidationException {
-        try {
-            validatePropertyValue(properties.get(JDBC_MAXTABLES_PROPERTY));
-        } catch (final IllegalArgumentException exception) {
-            throw new PropertyValidationException(ExaError.messageBuilder("E-VSCJDBC-43") //
-                    .message("Invalid parameter value.") //
-                    .mitigation("The adapter property {{max_tables_property}}" //
-                            + " if present, must be a positive integer.") //
-                    .parameter("max_tables_property", JDBC_MAXTABLES_PROPERTY) //
-                    .toString());
-        }
-    }
-
-    private void validatePropertyValue(final String string) {
-        if (string == null) {
-            return;
-        }
-        final int value = Integer.parseUnsignedInt(string);
-        if (value == 0) {
-            throw new IllegalArgumentException();
-        }
+    private SqlDialect createDialect(final ExaMetadata metadata, final AdapterProperties properties)
+            throws PropertyValidationException {
+        final ConnectionFactory connectionFactory = new RemoteConnectionFactory(metadata, properties);
+        return this.sqlDialectFactory.createSqlDialect(connectionFactory, properties);
     }
 
     private Map<String, String> mergeProperties(final Map<String, String> previousRawProperties,
@@ -226,8 +187,7 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
             throws AdapterException {
         LOGGER.fine(() -> "Received request to list the adapter's capabilites.");
         final AdapterProperties properties = getPropertiesFromRequest(request);
-        final ConnectionFactory connectionFactory = new RemoteConnectionFactory(exaMetadata, properties);
-        final SqlDialect dialect = createDialect(connectionFactory, properties);
+        final SqlDialect dialect = createDialect(exaMetadata, properties);
         final Capabilities capabilities = dialect.getCapabilities();
         final Capabilities excludedCapabilities = getExcludedCapabilities(properties);
         capabilities.subtractCapabilities(excludedCapabilities);
@@ -281,8 +241,7 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
             throws AdapterException {
         try {
             final AdapterProperties properties = getPropertiesFromRequest(request);
-            final ConnectionFactory connectionFactory = new RemoteConnectionFactory(exaMetadata, properties);
-            final SqlDialect dialect = createDialect(connectionFactory, properties);
+            final SqlDialect dialect = createDialect(exaMetadata, properties);
             final String importFromPushdownQuery = dialect.rewriteQuery(request.getSelect(),
                     request.getSelectListDataTypes(), exaMetadata);
             return PushDownResponse.builder().pushDownSql(importFromPushdownQuery).build();

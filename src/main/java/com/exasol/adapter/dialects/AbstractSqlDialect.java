@@ -1,7 +1,6 @@
 package com.exasol.adapter.dialects;
 
 import static com.exasol.adapter.AdapterProperties.*;
-import static com.exasol.adapter.jdbc.JDBCAdapterProperties.JDBC_MAXTABLES_PROPERTY;
 
 import java.sql.SQLException;
 import java.util.*;
@@ -19,6 +18,7 @@ import com.exasol.adapter.jdbc.ConnectionFactory;
 import com.exasol.adapter.jdbc.RemoteMetadataReader;
 import com.exasol.adapter.metadata.DataType;
 import com.exasol.adapter.metadata.SchemaMetadata;
+import com.exasol.adapter.properties.*;
 import com.exasol.adapter.sql.*;
 import com.exasol.errorreporting.ExaError;
 
@@ -31,7 +31,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
             Pattern.CASE_INSENSITIVE);
     private static final Set<String> COMMON_SUPPORTED_PROPERTIES = Set.of(CONNECTION_NAME_PROPERTY,
             TABLE_FILTER_PROPERTY, EXCLUDED_CAPABILITIES_PROPERTY, DEBUG_ADDRESS_PROPERTY, LOG_LEVEL_PROPERTY,
-            DataTypeDetection.STRATEGY_PROPERTY, JDBC_MAXTABLES_PROPERTY);
+            DataTypeDetection.STRATEGY_PROPERTY, TableCountLimit.MAXTABLES_PROPERTY);
     /** Factory that creates JDBC connection to the data source */
     protected final ConnectionFactory connectionFactory;
     private final Set<String> supportedProperties;
@@ -184,7 +184,10 @@ public abstract class AbstractSqlDialect implements SqlDialect {
         validateSchemaNameProperty();
         validateDebugOutputAddress();
         validateExceptionHandling();
-        validateDataTypeDetectionStrategy();
+        PropertyValidator.chain() //
+                .add(DataTypeDetection.getValidator()) //
+                .add(TableCountLimit.getValidator()) //
+                .validate(this.properties);
     }
 
     /**
@@ -306,20 +309,6 @@ public abstract class AbstractSqlDialect implements SqlDialect {
                                 .toString());
                     }
                 }
-            }
-        }
-    }
-
-    private void validateDataTypeDetectionStrategy() throws PropertyValidationException {
-        if (this.properties.containsKey(DataTypeDetection.STRATEGY_PROPERTY)) {
-            final String propertyValue = this.properties.get(DataTypeDetection.STRATEGY_PROPERTY);
-            if (!DataTypeDetection.strategies(Collectors.toSet()).contains(propertyValue)) {
-                throw new PropertyValidationException(ExaError.messageBuilder("E-VSCJDBC-41")
-                        .message("Invalid value {{value}} for property {{property}}.", propertyValue,
-                                DataTypeDetection.STRATEGY_PROPERTY)
-                        .mitigation("Choose one of: {{availableValues|uq}}.",
-                                DataTypeDetection.strategies(Collectors.joining(", ")))
-                        .toString());
             }
         }
     }

@@ -1,9 +1,11 @@
-package com.exasol.adapter.dialects;
+package com.exasol.adapter.properties;
 
 import java.util.EnumSet;
 import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import com.exasol.adapter.AdapterProperties;
+import com.exasol.errorreporting.ExaError;
 
 /**
  * This class represents a special Adapter Property for JDBC-based Virtual Schemas controlling the strategy for
@@ -15,6 +17,22 @@ public class DataTypeDetection {
     public static final String STRATEGY_PROPERTY = "IMPORT_DATA_TYPES";
 
     /**
+     * @return validator for the property controlling the strategy for data type detection.
+     */
+    public static PropertyValidator getValidator() {
+        return new PropertyValidator(STRATEGY_PROPERTY, DataTypeDetection::validatePropertyValue);
+    }
+
+    private static void validatePropertyValue(final String value) throws PropertyValidationException {
+        if (!strategies(Collectors.toSet()).contains(value)) {
+            throw new PropertyValidationException(ExaError.messageBuilder("E-VSCJDBC-41")
+                    .message("Invalid value {{value}} for property {{property}}.", value, STRATEGY_PROPERTY)
+                    .mitigation("Choose one of: {{availableValues|uq}}.", strategies(Collectors.joining(", ")))
+                    .toString());
+        }
+    }
+
+    /**
      * @param properties Adapter Properties passed to {@code CREATE VIRTUAL SCHEMA}
      * @return new instance of {@link DataTypeDetection} based on the properties
      */
@@ -22,7 +40,12 @@ public class DataTypeDetection {
         return new DataTypeDetection(getStrategy(properties));
     }
 
-    static <T> T strategies(final Collector<CharSequence, ?, T> collector) {
+    /**
+     * @param <T>       Type of strategy
+     * @param collector collector to collect the strategies
+     * @return result of collecting the strategies
+     */
+    public static <T> T strategies(final Collector<CharSequence, ?, T> collector) {
         return EnumSet.allOf(Strategy.class).stream().map(Enum::toString).collect(collector);
     }
 

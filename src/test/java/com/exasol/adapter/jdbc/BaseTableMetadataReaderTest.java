@@ -1,7 +1,6 @@
 package com.exasol.adapter.jdbc;
 
 import static com.exasol.adapter.jdbc.BaseTableMetadataReader.NAME_COLUMN;
-import static com.exasol.adapter.jdbc.JDBCAdapterProperties.JDBC_MAXTABLES_PROPERTY;
 import static com.exasol.adapter.jdbc.TableMetadataMockUtils.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -23,6 +22,7 @@ import org.mockito.stubbing.Answer;
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.dialects.BaseIdentifierConverter;
 import com.exasol.adapter.metadata.*;
+import com.exasol.adapter.properties.TableCountLimit;
 import com.exasol.logging.CapturingLogHandler;
 
 @ExtendWith(MockitoExtension.class)
@@ -134,7 +134,7 @@ class BaseTableMetadataReaderTest {
         when(this.columnMetadataReaderMock.mapColumns("table"))
                 .thenReturn(List.of(ColumnMetadata.builder().name("column").type(DataType.createBool()).build()));
         final TableMetadataReader metadataReader = createTableMetadataReaderWithProperties(
-                new AdapterProperties(Map.of(JDBC_MAXTABLES_PROPERTY, "2000")));
+                new AdapterProperties(Map.of(TableCountLimit.MAXTABLES_PROPERTY, "2000")));
         final List<String> noFilter = Collections.emptyList();
         final RemoteMetadataReaderException exception = assertThrows(RemoteMetadataReaderException.class,
                 () -> metadataReader.mapTables(resultSetMock, noFilter));
@@ -156,7 +156,7 @@ class BaseTableMetadataReaderTest {
         when(this.columnMetadataReaderMock.mapColumns("table"))
                 .thenReturn(List.of(ColumnMetadata.builder().name("column").type(DataType.createBool()).build()));
         final TableMetadataReader metadataReader = createTableMetadataReaderWithProperties(
-                new AdapterProperties(Map.of(JDBC_MAXTABLES_PROPERTY, "3000")));
+                new AdapterProperties(Map.of(TableCountLimit.MAXTABLES_PROPERTY, "3000")));
         final List<TableMetadata> mappedTables = assertDoesNotThrow(
                 () -> metadataReader.mapTables(resultSetMock, Collections.emptyList()));
         assertThat(mappedTables.size(), equalTo(3000));

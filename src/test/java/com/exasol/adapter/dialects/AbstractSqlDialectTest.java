@@ -18,6 +18,8 @@ import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.dialects.dummy.DummySqlDialect;
 import com.exasol.adapter.dialects.rewriting.SqlGenerationContext;
 import com.exasol.adapter.dialects.rewriting.SqlGenerationVisitor;
+import com.exasol.adapter.properties.DataTypeDetection;
+import com.exasol.adapter.properties.PropertyValidationException;
 import com.exasol.adapter.sql.ScalarFunction;
 import com.exasol.logging.CapturingLogHandler;
 

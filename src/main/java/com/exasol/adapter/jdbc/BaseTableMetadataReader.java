@@ -9,10 +9,8 @@ import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.dialects.IdentifierConverter;
 import com.exasol.adapter.metadata.ColumnMetadata;
 import com.exasol.adapter.metadata.TableMetadata;
+import com.exasol.adapter.properties.TableCountLimit;
 import com.exasol.errorreporting.ExaError;
-
-import static com.exasol.adapter.AdapterProperties.TABLE_FILTER_PROPERTY;
-import static com.exasol.adapter.jdbc.JDBCAdapterProperties.JDBC_MAXTABLES_PROPERTY;
 
 /**
  * This class maps metadata of tables from the remote source to Exasol.
@@ -26,7 +24,7 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
     protected static final String DEFAULT_TABLE_ADAPTER_NOTES = "";
     private static final Logger LOGGER = Logger.getLogger(BaseTableMetadataReader.class.getName());
     private static final Pattern UNQUOTED_IDENTIFIER_PATTERN = Pattern.compile("^[a-z][0-9a-z_]*");
-    private static final int DEFAULT_MAX_MAPPED_TABLE_LIST_SIZE = 1000;
+
     /**
      * Column metadata reader
      */
@@ -72,7 +70,7 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
         do {
             final Optional<TableMetadata> tableMetadata = getTableMetadata(remoteTables, filteredTables);
             tableMetadata.ifPresent(mappedTables::add);
-            validateMappedTablesListSize(mappedTables);
+            TableCountLimit.from(this.properties).validateNumberOfTables(mappedTables.size());
         } while (remoteTables.next());
         return mappedTables;
     }
@@ -125,6 +123,7 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
 
     /**
      * Convert the given identifier to the proper casing using the underlying IdentifierConverter
+     *
      * @param tableName Table name as provided by source
      * @return Table name as required by the virtual schema host database
      */
@@ -151,39 +150,6 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
      */
     protected boolean tableHasColumns(final TableMetadata tableMetadata) {
         return !tableMetadata.getColumns().isEmpty();
-    }
-
-    /**
-     * Unchecked method to look up the configured maximum table count
-     * 
-     * @return Number of tables to map at most
-     */
-    private int getMaxMappedTableCountRaw() {
-        if (!this.properties.containsKey(JDBC_MAXTABLES_PROPERTY)) {
-            return DEFAULT_MAX_MAPPED_TABLE_LIST_SIZE;
-        }
-        return Integer.parseUnsignedInt(this.properties.get(JDBC_MAXTABLES_PROPERTY));
-    }
-
-    /**
-     * Verify that the given list of mapped tables does not exceed the configured max table limit.
-     * @param selectedTables List of tables mapped so far
-     * @throws RemoteMetadataReaderException if the table limit has been exceeded
-     */
-    protected void validateMappedTablesListSize(final List<TableMetadata> selectedTables) throws RemoteMetadataReaderException {
-        int maxTableCount = getMaxMappedTableCountRaw();
-        if (selectedTables.size() > maxTableCount) {
-            throw new RemoteMetadataReaderException(ExaError.messageBuilder("E-VSCJDBC-42")
-                    .message("The size of the list of the selected tables exceeds" //
-                            + " the configured allowed maximum of {{current_limit}}.")
-                    .mitigation(
-                            "Please use the {{table_filter_property}} property to define the list of tables you need" //
-                                    + " or increase the limit using the {{max_tables_property}} property.") //
-                    .parameter("current_limit", maxTableCount) //
-                    .parameter("table_filter_property", TABLE_FILTER_PROPERTY) //
-                    .parameter("max_tables_property", JDBC_MAXTABLES_PROPERTY) //
-                    .toString());
-        }
     }
 
     /**

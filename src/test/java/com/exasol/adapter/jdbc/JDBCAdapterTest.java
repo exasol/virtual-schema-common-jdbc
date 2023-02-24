@@ -1,7 +1,6 @@
 package com.exasol.adapter.jdbc;
 
 import static com.exasol.adapter.AdapterProperties.*;
-import static com.exasol.adapter.jdbc.JDBCAdapterProperties.JDBC_MAXTABLES_PROPERTY;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -11,20 +10,23 @@ import static org.mockito.Mockito.when;
 
 import java.util.*;
 
-import com.exasol.adapter.dialects.PropertyValidationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import com.exasol.*;
 import com.exasol.adapter.*;
 import com.exasol.adapter.capabilities.*;
+import com.exasol.adapter.dialects.SqlDialect;
+import com.exasol.adapter.dialects.SqlDialectFactory;
 import com.exasol.adapter.metadata.*;
+import com.exasol.adapter.properties.PropertyValidationException;
+import com.exasol.adapter.properties.TableCountLimit;
 import com.exasol.adapter.request.*;
 import com.exasol.adapter.response.*;
 import com.exasol.adapter.sql.SqlStatement;
 import com.exasol.adapter.sql.TestSqlStatementFactory;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 
 class JDBCAdapterTest {
 
@@ -150,10 +152,12 @@ class JDBCAdapterTest {
 
     @Test
     void testSetPropertiesWithTablesFilter() throws AdapterException {
-        final JDBCAdapter adapter = mock(JDBCAdapter.class);
-        when(adapter.setProperties(any(), any())).thenCallRealMethod();
-        when(adapter.readMetadata(any(), any(), any())).thenReturn(new SchemaMetadata("",
+        final SqlDialect dialect = mock(SqlDialect.class);
+        when(dialect.readSchemaMetadata(any())).thenReturn(new SchemaMetadata("",
                 Arrays.asList(new TableMetadata("T1", "", null, ""), new TableMetadata("T2", "", null, ""))));
+        final SqlDialectFactory factory = mock(SqlDialectFactory.class);
+        when(factory.createSqlDialect(any(), any())).thenReturn(dialect);
+        final JDBCAdapter adapter = new JDBCAdapter(factory);
         setDerbyConnectionNameProperty();
         final Map<String, String> newRawProperties = new HashMap<>();
         newRawProperties.put(SCHEMA_NAME_PROPERTY, "NEW SCHEMA");
@@ -202,35 +206,33 @@ class JDBCAdapterTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"hello", "0", "-1", "", "1,700"})
-    void testValidateMaxTablesAtCreate(String paramValue) {
+    @ValueSource(strings = { "hello", "0", "-1", "", "1,700" })
+    void testValidateMaxTablesAtCreate(final String paramValue) {
         setDerbyConnectionNameProperty();
         final SchemaMetadataInfo schemaMetadataInfo = createSchemaMetadataInfo();
-        schemaMetadataInfo.getProperties().put(JDBC_MAXTABLES_PROPERTY, paramValue);
+        schemaMetadataInfo.getProperties().put(TableCountLimit.MAXTABLES_PROPERTY, paramValue);
         final CreateVirtualSchemaRequest request = new CreateVirtualSchemaRequest(schemaMetadataInfo);
         final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
-                () -> this.adapter.createVirtualSchema(null, request)
-        );
+                () -> this.adapter.createVirtualSchema(null, request));
         assertThat(exception.getMessage(), containsString("E-VSCJDBC-43"));
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"hello", "0", "-1", "", "1,700"})
-    void testValidateMaxTablesAtUpdate(String paramValue) throws ExaConnectionAccessException {
+    @ValueSource(strings = { "hello", "0", "-1", "", "1,700" })
+    void testValidateMaxTablesAtUpdate(final String paramValue) throws ExaConnectionAccessException {
         setDerbyConnectionNameProperty();
         final CreateVirtualSchemaRequest request = new CreateVirtualSchemaRequest(createSchemaMetadataInfo());
         final ExaMetadata exaMetadataMock = mock(ExaMetadata.class);
         when(exaMetadataMock.getConnection("DERBY_CONNECTION")).thenReturn(EXA_CONNECTION_INFORMATION);
-        final CreateVirtualSchemaResponse response = assertDoesNotThrow( () -> this.adapter.createVirtualSchema(exaMetadataMock, request) );
+        assertDoesNotThrow(() -> this.adapter.createVirtualSchema(exaMetadataMock, request));
 
         final Map<String, String> newRawProperties = new HashMap<>();
-        newRawProperties.put(JDBC_MAXTABLES_PROPERTY, paramValue);
-        final SetPropertiesRequest setPropertiesRequest = new SetPropertiesRequest(createSchemaMetadataInfo(), newRawProperties);
+        newRawProperties.put(TableCountLimit.MAXTABLES_PROPERTY, paramValue);
+        final SetPropertiesRequest setPropertiesRequest = new SetPropertiesRequest(createSchemaMetadataInfo(),
+                newRawProperties);
 
         final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
-                () -> this.adapter.setProperties(exaMetadataMock, setPropertiesRequest)
-        );
-
+                () -> this.adapter.setProperties(exaMetadataMock, setPropertiesRequest));
         assertThat(exception.getMessage(), containsString("E-VSCJDBC-43"));
     }
 }
