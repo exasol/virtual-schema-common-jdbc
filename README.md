@@ -65,6 +65,22 @@ CREATE VIRTUAL SCHEMA <virtual schema name>
     IMPORT_DATA_TYPES = 'FROM_RESULT_SET' ;
 ```
 
+#### Property `MAX_TABLE_COUNT`
+
+Supported values: positive integers; default 1000
+
+When creating or refreshing a virtual schema, reading the table metadata can take a long time. Additionally, the collected metadata must fit into a single internal data packet.
+To avoid unpleasant surprises in this area, VSCJDBC limits the acceptable amount of mapped tables and will generate an `E-VSCJDBC-42` error when the limit is exceeded.
+
+The limit can be changed at creation time or using `ALTER VIRTUAL SCHEMA` after creation; the changed value will then take effect on the next `REFRESH` call.
+
+```sql
+ALTER VIRTUAL SCHEMA <virtual schema name>
+   SET MAX_TABLE_COUNT = '3000';
+```
+
+Please note that time required to generate or refresh table metadata will scale with the number of tables, and the internal packet size limit will still be in effect.
+
 ## Information for Developers
 
 * [Virtual Schema API Documentation][vs-api]
