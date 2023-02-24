@@ -3,11 +3,11 @@
 Code name: More Tables
 
 ## Summary
-Allow to ignore or raise the limit of 1000 mapped tables that was introduced in version 9.0.0
+Allowed to change the limit of 1000 mapped tables by introducing new adapter property `MAX_TABLE_COUNT`.
 
 ## Features
 
-* #133: New adapter property 'MAX_TABLE_COUNT' allows to override the default limit of 1000.
+* #133: New adapter property `MAX_TABLE_COUNT` allows to override the default limit of 1000 tables.
 
 ## Dependency Updates
 
