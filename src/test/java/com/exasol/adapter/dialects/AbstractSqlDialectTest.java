@@ -171,7 +171,7 @@ class AbstractSqlDialectTest {
     @ParameterizedTest
     @ValueSource(strings = { "SOME_PROPERTY", CATALOG_NAME_PROPERTY, SCHEMA_NAME_PROPERTY })
     void testEmptyProperties(final String propertyName) {
-        verifyValidationException(propertyName, "", "E-VSCJDBC-13");
+        verifyValidationException(propertyName, "", "E-VSCJDBC-44");
     }
 
     @Test
