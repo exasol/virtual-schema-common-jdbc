@@ -119,10 +119,10 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
      * @param exasolMetadata       ExaMetadata
      * @return schema metadata
      * @throws PropertyValidationException if properties are invalid
+     *
+     * @deprecated Should be removed if other virtual schemas do not require this method
      */
-    // Do we really need this method?
-    // had only been called in tests.
-    @Deprecated
+    @Deprecated(since = "10.2.0")
     protected SchemaMetadata readMetadata(final AdapterProperties properties, final List<String> remoteTableAllowList,
             final ExaMetadata exasolMetadata) throws PropertyValidationException {
         final SqlDialect dialect = createDialect(exasolMetadata, properties);
@@ -155,8 +155,7 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
                 || AdapterProperties.isRefreshingVirtualSchemaRequired(properties);
     }
 
-    private SqlDialect createDialect(final ExaMetadata metadata, final AdapterProperties properties)
-            throws PropertyValidationException {
+    private SqlDialect createDialect(final ExaMetadata metadata, final AdapterProperties properties) {
         final ConnectionFactory connectionFactory = new RemoteConnectionFactory(metadata, properties);
         return this.sqlDialectFactory.createSqlDialect(connectionFactory, properties);
     }

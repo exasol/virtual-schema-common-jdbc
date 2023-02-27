@@ -180,11 +180,6 @@ public abstract class AbstractSqlDialect implements SqlDialect {
     @Override
     public void validateProperties() throws PropertyValidationException {
         validateSupportedPropertiesList();
-//        validateConnectionNameProperty();
-//        validateCatalogNameProperty();
-//        validateSchemaNameProperty();
-//        validateDebugOutputAddress();
-        // validateExceptionHandling();
         this.propertyValidators.validate(this.properties);
     }
 
@@ -217,22 +212,16 @@ public abstract class AbstractSqlDialect implements SqlDialect {
      * @param unsupportedElement unsupported property name.
      * @param property           unsupported property name
      * @return exception
+     *
+     * @deprecated Should be removed if other virtual schemas do not require this method
      */
-    @Deprecated
+    @Deprecated(since = "10.2.0")
     protected String createUnsupportedElementMessage(final String unsupportedElement, final String property) {
         return ExaError.messageBuilder("E-VSCJDBC-13")
                 .message("This dialect does not support property {{property}}.", property)
                 .mitigation("Please, do not set this property.") //
                 .toString();
     }
-
-//    private void validateConnectionNameProperty() throws PropertyValidationException {
-//        if (!this.properties.hasConnectionName()) {
-//            throw new PropertyValidationException(ExaError.messageBuilder("E-VSCJDBC-14")
-//                    .message("Please specify a connection using the property {{connectionNameProperty}}.")
-//                    .parameter("connectionNameProperty", CONNECTION_NAME_PROPERTY).toString());
-//        }
-//    }
 
     static class ConnectionNameValidator implements PropertyValidator {
         @Override
@@ -245,58 +234,6 @@ public abstract class AbstractSqlDialect implements SqlDialect {
             }
         }
     }
-
-//    private void validateCatalogNameProperty() throws PropertyValidationException {
-//        if (this.properties.containsKey(CATALOG_NAME_PROPERTY)
-//                && (supportsJdbcCatalogs() == StructureElementSupport.NONE)) {
-//            throw new PropertyValidationException(createUnsupportedElementMessage("catalogs", CATALOG_NAME_PROPERTY));
-//        }
-//    }
-
-//    private void validateSchemaNameProperty() throws PropertyValidationException {
-//        if (this.properties.containsKey(SCHEMA_NAME_PROPERTY)
-//                && (supportsJdbcSchemas() == StructureElementSupport.NONE)) {
-//            throw new PropertyValidationException(createUnsupportedElementMessage("schemas", SCHEMA_NAME_PROPERTY));
-//        }
-//    }
-
-//    static class CatalogNameValidator implements PropertyValueValidator {
-//        static PropertyValidator validator(final StructureElementSupport supportsJdbcCatalogs) {
-//            return PropertyValidator.optional(CATALOG_NAME_PROPERTY, new CatalogNameValidator(supportsJdbcCatalogs));
-//        }
-//
-//        private final StructureElementSupport supportsJdbcCatalogs;
-//
-//        public CatalogNameValidator(final StructureElementSupport supportsJdbcCatalogs) {
-//            this.supportsJdbcCatalogs = supportsJdbcCatalogs;
-//        }
-//
-//        @Override
-//        public void validate(final String propertyValue) throws PropertyValidationException {
-//            if (this.supportsJdbcCatalogs == StructureElementSupport.NONE) {
-//                throw UnsupportedElement.validationException("catalogs", CATALOG_NAME_PROPERTY);
-//            }
-//        }
-//    }
-
-//    static class SchemaNameValidator implements PropertyValueValidator {
-//        static PropertyValidator validator(final StructureElementSupport supportsJdbcSchemas) {
-//            return PropertyValidator.optional(SCHEMA_NAME_PROPERTY, new SchemaNameValidator(supportsJdbcSchemas));
-//        }
-//
-//        private final StructureElementSupport supportsJdbcSchemas;
-//
-//        public SchemaNameValidator(final StructureElementSupport supportsJdbcSchemas) {
-//            this.supportsJdbcSchemas = supportsJdbcSchemas;
-//        }
-//
-//        @Override
-//        public void validate(final String propertyValue) throws PropertyValidationException {
-//            if (this.supportsJdbcSchemas == StructureElementSupport.NONE) {
-//                throw UnsupportedElement.validationException("schemas", SCHEMA_NAME_PROPERTY);
-//            }
-//        }
-//    }
 
     /**
      * Validate the input of a boolean property.
@@ -350,41 +287,6 @@ public abstract class AbstractSqlDialect implements SqlDialect {
         }
     }
 
-//    private void validateDebugOutputAddress() {
-//        if (this.properties.containsKey(DEBUG_ADDRESS_PROPERTY)) {
-//            final String debugAddress = this.properties.getDebugAddress();
-//            if (!debugAddress.isEmpty()) {
-//                validateDebugPortNumber(debugAddress);
-//            }
-//        }
-//    }
-
-//    // Note that this method intentionally does not throw a validation exception but rather creates log warnings. This
-//    // allows dropping a schema even if the debug output port is misconfigured. Logging falls back to local logging in
-//    // this case.
-//    private void validateDebugPortNumber(final String debugAddress) {
-//        final int colonLocation = debugAddress.lastIndexOf(':');
-//        if (colonLocation > 0) {
-//            final String portAsString = debugAddress.substring(colonLocation + 1);
-//            try {
-//                final int port = Integer.parseInt(portAsString);
-//                if ((port < 1) || (port > 65535)) {
-//                    LOGGER.warning(() -> ExaError.messageBuilder("W-VSCJDBC-40")
-//                            .message("Debug output port {{port|uq}} is out of range.", port) //
-//                            .mitigation("Port specified in property {{debugAddressProperty}} must have "
-//                                    + "the following format: <host>[:<port>], and be between 1 and 65535.")
-//                            .parameter("debugAddressProperty", DEBUG_ADDRESS_PROPERTY).toString());
-//                }
-//            } catch (final NumberFormatException ex) {
-//                LOGGER.warning(() -> ExaError.messageBuilder("W-VSCJDBC-39").message(
-//                        "Illegal debug output port {{portAsString}}. Property {{debugAddressProperty}} must have "
-//                                + "the following format: <host>[:<port>], where port is a number between 1 and 65535.")
-//                        .parameter("debugAddressProperty", DEBUG_ADDRESS_PROPERTY)
-//                        .parameter("portAsString", portAsString).toString());
-//            }
-//        }
-//    }
-
     static class ExceptionHandlingValidator implements PropertyValueValidator {
         static PropertyValidator validator() {
             return PropertyValidator.ignoreEmpty(EXCEPTION_HANDLING_PROPERTY, new ExceptionHandlingValidator());
@@ -406,26 +308,6 @@ public abstract class AbstractSqlDialect implements SqlDialect {
                     .toString());
         }
     }
-
-//    private void validateExceptionHandling() throws PropertyValidationException {
-//        if (this.properties.containsKey(EXCEPTION_HANDLING_PROPERTY)) {
-//            final String exceptionHandling = this.properties.getExceptionHandling();
-//            if (!((exceptionHandling == null) || exceptionHandling.isEmpty())) {
-//                for (final SqlDialect.ExceptionHandlingMode mode : SqlDialect.ExceptionHandlingMode.values()) {
-//                    if (!mode.name().equals(exceptionHandling)) {
-//                        throw new PropertyValidationException(ExaError.messageBuilder("E-VSCJDBC-16").message(
-//                                "Invalid value {{exceptionHandlingValue}} for property {{exceptionHandlingProperty}}.")
-//                                .parameter("exceptionHandlingValue", exceptionHandling)
-//                                .parameter("exceptionHandlingProperty", EXCEPTION_HANDLING_PROPERTY)
-//                                .mitigation("Choose one of: {{availableValues|uq}}.",
-//                                        Arrays.stream(ExceptionHandlingMode.values()).map(Enum::toString)
-//                                                .collect(Collectors.toList()).toString())
-//                                .toString());
-//                    }
-//                }
-//            }
-//        }
-//    }
 
     /**
      * Check if the import properties make sense.
