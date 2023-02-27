@@ -11,6 +11,7 @@ import com.exasol.errorreporting.ExaError;
 public class CastNumberToDecimalProperty implements PropertyValueValidator {
 
     /**
+     * @param propertyName name of the property
      * @return new instance of {@link CastNumberToDecimalProperty} for validation of the specified property casting
      *         numbers to decimal
      */
