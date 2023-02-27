@@ -192,7 +192,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
         final List<String> allProperties = new ArrayList<>(this.properties.keySet());
         for (final String property : allProperties) {
             if (!getSupportedProperties().contains(property)) {
-                throw new PropertyValidationException(createUnsupportedElementMessage(property, property));
+                throw new PropertyValidationException(createUnsupportedElementMessage(property));
             }
         }
     }
@@ -217,6 +217,10 @@ public abstract class AbstractSqlDialect implements SqlDialect {
      */
     @Deprecated(since = "10.2.0")
     protected String createUnsupportedElementMessage(final String unsupportedElement, final String property) {
+        return createUnsupportedElementMessage(property);
+    }
+
+    private String createUnsupportedElementMessage(final String property) {
         return ExaError.messageBuilder("E-VSCJDBC-13")
                 .message("This dialect does not support property {{property}}.", property)
                 .mitigation("Please, do not set this property.") //
