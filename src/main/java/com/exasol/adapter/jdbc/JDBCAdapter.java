@@ -120,7 +120,8 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
      * @return schema metadata
      * @throws PropertyValidationException if properties are invalid
      *
-     * @deprecated Should be removed if other virtual schemas do not require this method
+     * @deprecated Should be removed as search on GitHub did not detect any call to this method by any other virtual
+     *             schema.
      */
     @Deprecated(since = "10.2.0")
     protected SchemaMetadata readMetadata(final AdapterProperties properties, final List<String> remoteTableAllowList,
