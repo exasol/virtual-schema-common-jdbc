@@ -13,7 +13,7 @@ import com.exasol.errorreporting.ExaError;
  */
 public class ConnectionNameProperty implements PropertyValidator {
     /**
-     * @return new instance of {@class PropertyValidator} for validation of debug address property.
+     * @return new instance of {@link PropertyValidator} for validation of debug address property.
      */
     public static PropertyValidator validator() {
         return PropertyValidator.ignoreEmpty(DEBUG_ADDRESS_PROPERTY, new DebugPortNumberProperty());

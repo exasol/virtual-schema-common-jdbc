@@ -18,7 +18,7 @@ import com.exasol.errorreporting.ExaError;
 public class ExceptionHandlingProperty implements PropertyValueValidator {
 
     /**
-     * @return new instance of {@class PropertyValidator} for validation of exception handling property.
+     * @return new instance of {@link PropertyValidator} for validation of exception handling property.
      */
     public static PropertyValidator validator() {
         return PropertyValidator.ignoreEmpty(EXCEPTION_HANDLING_PROPERTY, new ExceptionHandlingProperty());

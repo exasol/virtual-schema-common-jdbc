@@ -16,7 +16,7 @@ public class DebugPortNumberProperty implements PropertyValueValidator {
     private static final Logger LOGGER = Logger.getLogger(DebugPortNumberProperty.class.getName());
 
     /**
-     * @return new instance of {@class PropertyValidator} for validation of debug address property.
+     * @return new instance of {@link PropertyValidator} for validation of debug address property.
      */
     public static PropertyValidator validator() {
         return PropertyValidator.ignoreEmpty(DEBUG_ADDRESS_PROPERTY, new DebugPortNumberProperty());
