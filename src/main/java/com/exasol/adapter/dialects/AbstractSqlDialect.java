@@ -197,7 +197,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
         final List<String> allProperties = new ArrayList<>(this.properties.keySet());
         for (final String property : allProperties) {
             if (!getSupportedProperties().contains(property)) {
-                throw UnsupportedElement.validationException(property, property);
+                throw new PropertyValidationException(createUnsupportedElementMessage(property, property));
             }
         }
     }
@@ -220,7 +220,10 @@ public abstract class AbstractSqlDialect implements SqlDialect {
      */
     @Deprecated
     protected String createUnsupportedElementMessage(final String unsupportedElement, final String property) {
-        return UnsupportedElement.message(unsupportedElement, property);
+        return ExaError.messageBuilder("E-VSCJDBC-13")
+                .message("This dialect does not support property {{property}}.", property)
+                .mitigation("Please, do not set this property.") //
+                .toString();
     }
 
 //    private void validateConnectionNameProperty() throws PropertyValidationException {
@@ -236,8 +239,9 @@ public abstract class AbstractSqlDialect implements SqlDialect {
         public void validate(final AdapterProperties properties) throws PropertyValidationException {
             if (!properties.hasConnectionName()) {
                 throw new PropertyValidationException(ExaError.messageBuilder("E-VSCJDBC-14")
-                        .message("Please specify a connection using the property {{connectionNameProperty}}.")
-                        .parameter("connectionNameProperty", CONNECTION_NAME_PROPERTY).toString());
+                        .message("Please specify a connection using the property {{connectionNameProperty}}.",
+                                CONNECTION_NAME_PROPERTY) //
+                        .toString());
             }
         }
     }

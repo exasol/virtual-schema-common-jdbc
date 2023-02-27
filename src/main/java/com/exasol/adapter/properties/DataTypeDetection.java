@@ -15,6 +15,7 @@ public class DataTypeDetection {
 
     /** Name of the Adapter Property to be passed to {@code CREATE VIRTUAL SCHEMA} */
     public static final String STRATEGY_PROPERTY = "IMPORT_DATA_TYPES";
+    static final Strategy DEFAULT_STRATEGY = Strategy.EXASOL_CALCULATED;
 
     /**
      * @return validator for the property controlling the strategy for data type detection.
@@ -54,10 +55,10 @@ public class DataTypeDetection {
             if (Strategy.FROM_RESULT_SET.name().equals(properties.get(STRATEGY_PROPERTY))) {
                 return Strategy.FROM_RESULT_SET;
             } else {
-                return Strategy.EXASOL_CALCULATED;
+                return DEFAULT_STRATEGY;
             }
         } else {
-            return Strategy.EXASOL_CALCULATED;
+            return DEFAULT_STRATEGY;
         }
     }
 

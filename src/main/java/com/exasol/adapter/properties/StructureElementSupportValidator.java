@@ -2,6 +2,7 @@ package com.exasol.adapter.properties;
 
 import com.exasol.adapter.dialects.SqlDialect.StructureElementSupport;
 import com.exasol.adapter.properties.PropertyValidator.PropertyValueValidator;
+import com.exasol.errorreporting.ExaError;
 
 /**
  * Validator for a property specifying a structure element, i.e. a catalog or a schema.
@@ -21,7 +22,10 @@ class StructureElementSupportValidator implements PropertyValueValidator {
     @Override
     public void validate(final String propertyValue) throws PropertyValidationException {
         if (this.availableSupport == StructureElementSupport.NONE) {
-            throw UnsupportedElement.validationException(this.elementName, this.propertyName);
+            throw new PropertyValidationException(ExaError.messageBuilder("E-VSCJDBC-44")
+                    .message("This dialect does not support {{unsupportedElement}}.", this.elementName)
+                    .mitigation("Please, do not set property {{property}}.", this.propertyName) //
+                    .toString());
         }
     }
 }

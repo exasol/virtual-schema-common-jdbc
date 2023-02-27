@@ -13,7 +13,6 @@ import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.jdbc.RemoteMetadataReaderException;
 
 class TableCountLimitTest {
-
     @ParameterizedTest
     @ValueSource(ints = { 1, 2 })
     void testValues(final int value) {

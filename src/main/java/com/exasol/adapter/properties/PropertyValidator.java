@@ -17,17 +17,6 @@ public interface PropertyValidator {
     }
 
     /**
-     * Create property validator for an optional property.
-     *
-     * @param propertyName   name of the property
-     * @param valueValidator Validator for the value of the current property if the property is set
-     * @return property validator for an optional property
-     */
-    public static PropertyValidator optional(final String propertyName, final PropertyValueValidator valueValidator) {
-        return new OptionalPropertyValidator(false, propertyName, valueValidator);
-    }
-
-    /**
      * Create property validator for an optional property specifying a structure element.
      *
      * @param availableSupport type of support provided by the dialect
@@ -51,6 +40,17 @@ public interface PropertyValidator {
     public static PropertyValidator ignoreEmpty(final String propertyName,
             final PropertyValueValidator valueValidator) {
         return new OptionalPropertyValidator(true, propertyName, valueValidator);
+    }
+
+    /**
+     * Create property validator for an optional property.
+     *
+     * @param propertyName   name of the property
+     * @param valueValidator Validator for the value of the current property if the property is set
+     * @return property validator for an optional property
+     */
+    public static PropertyValidator optional(final String propertyName, final PropertyValueValidator valueValidator) {
+        return new OptionalPropertyValidator(false, propertyName, valueValidator);
     }
 
     /**
