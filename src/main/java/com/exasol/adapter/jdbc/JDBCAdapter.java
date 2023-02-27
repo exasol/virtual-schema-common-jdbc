@@ -123,7 +123,7 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
      * @deprecated Should be removed as search on GitHub did not detect any call to this method by any other virtual
      *             schema.
      */
-    @Deprecated(since = "10.2.0")
+    @Deprecated(since = "11.0.0")
     protected SchemaMetadata readMetadata(final AdapterProperties properties, final List<String> remoteTableAllowList,
             final ExaMetadata exasolMetadata) throws PropertyValidationException {
         final SqlDialect dialect = createDialect(exasolMetadata, properties);

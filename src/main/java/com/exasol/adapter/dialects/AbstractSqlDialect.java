@@ -186,7 +186,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
      * @deprecated Should be removed as search on GitHub did not detect any call to this method by any other virtual
      *             schema.
      */
-    @Deprecated(since = "10.2.0")
+    @Deprecated(since = "11.0.0")
     protected void validateSupportedPropertiesList() throws PropertyValidationException {
         this.supportedProperties.validate(this.properties);
     }
@@ -210,7 +210,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
      * @deprecated Should be removed as search on GitHub did not detect any call to this method by any other virtual
      *             schema.
      */
-    @Deprecated(since = "10.2.0")
+    @Deprecated(since = "11.0.0")
     protected String createUnsupportedElementMessage(final String unsupportedElement, final String property) {
         return SupportedPropertiesValidator.createUnsupportedElementMessage(property);
     }
@@ -223,7 +223,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
      *
      * @deprecated Please use {@code com.exasol.adapter.propertiesBooleanProperty.validator(String)} instead.
      */
-    @Deprecated(since = "10.2.0")
+    @Deprecated(since = "11.0.0")
     protected void validateBooleanProperty(final String propertyName) throws PropertyValidationException {
         BooleanProperty.validator(propertyName).validate(this.properties);
     }
@@ -267,7 +267,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
      *
      * @deprecated Please use {@code com.exasol.adapter.CastNumberToDecimalProperty.validator(String)} instead.
      */
-    @Deprecated(since = "10.2.0")
+    @Deprecated(since = "11.0.0")
     protected void validateCastNumberToDecimalProperty(final String castNumberToDecimalProperty)
             throws PropertyValidationException {
         CastNumberToDecimalProperty.validator(castNumberToDecimalProperty).validate(this.properties);

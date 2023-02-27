@@ -9,6 +9,11 @@ import com.exasol.errorreporting.ExaError;
  * This class validates properties that specify casting numbers to decimal.
  */
 public class CastNumberToDecimalProperty implements PropertyValueValidator {
+
+    /**
+     * @return new instance of {@link CastNumberToDecimalProperty} for validation of the specified property casting
+     *         numbers to decimal
+     */
     public static PropertyValidator validator(final String propertyName) {
         return PropertyValidator.optional(propertyName, new CastNumberToDecimalProperty(propertyName));
     }

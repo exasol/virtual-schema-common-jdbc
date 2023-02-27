@@ -10,6 +10,9 @@ import com.exasol.errorreporting.ExaError;
  */
 public class BooleanProperty implements PropertyValueValidator {
 
+    /**
+     * @return new instance of {@link BooleanProperty} for validation of the specified boolean adapter property
+     */
     public static PropertyValidator validator(final String propertyName) {
         return PropertyValidator.optional(propertyName, new BooleanProperty(propertyName));
     }
