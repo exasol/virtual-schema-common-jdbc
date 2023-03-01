@@ -118,13 +118,6 @@ class BaseTableMetadataReaderTest {
         );
     }
 
-    private ResultSet resultSetWithUnlimitedSize() throws SQLException {
-        final ResultSet resultSet = Mockito.mock(ResultSet.class);
-        when(resultSet.next()).thenReturn(true);
-        when(resultSet.getString(NAME_COLUMN)).thenReturn("table");
-        return resultSet;
-    }
-
     // verify that the actual table limit is part of the error message
     @Test
     void testValidateMappedTablesListSizeWithProperty2000() throws SQLException {
@@ -145,14 +138,7 @@ class BaseTableMetadataReaderTest {
     // verify that it does map 3000 tables when the parameter is set so
     @Test
     void testValidateMappedTablesListSizeWithProperty3000() throws SQLException {
-        final ResultSet resultSetMock = Mockito.mock(ResultSet.class);
-        // limit number of returned tables, so we can confirm it does map 3000 tables
-        final AtomicInteger tableNumber = new AtomicInteger(0);
-        final int sourceTableCount = 3000;
-        when(resultSetMock.next()).then( //
-                (Answer<Boolean>) invocationOnMock -> tableNumber.getAndIncrement() < sourceTableCount //
-        );
-        when(resultSetMock.getString(NAME_COLUMN)).thenReturn("table");
+        final ResultSet resultSetMock = resultSetWithSize(3000);
         when(this.columnMetadataReaderMock.mapColumns("table"))
                 .thenReturn(List.of(ColumnMetadata.builder().name("column").type(DataType.createBool()).build()));
         final TableMetadataReader metadataReader = createTableMetadataReaderWithProperties(
@@ -206,5 +192,29 @@ class BaseTableMetadataReaderTest {
         final List<TableMetadata> tables = createTableMetadataReaderWithSingleFilteredTable(TABLE_B)
                 .mapTables(this.tablesMock, List.of(TABLE_A));
         assertThat(tables, iterableWithSize(0));
+    }
+
+    /**
+     * Limit number of returned tables to verify mapping the specified number of tables.
+     *
+     * @param size size of result set
+     * @return result set mock
+     * @throws SQLException in case of failure
+     */
+    private ResultSet resultSetWithSize(final int size) throws SQLException {
+        final ResultSet resultSetMock = Mockito.mock(ResultSet.class);
+        final AtomicInteger tableCount = new AtomicInteger(0);
+        when(resultSetMock.next()).then( //
+                (Answer<Boolean>) invocationOnMock -> tableCount.getAndIncrement() < size //
+        );
+        when(resultSetMock.getString(NAME_COLUMN)).thenReturn("table");
+        return resultSetMock;
+    }
+
+    private ResultSet resultSetWithUnlimitedSize() throws SQLException {
+        final ResultSet resultSet = Mockito.mock(ResultSet.class);
+        when(resultSet.next()).thenReturn(true);
+        when(resultSet.getString(NAME_COLUMN)).thenReturn("table");
+        return resultSet;
     }
 }

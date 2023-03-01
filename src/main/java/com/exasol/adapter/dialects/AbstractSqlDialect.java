@@ -183,8 +183,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
      *
      * @throws PropertyValidationException if validation fails
      *
-     * @deprecated Should be removed as search on GitHub did not detect any call to this method by any other virtual
-     *             schema.
+     * @deprecated Please do not use this method.
      */
     @Deprecated(since = "11.0.0")
     protected void validateSupportedPropertiesList() throws PropertyValidationException {
@@ -207,8 +206,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
      * @param property           unsupported property name
      * @return exception
      *
-     * @deprecated Should be removed as search on GitHub did not detect any call to this method by any other virtual
-     *             schema.
+     * @deprecated Please do not use this method.
      */
     @Deprecated(since = "11.0.0")
     protected String createUnsupportedElementMessage(final String unsupportedElement, final String property) {

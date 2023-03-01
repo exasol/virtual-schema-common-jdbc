@@ -8,7 +8,7 @@ import com.exasol.adapter.AdapterProperties;
 /**
  * Validate the specified properties by applying all property validators subsequently.
  */
-public class ValidatorChain {
+public class ValidatorChain implements PropertyValidator {
 
     private final List<PropertyValidator> propertyValidators = new ArrayList<>();
 
@@ -23,12 +23,7 @@ public class ValidatorChain {
         return this;
     }
 
-    /**
-     * Validate the specified properties by applying all property validators subsequently.
-     *
-     * @param properties adapter properties to be verified
-     * @throws PropertyValidationException in case one of the validators fails to validate its corresponding property
-     */
+    @Override
     public void validate(final AdapterProperties properties) throws PropertyValidationException {
         for (final PropertyValidator validator : this.propertyValidators) {
             validator.validate(properties);
