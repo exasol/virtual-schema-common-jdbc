@@ -1,4 +1,4 @@
-# Virtual Schema Common JDBC 10.2.0, released 2023-??-??
+# Virtual Schema Common JDBC 10.2.0, released 2023-03-01
 
 Code name: More Tables
 
@@ -12,8 +12,6 @@ Additionally the property validation has been refactored which enabled to mark t
 * `AbstractSqlDialect.createUnsupportedElementMessage()`
 * `AbstractSqlDialect.validateBooleanProperty()`
 * `AbstractSqlDialect.validateCastNumberToDecimalProperty()`
-
-Due to this potentially breaking change this release increments the major version number of VSCJDBC from 10 to 11.
 
 ## Features
 
