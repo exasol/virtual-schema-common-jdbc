@@ -1,4 +1,4 @@
-# Virtual Schema Common JDBC 10.1.1, released 2023-??-??
+# Virtual Schema Common JDBC 10.2.0, released 2023-??-??
 
 Code name: More Tables
 
