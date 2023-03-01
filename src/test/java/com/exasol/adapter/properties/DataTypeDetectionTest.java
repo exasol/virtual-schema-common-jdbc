@@ -21,7 +21,7 @@ class DataTypeDetectionTest {
         final AdapterProperties properties = adapterProperties(strategy.name());
         final DataTypeDetection testee = DataTypeDetection.from(properties);
         assertThat(testee.getStrategy(), equalTo(strategy));
-        verifyValidator(properties);
+        verifySuccess(properties);
     }
 
     @Test
@@ -29,16 +29,21 @@ class DataTypeDetectionTest {
         final AdapterProperties properties = new AdapterProperties(Map.of());
         final DataTypeDetection testee = DataTypeDetection.from(properties);
         assertThat(testee.getStrategy(), equalTo(DataTypeDetection.DEFAULT_STRATEGY));
-        verifyValidator(properties);
+        verifySuccess(properties);
     }
 
     @Test
     void testValidationFailure() throws PropertyValidationException {
         final PropertyValidator validator = DataTypeDetection.getValidator();
-        assertThrows(PropertyValidationException.class, () -> validator.validate(adapterProperties("invalid_value")));
+        final Exception exception = assertThrows(PropertyValidationException.class,
+                () -> validator.validate(adapterProperties("invalid_value")));
+        assertThat(exception.getMessage(),
+                equalTo("E-VSCJDBC-41: Invalid value 'invalid_value' for property 'IMPORT_DATA_TYPES'."
+                        + " Choose one of: FROM_RESULT_SET, EXASOL_CALCULATED."));
+
     }
 
-    private void verifyValidatedSuccessfully(final AdapterProperties properties) {
+    private void verifySuccess(final AdapterProperties properties) {
         assertDoesNotThrow(() -> DataTypeDetection.getValidator().validate(properties));
     }
 

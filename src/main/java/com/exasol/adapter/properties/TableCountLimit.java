@@ -72,13 +72,11 @@ public final class TableCountLimit {
         if (numberOfTables > this.maxNumberOfTables) {
             throw new RemoteMetadataReaderException(ExaError.messageBuilder("E-VSCJDBC-42")
                     .message("The size of the list of the selected tables exceeds" //
-                            + " the configured allowed maximum of {{current_limit}}.")
-                    .mitigation(
-                            "Please use the {{table_filter_property}} property to define the list of tables you need" //
-                                    + " or increase the limit using the {{max_tables_property}} property.") //
-                    .parameter("current_limit", this.maxNumberOfTables) //
-                    .parameter("table_filter_property", TABLE_FILTER_PROPERTY) //
-                    .parameter("max_tables_property", MAXTABLES_PROPERTY) //
+                            + " the configured allowed maximum of {{current_limit}}.", this.maxNumberOfTables)
+                    .mitigation("Please use the {{table_filter_property}} property" //
+                            + " to define the list of tables you need", TABLE_FILTER_PROPERTY) //
+                    .mitigation(" or increase the limit using the {{max_tables_property}} property.", //
+                            MAXTABLES_PROPERTY) //
                     .toString());
         }
     }

@@ -21,7 +21,7 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
     /**
      * Default adapter notes to be added to tables (empty)
      */
-    private static final String DEFAULT_TABLE_ADAPTER_NOTES = "";
+    static final String DEFAULT_TABLE_ADAPTER_NOTES = "";
     private static final Logger LOGGER = Logger.getLogger(BaseTableMetadataReader.class.getName());
     private static final Pattern UNQUOTED_IDENTIFIER_PATTERN = Pattern.compile("^[a-z][0-9a-z_]*");
 
@@ -123,7 +123,7 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
     }
 
     /**
-     * Convert the given identifier to the proper casing using the underlying IdentifierConverter
+     * Convert the given identifier to the proper casing using the underlying {@link IdentifierConverter}.
      *
      * @param tableName Table name as provided by source
      * @return Table name as required by the virtual schema host database

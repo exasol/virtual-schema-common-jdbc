@@ -53,7 +53,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
                 .add(dialectSpecificProperties);
         this.propertyValidators = PropertyValidator.chain() //
                 .add(this.supportedProperties) //
-                .add(new ConnectionNameProperty()) //
+                .add(ConnectionNameProperty.validator()) //
                 .add(PropertyValidator.forStructureElement(supportsJdbcCatalogs(), "catalogs", CATALOG_NAME_PROPERTY))
                 .add(DebugPortNumberProperty.validator()) //
                 .add(PropertyValidator.forStructureElement(supportsJdbcSchemas(), "schemas", SCHEMA_NAME_PROPERTY))
@@ -221,7 +221,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
      * @param propertyName property name
      * @throws PropertyValidationException if validation fails
      *
-     * @deprecated Please use {@code com.exasol.adapter.propertiesBooleanProperty.validator(String)} instead.
+     * @deprecated Please use {@link BooleanProperty#validator(String)} instead.
      */
     @Deprecated(since = "11.0.0")
     protected void validateBooleanProperty(final String propertyName) throws PropertyValidationException {
@@ -265,7 +265,7 @@ public abstract class AbstractSqlDialect implements SqlDialect {
      * @param castNumberToDecimalProperty property name
      * @throws PropertyValidationException if validation fails
      *
-     * @deprecated Please use {@code com.exasol.adapter.CastNumberToDecimalProperty.validator(String)} instead.
+     * @deprecated Please use {@link CastNumberToDecimalProperty#validator(String)} instead.
      */
     @Deprecated(since = "11.0.0")
     protected void validateCastNumberToDecimalProperty(final String castNumberToDecimalProperty)

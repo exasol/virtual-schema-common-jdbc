@@ -1,5 +1,7 @@
 package com.exasol.adapter.properties;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -41,7 +43,11 @@ class TableCountLimitTest {
     void testValidatorFailure(final String value) {
         final Map<String, String> properties = Map.of(TableCountLimit.MAXTABLES_PROPERTY, value);
         final PropertyValidator validator = TableCountLimit.getValidator();
-        assertThrows(PropertyValidationException.class, () -> validator.validate(new AdapterProperties(properties)));
+        final Exception exception = assertThrows(PropertyValidationException.class,
+                () -> validator.validate(new AdapterProperties(properties)));
+        assertThat(exception.getMessage(), equalTo("E-VSCJDBC-43: Invalid parameter value." //
+                + " The adapter property 'MAX_TABLE_COUNT' if present," //
+                + " must be a positive integer greater than 0."));
     }
 
     private void verifyValidator(final Map<String, String> properties) {

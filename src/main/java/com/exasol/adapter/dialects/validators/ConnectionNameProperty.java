@@ -1,7 +1,6 @@
 package com.exasol.adapter.dialects.validators;
 
 import static com.exasol.adapter.AdapterProperties.CONNECTION_NAME_PROPERTY;
-import static com.exasol.adapter.AdapterProperties.DEBUG_ADDRESS_PROPERTY;
 
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.properties.PropertyValidationException;
@@ -16,7 +15,11 @@ public class ConnectionNameProperty implements PropertyValidator {
      * @return new instance of {@link PropertyValidator} for validation of connection name property.
      */
     public static PropertyValidator validator() {
-        return PropertyValidator.ignoreEmpty(DEBUG_ADDRESS_PROPERTY, new DebugPortNumberProperty());
+        return new ConnectionNameProperty();
+    }
+
+    private ConnectionNameProperty() {
+        // please call static method validator()
     }
 
     @Override
