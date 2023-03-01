@@ -38,7 +38,7 @@ class DataTypeDetectionTest {
         assertThrows(PropertyValidationException.class, () -> validator.validate(adapterProperties("invalid_value")));
     }
 
-    private void verifyValidator(final AdapterProperties properties) {
+    private void verifyValidatedSuccessfully(final AdapterProperties properties) {
         assertDoesNotThrow(() -> DataTypeDetection.getValidator().validate(properties));
     }
 

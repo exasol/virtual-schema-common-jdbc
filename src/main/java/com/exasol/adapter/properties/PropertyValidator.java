@@ -62,7 +62,7 @@ public interface PropertyValidator {
     public void validate(final AdapterProperties properties) throws PropertyValidationException;
 
     /**
-     * Validator for the value of the current property in the the property is set.
+     * Validator for the value of the current property if the property is set.
      */
     @FunctionalInterface
     public interface PropertyValueValidator {

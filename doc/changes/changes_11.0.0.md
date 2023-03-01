@@ -13,7 +13,7 @@ Additionally the property validation has been refactored which enabled to mark t
 * `AbstractSqlDialect.validateBooleanProperty()`
 * `AbstractSqlDialect.validateCastNumberToDecimalProperty()`
 
-Due to this potentially change this release increments the major version number of VSCJDBC from 10 to 11.
+Due to this potentially breaking change this release increments the major version number of VSCJDBC from 10 to 11.
 
 ## Features
 

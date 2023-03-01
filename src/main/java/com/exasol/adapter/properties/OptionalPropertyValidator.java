@@ -24,6 +24,6 @@ class OptionalPropertyValidator implements PropertyValidator {
         if (value.isEmpty() && this.allowEmpty) {
             return;
         }
-        this.valueValidator.validate(properties.get(this.propertyName));
+        this.valueValidator.validate(value);
     }
 }

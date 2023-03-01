@@ -22,9 +22,6 @@ public class CastNumberToDecimalProperty implements PropertyValueValidator {
     private static final Pattern PATTERN = Pattern.compile("\\s*(\\d+)\\s*,\\s*(\\d+)\\s*");
     private final String propertyName;
 
-    /**
-     * @param castNumberToDecimalProperty
-     */
     CastNumberToDecimalProperty(final String propertyName) {
         this.propertyName = propertyName;
     }

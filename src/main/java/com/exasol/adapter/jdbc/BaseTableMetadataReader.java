@@ -21,7 +21,7 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
     /**
      * Default adapter notes to be added to tables (empty)
      */
-    protected static final String DEFAULT_TABLE_ADAPTER_NOTES = "";
+    private static final String DEFAULT_TABLE_ADAPTER_NOTES = "";
     private static final Logger LOGGER = Logger.getLogger(BaseTableMetadataReader.class.getName());
     private static final Pattern UNQUOTED_IDENTIFIER_PATTERN = Pattern.compile("^[a-z][0-9a-z_]*");
 

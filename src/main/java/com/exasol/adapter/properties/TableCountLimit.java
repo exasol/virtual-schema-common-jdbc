@@ -35,7 +35,7 @@ public final class TableCountLimit {
             throw new PropertyValidationException(ExaError.messageBuilder("E-VSCJDBC-43") //
                     .message("Invalid parameter value.") //
                     .mitigation("The adapter property {{max_tables_property}}" //
-                            + " if present, must be a positive integer.") //
+                            + " if present, must be a positive integer greater than 0.") //
                     .parameter("max_tables_property", MAXTABLES_PROPERTY) //
                     .toString());
         }
@@ -65,7 +65,7 @@ public final class TableCountLimit {
     /**
      * Verify that the given number of mapped tables does not exceed the configured max table limit.
      *
-     * @param numberOfTables actual size of mapped tables
+     * @param numberOfTables actual number of mapped tables
      * @throws RemoteMetadataReaderException if the table limit has been exceeded
      */
     public void validateNumberOfTables(final int numberOfTables) throws RemoteMetadataReaderException {

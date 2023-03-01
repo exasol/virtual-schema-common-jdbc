@@ -10,7 +10,7 @@ import com.exasol.adapter.AdapterProperties;
  */
 public class ValidatorChain {
 
-    List<PropertyValidator> propertyValidators = new ArrayList<>();
+    private final List<PropertyValidator> propertyValidators = new ArrayList<>();
 
     /**
      * Add a single property validator to the validator chain.

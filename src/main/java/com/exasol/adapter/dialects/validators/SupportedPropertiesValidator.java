@@ -8,7 +8,7 @@ import com.exasol.adapter.properties.PropertyValidator;
 import com.exasol.errorreporting.ExaError;
 
 /**
- * This class validated the list of supported properties and throws a validation error for unsupported properties.
+ * This class validates the list of supported properties and throws a validation error for unsupported properties.
  */
 public class SupportedPropertiesValidator implements PropertyValidator {
 
