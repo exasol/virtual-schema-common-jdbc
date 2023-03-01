@@ -18,6 +18,8 @@ import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.dialects.dummy.DummySqlDialect;
 import com.exasol.adapter.dialects.rewriting.SqlGenerationContext;
 import com.exasol.adapter.dialects.rewriting.SqlGenerationVisitor;
+import com.exasol.adapter.properties.DataTypeDetection;
+import com.exasol.adapter.properties.PropertyValidationException;
 import com.exasol.adapter.sql.ScalarFunction;
 import com.exasol.logging.CapturingLogHandler;
 
@@ -166,19 +168,15 @@ class AbstractSqlDialectTest {
         assertThat(sqlDialect.getPrefixFunctionAliases().get(ScalarFunction.NEG), equalTo("-"));
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = { "SOME_PROPERTY", CATALOG_NAME_PROPERTY, SCHEMA_NAME_PROPERTY })
-    void testEmptyProperties(final String propertyName) {
-        verifyValidationException(propertyName, "", "E-VSCJDBC-13");
+    @Test
+    void testUnknownProperty() {
+        verifyValidationException("UNSUPPORTED_PROPERTY", "", "E-VSCJDBC-13");
     }
 
-    @Test
-    void testValidateBooleanProperty() {
-        this.rawProperties.put(IS_LOCAL_PROPERTY, "123");
-        final DummySqlDialect sqlDialect = new DummySqlDialect(null, new AdapterProperties(this.rawProperties));
-        final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
-                () -> sqlDialect.validateBooleanProperty(IS_LOCAL_PROPERTY));
-        assertThat(exception.getMessage(), containsString("E-VSCJDBC-15"));
+    @ParameterizedTest
+    @ValueSource(strings = { SCHEMA_NAME_PROPERTY, CATALOG_NAME_PROPERTY })
+    void testStructureElementProperty(final String propertyName) {
+        verifyValidationException(propertyName, "", "E-VSCJDBC-44");
     }
 
     @Test
@@ -230,14 +228,5 @@ class AbstractSqlDialectTest {
         final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
                 () -> sqlDialect.checkImportPropertyConsistency("SOME_PROPERTY", CONNECTION_NAME_PROPERTY));
         assertThat(exception.getMessage(), containsString("E-VSCJDBC-17"));
-    }
-
-    @Test
-    void testValidateCastNumberToDecimalProperty() {
-        this.rawProperties.put("SOME_PROPERTY", "TRUE");
-        final DummySqlDialect sqlDialect = new DummySqlDialect(null, new AdapterProperties(this.rawProperties));
-        final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
-                () -> sqlDialect.validateCastNumberToDecimalProperty("SOME_PROPERTY"));
-        assertThat(exception.getMessage(), containsString("E-VSCJDBC-19"));
     }
 }

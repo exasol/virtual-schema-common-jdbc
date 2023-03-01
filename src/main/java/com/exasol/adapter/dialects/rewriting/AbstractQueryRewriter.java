@@ -8,10 +8,11 @@ import com.exasol.*;
 import com.exasol.adapter.AdapterException;
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.dialects.*;
-import com.exasol.adapter.dialects.DataTypeDetection.Strategy;
 import com.exasol.adapter.jdbc.ConnectionDefinitionBuilder;
 import com.exasol.adapter.jdbc.RemoteMetadataReader;
 import com.exasol.adapter.metadata.DataType;
+import com.exasol.adapter.properties.DataTypeDetection;
+import com.exasol.adapter.properties.DataTypeDetection.Strategy;
 import com.exasol.adapter.sql.SqlStatement;
 import com.exasol.errorreporting.ExaError;
 

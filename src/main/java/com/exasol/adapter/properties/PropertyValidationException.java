@@ -1,4 +1,4 @@
-package com.exasol.adapter.dialects;
+package com.exasol.adapter.properties;
 
 import com.exasol.adapter.AdapterException;
 

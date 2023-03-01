@@ -10,6 +10,7 @@ import com.exasol.adapter.capabilities.Capabilities;
 import com.exasol.adapter.dialects.rewriting.SqlGenerationContext;
 import com.exasol.adapter.metadata.DataType;
 import com.exasol.adapter.metadata.SchemaMetadata;
+import com.exasol.adapter.properties.PropertyValidationException;
 import com.exasol.adapter.sql.*;
 
 /**
@@ -222,7 +223,7 @@ public interface SqlDialect {
     public SchemaMetadata readSchemaMetadata() throws SQLException;
 
     /**
-     * Read the remote schema metadata for selected from the remote source.
+     * Read the remote schema metadata for selected tables from the remote source.
      *
      * @param tables selected tables for which the metadata should be read
      * @return remote schema metadata
