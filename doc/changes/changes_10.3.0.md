@@ -1,4 +1,4 @@
-# Virtual Schema Common JDBC 10.3.0, released 2023-??-??
+# Virtual Schema Common JDBC 10.3.0, released 2023-03-10
 
 Code name: Escape Wildcards
 
