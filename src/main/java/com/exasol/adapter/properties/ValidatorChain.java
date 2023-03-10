@@ -25,7 +25,7 @@ public class ValidatorChain implements PropertyValidator {
     /**
      * Add a list of property validators to the validator chain.
      *
-     * @param validators
+     * @param validators validators to add to the current chain of validators
      * @return this for fluent programming
      */
     public ValidatorChain addAll(final Collection<PropertyValidator> validators) {
