@@ -18,20 +18,17 @@ import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.dialects.dummy.DummySqlDialect;
 import com.exasol.adapter.dialects.rewriting.SqlGenerationContext;
 import com.exasol.adapter.dialects.rewriting.SqlGenerationVisitor;
-import com.exasol.adapter.properties.DataTypeDetection;
-import com.exasol.adapter.properties.PropertyValidationException;
+import com.exasol.adapter.properties.*;
 import com.exasol.adapter.sql.ScalarFunction;
 import com.exasol.logging.CapturingLogHandler;
 
 class AbstractSqlDialectTest {
-    private Map<String, String> rawProperties;
     private final CapturingLogHandler capturingLogHandler = new CapturingLogHandler();
 
     @BeforeEach
     void beforeEach() {
         Logger.getLogger("com.exasol").addHandler(this.capturingLogHandler);
         this.capturingLogHandler.reset();
-        this.rawProperties = new HashMap<>();
     }
 
     @AfterEach
@@ -41,28 +38,21 @@ class AbstractSqlDialectTest {
 
     @Test
     void testNoConnectionName() {
-        this.rawProperties.put(SCHEMA_NAME_PROPERTY, "MY_SCHEMA");
-        final AdapterProperties adapterProperties = new AdapterProperties(this.rawProperties);
-        final SqlDialect sqlDialect = new DummySqlDialect(null, adapterProperties);
+        final SqlDialect sqlDialect = new DummySqlDialect(null, adapterProperties(SCHEMA_NAME_PROPERTY, "MY_SCHEMA"));
         final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
                 sqlDialect::validateProperties);
         assertThat(exception.getMessage(), containsString(
                 "E-VSCJDBC-14: Please specify a connection using the property '" + CONNECTION_NAME_PROPERTY + "'."));
     }
 
-    private void getMinimumMandatory() {
-        this.rawProperties.put(CONNECTION_NAME_PROPERTY, "MY_CONN");
-    }
-
     @Test
     void testValidatePropertiesWithWherePortIsString() throws PropertyValidationException {
-        this.rawProperties.put(DEBUG_ADDRESS_PROPERTY, "host:port_should_be_a_number");
-        assertWarningIssued("Illegal debug output port");
+        final AdapterProperties adapterProperties = minimumPlus(DEBUG_ADDRESS_PROPERTY, "host:port_should_be_a_number");
+        assertWarningIssued(adapterProperties, "Illegal debug output port");
     }
 
-    private void assertWarningIssued(final String expectedMessagePart) throws PropertyValidationException {
-        getMinimumMandatory();
-        final AdapterProperties adapterProperties = new AdapterProperties(this.rawProperties);
+    private void assertWarningIssued(final AdapterProperties adapterProperties, final String expectedMessagePart)
+            throws PropertyValidationException {
         final SqlDialect sqlDialect = new DummySqlDialect(null, adapterProperties);
         sqlDialect.validateProperties();
         assertThat(this.capturingLogHandler.getCapturedData(), containsString(expectedMessagePart));
@@ -70,39 +60,31 @@ class AbstractSqlDialectTest {
 
     @Test
     void testValidatePropertiesWithWherePortTooLow() throws PropertyValidationException {
-        this.rawProperties.put(DEBUG_ADDRESS_PROPERTY, "host:0");
-        assertWarningIssued("Debug output port 0 is out of range");
+        final AdapterProperties adapterProperties = minimumPlus(DEBUG_ADDRESS_PROPERTY, "host:0");
+        assertWarningIssued(adapterProperties, "Debug output port 0 is out of range");
     }
 
     @Test
     void testValidatePropertiesWithWherePortTooHigh() throws PropertyValidationException {
-        this.rawProperties.put(DEBUG_ADDRESS_PROPERTY, "host:65536");
-        assertWarningIssued("Debug output port 65536 is out of range");
+        final AdapterProperties adapterProperties = minimumPlus(DEBUG_ADDRESS_PROPERTY, "host:65536");
+        assertWarningIssued(adapterProperties, "Debug output port 65536 is out of range");
     }
 
     @Test
     void testValidDebugAddress() throws PropertyValidationException {
-        getMinimumMandatory();
-        this.rawProperties.put(DEBUG_ADDRESS_PROPERTY, "bla:123");
-        final AdapterProperties adapterProperties = new AdapterProperties(this.rawProperties);
-        final SqlDialect sqlDialect = new DummySqlDialect(null, adapterProperties);
+        final SqlDialect sqlDialect = new DummySqlDialect(null, minimumPlus(DEBUG_ADDRESS_PROPERTY, "bla:123"));
         sqlDialect.validateProperties();
     }
 
     @Test
     void testSchemaAndCatalogOptional() throws PropertyValidationException {
-        this.rawProperties.put(CONNECTION_NAME_PROPERTY, "MY_CONN");
-        final AdapterProperties adapterProperties = new AdapterProperties(this.rawProperties);
-        final SqlDialect sqlDialect = new DummySqlDialect(null, adapterProperties);
+        final SqlDialect sqlDialect = new DummySqlDialect(null, adapterProperties(CONNECTION_NAME_PROPERTY, "MY_CONN"));
         sqlDialect.validateProperties();
     }
 
     @Test
     void testInvalidExceptionHandling() {
-        getMinimumMandatory();
-        this.rawProperties.put(EXCEPTION_HANDLING_PROPERTY, "IGNORE_ALL");
-        final AdapterProperties adapterProperties = new AdapterProperties(this.rawProperties);
-        final SqlDialect sqlDialect = new DummySqlDialect(null, adapterProperties);
+        final SqlDialect sqlDialect = new DummySqlDialect(null, minimumPlus(EXCEPTION_HANDLING_PROPERTY, "IGNORE_ALL"));
         final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
                 sqlDialect::validateProperties);
         assertThat(exception.getMessage(),
@@ -116,8 +98,7 @@ class AbstractSqlDialectTest {
         final int colonPosition = definition.indexOf(':');
         final String original = definition.substring(0, colonPosition);
         final String literal = definition.substring(colonPosition + 1);
-        final AdapterProperties adapterProperties = new AdapterProperties(this.rawProperties);
-        final SqlDialect sqlDialect = new DummySqlDialect(null, adapterProperties);
+        final SqlDialect sqlDialect = new DummySqlDialect(null, AdapterProperties.emptyProperties());
         assertThat(sqlDialect.getStringLiteral(original), equalTo(literal));
     }
 
@@ -192,18 +173,19 @@ class AbstractSqlDialectTest {
     @ParameterizedTest
     @ValueSource(strings = { "", "EXASOL_CALCULATED", "FROM_RESULT_SET" })
     void validDataTypeDetectionStrategies(final String strategy) {
-        this.rawProperties.put(CONNECTION_NAME_PROPERTY, "");
+        final Map<String, String> raw = new HashMap<>(Map.of(CONNECTION_NAME_PROPERTY, ""));
         if (!strategy.isEmpty()) {
-            this.rawProperties.put(DataTypeDetection.STRATEGY_PROPERTY, strategy);
+            raw.put(DataTypeDetection.STRATEGY_PROPERTY, strategy);
         }
-        final SqlDialect sqlDialect = new DummySqlDialect(null, new AdapterProperties(this.rawProperties));
+        final SqlDialect sqlDialect = new DummySqlDialect(null, new AdapterProperties(raw));
         assertDoesNotThrow(sqlDialect::validateProperties);
     }
 
     private void verifyValidationException(final String property, final String value, final String errorcode) {
-        this.rawProperties.put(CONNECTION_NAME_PROPERTY, "");
-        this.rawProperties.put(property, value);
-        final SqlDialect sqlDialect = new DummySqlDialect(null, new AdapterProperties(this.rawProperties));
+        final AdapterProperties properties = adapterProperties( //
+                CONNECTION_NAME_PROPERTY, "", //
+                property, value);
+        final SqlDialect sqlDialect = new DummySqlDialect(null, properties);
         final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
                 sqlDialect::validateProperties);
         assertAll(() -> assertThat(exception.getMessage(), containsString(errorcode)),
@@ -212,21 +194,35 @@ class AbstractSqlDialectTest {
 
     @Test
     void testCheckImportPropertyConsistencyWrongValue() {
-        this.rawProperties.put(CONNECTION_NAME_PROPERTY, "my_connection");
-        this.rawProperties.put("SOME_PROPERTY", "");
-        final DummySqlDialect sqlDialect = new DummySqlDialect(null, new AdapterProperties(this.rawProperties));
-        final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
-                () -> sqlDialect.checkImportPropertyConsistency("SOME_PROPERTY", CONNECTION_NAME_PROPERTY));
+        final AdapterProperties properties = adapterProperties( //
+                CONNECTION_NAME_PROPERTY, "my_connection", //
+                "SOME_PROPERTY", "");
+        final PropertyValidator validator = ImportProperty.validator("SOME_PROPERTY", CONNECTION_NAME_PROPERTY);
+        final Exception exception = assertThrows(PropertyValidationException.class,
+                () -> validator.validate(properties));
         assertThat(exception.getMessage(), containsString("E-VSCJDBC-18"));
     }
 
     @Test
     void testCheckImportPropertyConsistencyNoConnection() {
-        this.rawProperties.put(CONNECTION_NAME_PROPERTY, "");
-        this.rawProperties.put("SOME_PROPERTY", "TRUE");
-        final DummySqlDialect sqlDialect = new DummySqlDialect(null, new AdapterProperties(this.rawProperties));
-        final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
-                () -> sqlDialect.checkImportPropertyConsistency("SOME_PROPERTY", CONNECTION_NAME_PROPERTY));
+        final AdapterProperties properties = adapterProperties(//
+                CONNECTION_NAME_PROPERTY, "", //
+                "SOME_PROPERTY", "TRUE");
+        final PropertyValidator validator = ImportProperty.validator("SOME_PROPERTY", CONNECTION_NAME_PROPERTY);
+        final Exception exception = assertThrows(PropertyValidationException.class,
+                () -> validator.validate(properties));
         assertThat(exception.getMessage(), containsString("E-VSCJDBC-17"));
+    }
+
+    private AdapterProperties minimumPlus(final String key, final String value) {
+        return adapterProperties(CONNECTION_NAME_PROPERTY, "MY_CONN", key, value);
+    }
+
+    private AdapterProperties adapterProperties(final String key, final String value) {
+        return new AdapterProperties(Map.of(key, value));
+    }
+
+    private AdapterProperties adapterProperties(final String k1, final String v1, final String k2, final String v2) {
+        return new AdapterProperties(Map.of(k1, v1, k2, v2));
     }
 }
