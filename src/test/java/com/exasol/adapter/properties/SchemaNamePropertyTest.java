@@ -18,7 +18,7 @@ class SchemaNamePropertyTest {
         final Exception exception = assertThrows(PropertyValidationException.class,
                 () -> testee.validate(AdapterProperties.emptyProperties()));
         assertThat(exception.getMessage(),
-                equalTo("E-VSEXA-6: Spanish virtual schema dialect requires to specify a schema name."
+                equalTo("E-VSCJDBC-45: Spanish virtual schema dialect requires to specify a schema name."
                         + " Please specify a schema name using property 'SCHEMA_NAME'."));
     }
 
