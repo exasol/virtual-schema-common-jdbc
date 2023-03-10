@@ -12,7 +12,7 @@ The current release fixes this by escaping the wildcards before passing the tabl
 
 ## Bugfixes
 
-* #136: Column lookup for tables is not escaping wildcards
+* #136: Fixed column lookup for tables not escaping wildcards
 
 ## Dependency Updates
 
