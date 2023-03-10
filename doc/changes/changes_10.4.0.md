@@ -1,6 +1,6 @@
-# Virtual Schema Common JDBC 10.4.0, released 2023-??-??
+# Virtual Schema Common JDBC 10.4.0, released 2023-03-10
 
-Code name: Refactoring
+Code name: Validators for Adapter Properties
 
 ## Summary
 
