@@ -31,7 +31,7 @@ public class MandatoryProperty implements PropertyValidator {
     @Override
     public void validate(final AdapterProperties properties) throws PropertyValidationException {
         if (!properties.hasSchemaName()) {
-            throw new PropertyValidationException(ExaError.messageBuilder("E-VSEXA-6")
+            throw new PropertyValidationException(ExaError.messageBuilder("E-VSCJDBC-45")
                     .message("{{dialect|uq}} virtual schema dialect requires to specify a {{element1|uq}}.",
                             this.dialect, this.element) //
                     .mitigation("Please specify a {{element2|uq}} using property {{property}}.", //

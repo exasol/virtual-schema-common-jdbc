@@ -17,7 +17,7 @@ class MandatoryPropertyTest {
         final Exception exception = assertThrows(PropertyValidationException.class,
                 () -> testee().validate(AdapterProperties.emptyProperties()));
         assertThat(exception.getMessage(),
-                equalTo("E-VSEXA-6: Klingon virtual schema dialect requires to specify a mandatory element."
+                equalTo("E-VSCJDBC-45: Klingon virtual schema dialect requires to specify a mandatory element."
                         + " Please specify a mandatory element using property 'PROPERTY'."));
     }
 
