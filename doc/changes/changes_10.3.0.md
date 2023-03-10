@@ -4,15 +4,14 @@ Code name: Escape Wildcards
 
 ## Summary
 
-This release fixes lookup for tables with wildcards underscore `_` and percent `%`.
+This release fixes ambiguous results by escaping SQL wildcards such as underscore `_` and percent `%` in names of catalogs, schemas, and tables when retrieving column metadata from JDBC driver.
 
-Even when putting double quotes around the table name older releases of VSCJDBC passed the name to the JDBC driver and the JDBC driver returned the metadata for all matching tables expanding potential wildcards.
-
-The current release fixes this by escaping the wildcards before passing the table name to the JDBC driver.
+The release also adds a constructor enabling derived SQL dialects to add additional validators for adapter properties, hence removing the need to override method `AbstractSqlDialect.validateProperties()`.
 
 ## Bugfixes
 
-* #136: Column lookup for tables is not escaping wildcards
+* #136: Fixed column lookup for tables is not escaping wildcards
+* #138: Enabled SQL dialects to add property validators
 
 ## Dependency Updates
 

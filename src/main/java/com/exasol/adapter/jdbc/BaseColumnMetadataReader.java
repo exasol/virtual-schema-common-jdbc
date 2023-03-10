@@ -83,17 +83,22 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
      */
     protected List<ColumnMetadata> mapColumns(final String catalogName, final String schemaName,
             final String tableName) {
-        final String tableNameEscaped = Wildcards.escape(tableName);
-        final String catalogNameEscaped = catalogName == null ? null : Wildcards.escape(catalogName);
-        final String schemaNameEscaped = schemaName == null ? null : Wildcards.escape(schemaName);
-        try (final ResultSet remoteColumns = this.connection.getMetaData().getColumns(catalogNameEscaped,
-                schemaNameEscaped, tableNameEscaped, ANY_COLUMN)) {
+        try (final ResultSet remoteColumns = getColumnMetadata(catalogName, schemaName, tableName)) {
             return getColumnsFromResultSet(remoteColumns);
         } catch (final SQLException exception) {
             throw new RemoteMetadataReaderException(ExaError.messageBuilder("E-VSCJDBC-1").message(
                     "Unable to read column metadata from remote for catalog \"{{catalogName|uq}}\" and schema \"{{schemaName|uq}}\"",
                     schemaName, catalogName).toString(), exception);
         }
+    }
+
+    private ResultSet getColumnMetadata(final String catalogName, final String schemaName, final String tableName)
+            throws SQLException {
+        return this.connection.getMetaData().getColumns( //
+                catalogName == null ? null : Wildcards.escape(catalogName), //
+                schemaName == null ? null : Wildcards.escape(schemaName), //
+                Wildcards.escape(tableName), //
+                ANY_COLUMN);
     }
 
     /**

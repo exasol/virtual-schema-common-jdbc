@@ -14,6 +14,7 @@ class WildcardsTest {
             "a _ a, a \\_ a", //
             "a % a, a \\% a", //
             "a _ b _ c, a \\_ b \\_ c", //
+            "a_b%c, a\\_b\\%c", //
     })
     void test(final String input, final String expected) {
         assertThat(Wildcards.escape(input), equalTo(expected));
