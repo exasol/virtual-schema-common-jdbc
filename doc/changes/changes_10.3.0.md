@@ -10,7 +10,7 @@ The release also adds a constructor enabling derived SQL dialects to add additio
 
 ## Bugfixes
 
-* #136: Fixed column lookup for tables is not escaping wildcards
+* #136: Fixed column lookup for tables not escaping wildcards
 * #138: Enabled SQL dialects to add property validators
 
 ## Dependency Updates
