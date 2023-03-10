@@ -17,7 +17,6 @@ import com.exasol.adapter.metadata.DataType;
 import com.exasol.adapter.metadata.SchemaMetadata;
 import com.exasol.adapter.properties.*;
 import com.exasol.adapter.sql.*;
-import com.exasol.errorreporting.ExaError;
 
 /**
  * Abstract implementation of a dialect. We recommend that every dialect should extend this abstract class.
@@ -249,29 +248,13 @@ public abstract class AbstractSqlDialect implements SqlDialect {
      * @param importFromProperty import from property
      * @param connectionProperty connection property
      * @throws PropertyValidationException if check fails
+     *
+     * @deprecated Use {@link ImportProperty#validator(String, String)} instead
      */
+    @Deprecated(since = "10.4.0")
     protected void checkImportPropertyConsistency(final String importFromProperty, final String connectionProperty)
             throws PropertyValidationException {
-        final boolean isDirectImport = this.properties.isEnabled(importFromProperty);
-        final String value = this.properties.get(connectionProperty);
-        final boolean connectionIsEmpty = ((value == null) || value.isEmpty());
-        if (isDirectImport) {
-            if (connectionIsEmpty) {
-                throw new PropertyValidationException(ExaError.messageBuilder("E-VSCJDBC-17")
-                        .message("You defined the property {{importFromProperty}}.", importFromProperty)
-                        .mitigation("Please also define {{connectionProperty}}.", connectionProperty) //
-                        .toString());
-            }
-        } else {
-            if (!connectionIsEmpty) {
-                throw new PropertyValidationException(ExaError.messageBuilder("E-VSCJDBC-18")
-                        .message("You defined the property {{connectionProperty}}" //
-                                + " without setting {{importFromProperty}} to 'TRUE'." //
-                                + " This is not allowed.", //
-                                connectionProperty, importFromProperty) //
-                        .toString());
-            }
-        }
+        ImportProperty.validator(importFromProperty, connectionProperty).validate(this.properties);
     }
 
     /**
