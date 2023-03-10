@@ -1,7 +1,6 @@
 package com.exasol.adapter.properties;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import com.exasol.adapter.AdapterProperties;
 
@@ -20,6 +19,17 @@ public class ValidatorChain implements PropertyValidator {
      */
     public ValidatorChain add(final PropertyValidator validator) {
         this.propertyValidators.add(validator);
+        return this;
+    }
+
+    /**
+     * Add a list of property validators to the validator chain.
+     *
+     * @param validators validators to add to the current chain of validators
+     * @return this for fluent programming
+     */
+    public ValidatorChain addAll(final Collection<PropertyValidator> validators) {
+        this.propertyValidators.addAll(validators);
         return this;
     }
 

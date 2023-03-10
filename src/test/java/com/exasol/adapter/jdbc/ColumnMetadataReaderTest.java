@@ -65,14 +65,14 @@ class ColumnMetadataReaderTest {
         when(this.columnsMock.next()).thenReturn(true, false);
         when(this.columnsMock.getString(NAME_COLUMN)).thenReturn(originalTypeName + "_COLUMN");
         when(this.columnsMock.getString(TYPE_NAME_COLUMN)).thenReturn(originalTypeName);
-        when(this.remoteMetadataMock.getColumns(null, null, "THE_TABLE", "%")).thenReturn(this.columnsMock);
+        when(this.remoteMetadataMock.getColumns(null, null, "THE\\_TABLE", "%")).thenReturn(this.columnsMock);
         final List<ColumnMetadata> columns = mapMockedColumns(this.columnsMock);
         return columns.get(0);
     }
 
     private List<ColumnMetadata> mapMockedColumns(final ResultSet columnsMock)
             throws RemoteMetadataReaderException, SQLException {
-        when(this.remoteMetadataMock.getColumns(null, null, "THE_TABLE", "%")).thenReturn(columnsMock);
+        when(this.remoteMetadataMock.getColumns(null, null, "THE\\_TABLE", "%")).thenReturn(columnsMock);
         return createDefaultColumnMetadataReader().mapColumns("THE_TABLE");
     }
 
@@ -348,7 +348,7 @@ class ColumnMetadataReaderTest {
         when(this.columnsMock.next()).thenReturn(true, false);
         when(this.columnsMock.getString(NAME_COLUMN)).thenReturn("DOUBLE_COLUMN");
         when(this.columnsMock.getString(TYPE_NAME_COLUMN)).thenReturn(null);
-        when(this.remoteMetadataMock.getColumns(null, null, "THE_TABLE", "%")).thenReturn(this.columnsMock);
+        when(this.remoteMetadataMock.getColumns(null, null, "THE\\_TABLE", "%")).thenReturn(this.columnsMock);
         final List<ColumnMetadata> columns = mapMockedColumns(this.columnsMock);
         final ColumnMetadata columnMetadata = columns.get(0);
         assertThat(columnMetadata.getOriginalTypeName(), equalTo(""));

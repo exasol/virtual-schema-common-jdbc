@@ -75,7 +75,7 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
 
     /**
      * Read the columns metadata from a result set.
-     * 
+     *
      * @param catalogName catalog name
      * @param schemaName  schema name
      * @param tableName   table name
@@ -83,8 +83,7 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
      */
     protected List<ColumnMetadata> mapColumns(final String catalogName, final String schemaName,
             final String tableName) {
-        try (final ResultSet remoteColumns = this.connection.getMetaData().getColumns(catalogName, schemaName,
-                tableName, ANY_COLUMN)) {
+        try (final ResultSet remoteColumns = getColumnMetadata(catalogName, schemaName, tableName)) {
             return getColumnsFromResultSet(remoteColumns);
         } catch (final SQLException exception) {
             throw new RemoteMetadataReaderException(ExaError.messageBuilder("E-VSCJDBC-1").message(
@@ -93,9 +92,18 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
         }
     }
 
+    private ResultSet getColumnMetadata(final String catalogName, final String schemaName, final String tableName)
+            throws SQLException {
+        return this.connection.getMetaData().getColumns( //
+                catalogName == null ? null : Wildcards.escape(catalogName), //
+                schemaName == null ? null : Wildcards.escape(schemaName), //
+                Wildcards.escape(tableName), //
+                ANY_COLUMN);
+    }
+
     /**
      * Read the columns result set.
-     * 
+     *
      * @param remoteColumns column result set.
      * @return list of column metadata
      * @throws SQLException if read fails
@@ -110,7 +118,7 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
 
     /**
      * Read the column metadata from result set if supported. Otherwise, skip.
-     * 
+     *
      * @param remoteColumns column result set
      * @param columns       list to append column to
      * @throws SQLException if read fails
@@ -150,7 +158,7 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
 
     /**
      * Read the JDBC type description of a column.
-     * 
+     *
      * @param remoteColumn result set column
      * @return JDBC type description
      * @throws SQLException if read fails
@@ -186,7 +194,7 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
 
     /**
      * Check if a column a nullable.
-     * 
+     *
      * @param remoteColumn column result set
      * @param columnName   column name
      * @return {@code true} if remote column is nullable
@@ -256,7 +264,7 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
 
     /**
      * Read the column name form result set.
-     * 
+     *
      * @param columns column result set
      * @return column name
      * @throws SQLException if read fails
@@ -332,7 +340,7 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
 
     /**
      * Build a data type for a decimal value.
-     * 
+     *
      * @param jdbcPrecision precision
      * @param scale         scale
      * @return built data type
@@ -374,7 +382,7 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
 
     /**
      * Convert the column name.
-     * 
+     *
      * @param columnName column name
      * @return column name
      */
@@ -404,7 +412,7 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
 
     /**
      * Parse a number type property.
-     * 
+     *
      * @param property formatted string: {@code <precision>.<scale>}
      * @return data type
      */

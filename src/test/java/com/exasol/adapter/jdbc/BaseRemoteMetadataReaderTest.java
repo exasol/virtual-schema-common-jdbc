@@ -4,8 +4,10 @@ import static com.exasol.adapter.jdbc.TableMetadataMockUtils.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.sql.*;
@@ -86,7 +88,8 @@ class BaseRemoteMetadataReaderTest {
         when(tableAColumns.getString(BaseColumnMetadataReader.TYPE_NAME_COLUMN)).thenReturn("BOOLEAN", "DATE");
         when(tableAColumns.getString(BaseColumnMetadataReader.NAME_COLUMN)).thenReturn("COLUMN_A1", "COLUMN_A2");
         when(tableAColumns.getInt(BaseColumnMetadataReader.DATA_TYPE_COLUMN)).thenReturn(Types.BOOLEAN, Types.DATE);
-        when(remoteMetadataMock.getColumns(any(), any(), eq(TABLE_A), any())).thenReturn(tableAColumns);
+        when(remoteMetadataMock.getColumns(any(), any(), eq(Wildcards.escape(TABLE_A)), any()))
+                .thenReturn(tableAColumns);
     }
 
     private void mockTableB(final DatabaseMetaData remoteMetadataMock) throws SQLException {
@@ -96,7 +99,8 @@ class BaseRemoteMetadataReaderTest {
         when(tableBColumns.getInt(BaseColumnMetadataReader.DATA_TYPE_COLUMN)).thenReturn(Types.BOOLEAN, Types.DOUBLE);
         when(tableBColumns.getString(BaseColumnMetadataReader.NAME_COLUMN)).thenReturn("COLUMN_B1", "COLUMN_B2",
                 "COLUMN_B3");
-        when(remoteMetadataMock.getColumns(any(), any(), eq(TABLE_B), any())).thenReturn(tableBColumns);
+        when(remoteMetadataMock.getColumns(any(), any(), eq(Wildcards.escape(TABLE_B)), any()))
+                .thenReturn(tableBColumns);
     }
 
     private void mockGetTableCalls(final DatabaseMetaData remoteMetadataMock) throws SQLException {
@@ -251,5 +255,30 @@ class BaseRemoteMetadataReaderTest {
     void testGetSupportedTableTypes() {
         assertThat(new BaseRemoteMetadataReader(null, AdapterProperties.emptyProperties()).getSupportedTableTypes(),
                 containsInAnyOrder("TABLE", "VIEW", "SYSTEM TABLE"));
+    }
+
+    @Test
+    void testEscapeSchemaName() throws SQLException {
+        verifyEscapeSchemaOrCatalog(null, "THE\\_SCHEMA", Map.of("SCHEMA_NAME", "THE_SCHEMA"));
+    }
+
+    @Test
+    void testEscapeCatalogName() throws SQLException {
+        verifyEscapeSchemaOrCatalog("THE\\_CATALOG", null, Map.of("CATALOG_NAME", "THE_CATALOG"));
+    }
+
+    void verifyEscapeSchemaOrCatalog(final String cat, final String schema, final Map<String, String> properties)
+            throws SQLException {
+        final DatabaseMetaData metadataMock = mock(DatabaseMetaData.class);
+        final Connection connection = mock(Connection.class);
+        when(connection.getMetaData()).thenReturn(metadataMock);
+        when(metadataMock.getColumns(cat, schema, "THE\\_TABLE", "%")).thenThrow(new SpecialException());
+        final BaseColumnMetadataReader testee = new BaseColumnMetadataReader(connection,
+                new AdapterProperties(properties), null);
+        assertThrows(SpecialException.class, () -> testee.mapColumns("THE_TABLE"));
+    }
+
+    static class SpecialException extends RuntimeException {
+        private static final long serialVersionUID = 1L;
     }
 }

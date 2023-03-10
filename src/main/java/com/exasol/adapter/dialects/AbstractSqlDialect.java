@@ -46,6 +46,22 @@ public abstract class AbstractSqlDialect implements SqlDialect {
      */
     protected AbstractSqlDialect(final ConnectionFactory connectionFactory, final AdapterProperties properties,
             final Set<String> dialectSpecificProperties) {
+        this(connectionFactory, properties, dialectSpecificProperties, List.of());
+    }
+
+    /**
+     * Create a new instance of an {@link AbstractSqlDialect}.
+     *
+     * @param connectionFactory                 factory for JDBC connection to remote data source
+     * @param properties                        user properties
+     * @param dialectSpecificProperties         a set of properties that dialect supports additionally to the common set
+     *                                          {@link com.exasol.adapter.dialects.AbstractSqlDialect#COMMON_SUPPORTED_PROPERTIES}
+     * @param dialectSpecificPropertyValidators a collection of property validators the dialect wants to apply
+     *                                          additionally to the common validators
+     */
+    protected AbstractSqlDialect(final ConnectionFactory connectionFactory, final AdapterProperties properties,
+            final Set<String> dialectSpecificProperties,
+            final Collection<PropertyValidator> dialectSpecificPropertyValidators) {
         this.connectionFactory = connectionFactory;
         this.properties = properties;
         this.supportedProperties = new SupportedPropertiesValidator() //
@@ -59,7 +75,8 @@ public abstract class AbstractSqlDialect implements SqlDialect {
                 .add(PropertyValidator.forStructureElement(supportsJdbcSchemas(), "schemas", SCHEMA_NAME_PROPERTY))
                 .add(ExceptionHandlingProperty.validator()) //
                 .add(DataTypeDetection.getValidator()) //
-                .add(TableCountLimit.getValidator());
+                .add(TableCountLimit.getValidator()) //
+                .addAll(dialectSpecificPropertyValidators);
     }
 
     /**
