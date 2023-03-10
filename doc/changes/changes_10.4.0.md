@@ -13,8 +13,6 @@ This release adds validators for adapter properties enabling derived SQL dialect
 
 #140: Created PropertyValidator for `checkImportPropertyConsistency()`
 
-* ISSUE_NUMBER: description
-
 ## Dependency Updates
 
 ### Compile Dependency Updates
