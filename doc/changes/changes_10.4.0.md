@@ -4,7 +4,10 @@ Code name: Refactoring
 
 ## Summary
 
-This release adds a property validator for checking the consistency of adapter properties for import and connection enabling derived SQL dialects to simply add this validator to the existing chain.
+This release adds validators for adapter properties enabling derived SQL dialects to simply add these validator to the existing chain.
+* `ImportProperty` checking the consistency of import and connection properties
+* `SchemaNameProperty` checking mandatory property `SCHEMA_NAME`
+* `MandatoryProperty` checking arbitrary mandatory properties
 
 ## Refactorings
 
