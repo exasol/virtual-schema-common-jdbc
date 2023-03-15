@@ -100,7 +100,6 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
             throws SQLException {
         final TableMetadata tableMetadata = mapTable(remoteTables, tableName);
         if (tableHasColumns(tableMetadata)) {
-            LOGGER.finer(() -> "Read table metadata: " + tableMetadata.describe());
             return Optional.of(tableMetadata);
         } else {
             logSkippingTableWithEmptyColumns(tableName);

@@ -6,6 +6,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import java.sql.*;
@@ -35,6 +36,8 @@ class ColumnMetadataReaderTest {
             ExaCharset.UTF8);
     private static final DataType TYPE_MAX_VARCHAR_ASCII = DataType.createVarChar(DataType.MAX_EXASOL_VARCHAR_SIZE,
             ExaCharset.ASCII);
+    private static final String ESCAPE_STRING = "\\";
+
     @Mock
     private Connection connectionMock;
     @Mock
@@ -44,7 +47,8 @@ class ColumnMetadataReaderTest {
 
     @BeforeEach
     void beforeEach() throws SQLException {
-        when(this.connectionMock.getMetaData()).thenReturn(this.remoteMetadataMock);
+        lenient().when(this.connectionMock.getMetaData()).thenReturn(this.remoteMetadataMock);
+        lenient().when(this.remoteMetadataMock.getSearchStringEscape()).thenReturn(ESCAPE_STRING);
     }
 
     @Test
