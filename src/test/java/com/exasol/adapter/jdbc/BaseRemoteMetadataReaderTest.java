@@ -281,7 +281,7 @@ class BaseRemoteMetadataReaderTest {
         when(metadataMock.getSearchStringEscape()).thenReturn(ESCAPE_STRING);
         final Connection connection = mock(Connection.class);
         when(connection.getMetaData()).thenReturn(metadataMock);
-        when(metadataMock.getColumns(eq(cat), eq(schema), eq(escapeSqlWildCards("THE_TABLE")), eq("%")))
+        when(metadataMock.getColumns(cat, schema, escapeSqlWildCards("THE_TABLE"), "%"))
                 .thenThrow(new SpecialException());
         final BaseColumnMetadataReader testee = new BaseColumnMetadataReader(connection,
                 new AdapterProperties(properties), null);
