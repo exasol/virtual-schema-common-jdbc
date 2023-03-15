@@ -29,7 +29,6 @@ protected ResultSet getColumnMetadata(String catalogName, String schemaName, Str
 
 ### Test Dependency Updates
 
-* Updated `org.apache.derby:derby:10.15.2.0` to `10.16.1.1`
 * Updated `org.mockito:mockito-junit-jupiter:5.1.1` to `5.2.0`
 
 ### Plugin Dependency Updates
