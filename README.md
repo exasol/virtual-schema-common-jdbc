@@ -1,7 +1,7 @@
 # Virtual Schema Common Module for JDBC-based Data Access
 
 [![Build Status](https://github.com/exasol/virtual-schema-common-jdbc/actions/workflows/ci-build.yml/badge.svg)](https://github.com/exasol/virtual-schema-common-jdbc/actions/workflows/ci-build.yml)
-[![Maven Central – Virtual Schema Common JDBC](https://img.shields.io/maven-central/v/com.exasol/virtual-schema-common-jdbc)](https://search.maven.org/artifact/com.exasol/virtual-schema-common-jdbc)
+[![Maven Central &ndash; Virtual Schema Common JDBC](https://img.shields.io/maven-central/v/com.exasol/virtual-schema-common-jdbc)](https://search.maven.org/artifact/com.exasol/virtual-schema-common-jdbc)
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=com.exasol%3Avirtual-schema-common-jdbc&metric=alert_status)](https://sonarcloud.io/dashboard?id=com.exasol%3Avirtual-schema-common-jdbc)
 

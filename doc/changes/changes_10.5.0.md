@@ -30,3 +30,9 @@ protected ResultSet getColumnMetadata(String catalogName, String schemaName, Str
 ### Test Dependency Updates
 
 * Updated `org.mockito:mockito-junit-jupiter:5.1.1` to `5.2.0`
+
+### Plugin Dependency Updates
+
+* Updated `com.exasol:project-keeper-maven-plugin:2.9.3` to `2.9.4`
+* Updated `org.apache.maven.plugins:maven-deploy-plugin:3.0.0` to `3.1.0`
+* Updated `org.apache.maven.plugins:maven-enforcer-plugin:3.1.0` to `3.2.1`
