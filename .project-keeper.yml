@@ -5,3 +5,4 @@ sources:
       - maven_central
 excludes:
   - "E-PK-CORE-18: Outdated content: '.github/workflows/release_droid_upload_github_release_assets.yml'"
+  - "W-PK-CORE-153: Project-keeper version 2.9.3 is outdated. Please update project-keeper to latest version 2.9.4."
