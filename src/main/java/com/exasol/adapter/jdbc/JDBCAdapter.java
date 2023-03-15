@@ -61,7 +61,7 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
      * @param request create request
      */
     protected void logCreateVirtualSchemaRequestReceived(final CreateVirtualSchemaRequest request) {
-        LOGGER.fine(() -> "Received request to create Virutal Schema \"" + request.getVirtualSchemaName() + "\".");
+        LOGGER.fine(() -> "Received request to create Virtual Schema \"" + request.getVirtualSchemaName() + "\".");
     }
 
     private AdapterProperties getPropertiesFromRequest(final AdapterRequest request) {

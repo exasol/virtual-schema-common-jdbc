@@ -92,13 +92,38 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
         }
     }
 
-    private ResultSet getColumnMetadata(final String catalogName, final String schemaName, final String tableName)
+    /**
+     * Read column metadata from JDBC driver escaping potential SQL wild cards in the names of schema and table.
+     *
+     * @param catalogName catalog name
+     * @param schemaName  schema name, potential SQL wildcards will be escaped
+     * @param tableName   table name, potential SQL wildcards will be escaped
+     * @return list with metadata for all columns of the respective catalog, schema, and table
+     * @throws SQLException in case of failures
+     */
+    protected ResultSet getColumnMetadata(final String catalogName, final String schemaName, final String tableName)
             throws SQLException {
-        return this.connection.getMetaData().getColumns( //
-                catalogName == null ? null : Wildcards.escape(catalogName), //
-                schemaName == null ? null : Wildcards.escape(schemaName), //
-                Wildcards.escape(tableName), //
+        final DatabaseMetaData metadata = this.connection.getMetaData();
+        final WildcardEscaper wildcards = WildcardEscaper.instance(metadata.getSearchStringEscape());
+        return metadata.getColumns(catalogName, //
+                schemaName == null ? null : wildcards.escape(schemaName), //
+                tableName == null ? null : wildcards.escape(tableName), //
                 ANY_COLUMN);
+    }
+
+    /**
+     * Read column metadata from JDBC driver without escaping potential SQL wild cards in the names of schema and table.
+     *
+     * @param catalogName catalog name
+     * @param schemaName  schema name pattern, may contain SQL wildcards
+     * @param tableName   table name pattern, may contain SQL wildcards
+     * @return list with metadata for all columns of the respective catalog, matching schema name pattern, and table
+     *         name pattern
+     * @throws SQLException in case of failures
+     */
+    protected ResultSet getColumnMetadataAllowingPatterns(final String catalogName, final String schemaNamePattern,
+            final String tableNamePattern) throws SQLException {
+        return this.connection.getMetaData().getColumns(catalogName, schemaNamePattern, tableNamePattern, ANY_COLUMN);
     }
 
     /**
