@@ -114,9 +114,9 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
     /**
      * Read column metadata from JDBC driver without escaping potential SQL wild cards in the names of schema and table.
      *
-     * @param catalogName catalog name
-     * @param schemaName  schema name pattern, may contain SQL wildcards
-     * @param tableName   table name pattern, may contain SQL wildcards
+     * @param catalogName       catalog name
+     * @param schemaNamePattern schema name pattern, may contain SQL wildcards
+     * @param tableNamePattern  table name pattern, may contain SQL wildcards
      * @return list with metadata for all columns of the respective catalog, matching schema name pattern, and table
      *         name pattern
      * @throws SQLException in case of failures
