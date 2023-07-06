@@ -1,10 +1,10 @@
 # Virtual Schema Common JDBC 11.0.0, released 2023-07-06
 
-Code name: Dependency Update
+Code name: Dependency Update on top of 10.5.0
 
 ## Summary
 
-This release updates dependencies including version 17.0.0 of VSCOMJAVA which removed some adapter properties.
+This release updates dependencies including [version 17.0.0](https://github.com/exasol/virtual-schema-common-java/releases/tag/17.0.0) of VSCOMJAVA which removed some adapter properties.
 
 The major version of VSCJDBC has been incremented, too, to signal changes in the public API of VSCOMJAVA to downstream dependencies.
 
