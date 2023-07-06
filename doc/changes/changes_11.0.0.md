@@ -10,7 +10,7 @@ The major version of VSCJDBC has been incremented, too, to signal changes in the
 
 ## Refactoring
 
-* #x: Updated dependencies
+* #145: Updated dependencies
 
 ## Dependency Updates
 
@@ -21,7 +21,6 @@ The major version of VSCJDBC has been incremented, too, to signal changes in the
 ### Test Dependency Updates
 
 * Updated `nl.jqno.equalsverifier:equalsverifier:3.14` to `3.14.3`
-* Updated `org.apache.derby:derby:10.15.2.0` to `10.16.1.1`
 * Updated `org.junit.jupiter:junit-jupiter:5.9.2` to `5.9.3`
 * Updated `org.mockito:mockito-junit-jupiter:5.2.0` to `5.4.0`
 
