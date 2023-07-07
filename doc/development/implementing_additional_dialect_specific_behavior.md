@@ -135,7 +135,7 @@ Athena (at least with driver version 2.0.7) is one of the rare examples, where t
 Looking at the documentation, we can see that the recommended way to list tables is issuing a [`SHOW TABLES`](https://docs.aws.amazon.com/athena/latest/ug/show-tables.html) command.
 If you ever worked with [MySQL](https://www.mysql.com/) this might [look familiar](https://dev.mysql.com/doc/refman/8.0/en/show-tables.html).
 
-The best way to check if your source can find metadata with the default settings &mdash; run the first manual [integration test](integration_testing.md) with [remote logging](remote_logging.md).
+The best way to check if your source can find metadata with the default settings &mdash; run the first manual [integration test](integration_testing.md) with [remote logging](https://docs.exasol.com/db/latest/database_concepts/virtual_schema/logging.htm).
 If you can **access metadata** using the default implementation, go to the next checkpoint: [Data Type Conversion](#implementing-data-type-conversion).
 Otherwise we have to implement metadata handling:
 
@@ -175,7 +175,7 @@ Be prepared that even if the remote data source implements an SQL standard type,
 On for `VARCHAR` you also need to be aware of character set encoding. Exasol supports `UTF8` which should be able to receive data from any other character set and `ASCII` which is very limited but only uses a single byte per character.
 There are differences in how precise the remote data source can encode integer, fixed point and floating values and so on.
 
-The best way to find out how good the default mapping works for your source &mdash; run a manual [integration test](integration_testing.md) with [remote logging](remote_logging.md) accessing a table with all data types available in the source.
+The best way to find out how good the default mapping works for your source &mdash; run a manual [integration test](integration_testing.md) with [remote logging](https://docs.exasol.com/db/latest/database_concepts/virtual_schema/logging.htm) accessing a table with all data types available in the source.
 If you assume that you don't need to change data type conversion &mdash; go to the next checkpoint: [Implementing Query Rewriting](#implementing-query-rewriting)
 
 Let's look at a HIVE dialect example. We only want to change mapping for two data type: DECIMAL and BINARY.
