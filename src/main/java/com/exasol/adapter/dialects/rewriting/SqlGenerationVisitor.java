@@ -251,8 +251,11 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String>, SqlGenerato
     /**
      * Replace an unsupported expression in a {@code GROUP BY} clause with a supported one or return it unchanged.
      * 
-     * @implNote This replaces numeric literals with their string value as Exasol interprets
-     *           {@code GROUP BY <integer-constant>} as column numbers which was not intended.
+     * @implNote This replaces numeric literals with the corresponding string value, as Exasol interprets
+     *           {@code GROUP BY <integer-constant>} as column number &mdash; which is not what the user
+     *           intended.
+     *           Also, please note that `GROUP BY <constant> always leads to grouping with a single group, 
+     *           regardless of the actual value of the constant (except for {@code FALSE}, which is reserved).
      * 
      * @param node the original {@code GROUP BY} expression
      * @return an new, alternative expression or the original expression if no replacement is necessary
