@@ -3,6 +3,7 @@ package com.exasol.adapter.dialects.rewriting;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.*;
+import java.util.logging.Logger;
 
 import com.exasol.adapter.AdapterException;
 import com.exasol.adapter.adapternotes.ColumnAdapterNotesJsonConverter;
@@ -32,6 +33,7 @@ import com.exasol.errorreporting.ExaError;
  * the right semantic, but hopefully there is a better way.
  */
 public class SqlGenerationVisitor implements SqlNodeVisitor<String>, SqlGenerator {
+    private static final Logger LOGGER = Logger.getLogger(SqlGenerationVisitor.class.getName());
     private final SqlDialect dialect;
     private final SqlGenerationContext context;
 
@@ -240,9 +242,29 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String>, SqlGenerato
     public String visit(final SqlGroupBy groupBy) throws AdapterException {
         final List<String> selectElement = new ArrayList<>();
         for (final SqlNode node : groupBy.getExpressions()) {
-            selectElement.add(node.accept(this));
+            final SqlNode replacement = replaceGroupByExpression(node);
+            selectElement.add(replacement.accept(this));
         }
         return String.join(", ", selectElement);
+    }
+
+    /**
+     * Replace an unsupported expression in a {@code GROUP BY} clause with a supported one or return it unchanged.
+     * 
+     * @implNote This replaces numeric literals with their string value as Exasol interprets
+     *           {@code GROUP BY <integer-constant>} as column numbers which was not intended.
+     * 
+     * @param node the original {@code GROUP BY} expression
+     * @return an new, alternative expression or the original expression if no replacement is necessary
+     */
+    private SqlNode replaceGroupByExpression(final SqlNode node) {
+        if (node instanceof SqlLiteralExactnumeric) {
+            final SqlLiteralExactnumeric numericNode = (SqlLiteralExactnumeric) node;
+            LOGGER.fine(() -> "Replacing numeric literal " + numericNode.getValue() + " with a string in GROUP BY");
+            return new SqlLiteralString(String.valueOf(numericNode.getValue()));
+        } else {
+            return node;
+        }
     }
 
     @Override

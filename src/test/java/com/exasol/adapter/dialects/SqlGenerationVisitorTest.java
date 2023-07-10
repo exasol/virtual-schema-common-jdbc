@@ -420,11 +420,29 @@ class SqlGenerationVisitorTest {
 
     @Test
     void testVisitGroupByQuoting() throws AdapterException {
-        final List<SqlNode> expressions = new ArrayList<>();
-        expressions.add(new SqlColumn(1, ColumnMetadata.builder().name("\" a '").type(DataType.createBool()).build()));
-        expressions.add(new SqlColumn(2, ColumnMetadata.builder().name("\" b '").type(DataType.createBool()).build()));
+        verifyGroupBy(List.of( //
+                new SqlColumn(1, ColumnMetadata.builder().name("\" a '").type(DataType.createBool()).build()), //
+                new SqlColumn(2, ColumnMetadata.builder().name("\" b '").type(DataType.createBool()).build())), //
+                "\"\"\" a '\", \"\"\" b '\"");
+    }
+
+    @Test
+    void testVisitGroupByReplacesIntegerLiterals() throws AdapterException {
+        verifyGroupBy(List.of( //
+                new SqlColumn(1, ColumnMetadata.builder().name("a").type(DataType.createBool()).build()), //
+                new SqlLiteralExactnumeric(BigDecimal.valueOf(42))), //
+                "\"a\", '42'");
+    }
+
+    @Test
+    void testVisitGroupByDoesNotModifyStringLiterals() throws AdapterException {
+        verifyGroupBy(List.of(new SqlLiteralString("literal")), //
+                "'literal'");
+    }
+
+    private void verifyGroupBy(final List<SqlNode> expressions, final String expectedSql) throws AdapterException {
         final SqlGroupBy groupBy = new SqlGroupBy(expressions);
-        assertThat(sqlGenerationVisitor.visit(groupBy), equalTo("\"\"\" a '\", \"\"\" b '\""));
+        assertThat(sqlGenerationVisitor.visit(groupBy), equalTo(expectedSql));
     }
 
     @Test
