@@ -25,11 +25,11 @@ import com.exasol.errorreporting.ExaError;
  * {@link SqlDialect#getSqlGenerator(SqlGenerationContext)}.
  * </p>
  *
- * Note on operator associativity and parenthesis generation: Currently we use parenthesis almost always. Without
- * parenthesis, two SqlNode graphs with different semantic lead to "select 1 = 1 - 1 + 1". Also "SELECT NOT NOT TRUE"
- * needs to be written as "SELECT NOT (NOT TRUE)" to work at all, whereas SELECT NOT TRUE works fine without
- * parentheses. Currently we make inflationary use of parenthesis to to enforce the right semantic, but hopefully there
- * is a better way.
+ * Note on operator associativity and parenthesis generation: Currently we almost always use parenthesis. Without
+ * parenthesis, two {@link SqlNode} graphs with different semantic lead to {@code select 1 = 1 - 1 + 1}. Also
+ * {@code SELECT NOT NOT TRUE} needs to be written as {@code SELECT NOT (NOT TRUE)} to work at all, whereas
+ * {@code SELECT NOT TRUE} works fine without parentheses. Currently we make inflationary use of parenthesis to enforce
+ * the right semantic, but hopefully there is a better way.
  */
 public class SqlGenerationVisitor implements SqlNodeVisitor<String>, SqlGenerator {
     private final SqlDialect dialect;
