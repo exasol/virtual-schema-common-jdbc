@@ -242,7 +242,7 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String>, SqlGenerato
     public String visit(final SqlGroupBy groupBy) throws AdapterException {
         final List<String> selectElement = new ArrayList<>();
         for (final SqlNode node : groupBy.getExpressions()) {
-            final SqlNode replacement = replaceGroupByExpression(node);
+            final SqlNode replacement = workaroundGroupByInteger(node);
             selectElement.add(replacement.accept(this));
         }
         return String.join(", ", selectElement);
@@ -252,15 +252,14 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String>, SqlGenerato
      * Replace an unsupported expression in a {@code GROUP BY} clause with a supported one or return it unchanged.
      * 
      * @implNote This replaces numeric literals with the corresponding string value, as Exasol interprets
-     *           {@code GROUP BY <integer-constant>} as column number &mdash; which is not what the user
-     *           intended.
-     *           Also, please note that `GROUP BY <constant> always leads to grouping with a single group, 
-     *           regardless of the actual value of the constant (except for {@code FALSE}, which is reserved).
+     *           {@code GROUP BY <integer-constant>} as column number &mdash; which is not what the user intended. Also,
+     *           please note that `GROUP BY <constant> always leads to grouping with a single group, regardless of the
+     *           actual value of the constant (except for {@code FALSE}, which is reserved).
      * 
      * @param node the original {@code GROUP BY} expression
      * @return an new, alternative expression or the original expression if no replacement is necessary
      */
-    private SqlNode replaceGroupByExpression(final SqlNode node) {
+    private SqlNode workaroundGroupByInteger(final SqlNode node) {
         if (node instanceof SqlLiteralExactnumeric) {
             final SqlLiteralExactnumeric numericNode = (SqlLiteralExactnumeric) node;
             LOGGER.fine(() -> "Replacing numeric literal " + numericNode.getValue() + " with a string in GROUP BY");
