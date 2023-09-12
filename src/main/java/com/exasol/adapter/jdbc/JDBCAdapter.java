@@ -152,10 +152,10 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
                 || AdapterProperties.isRefreshingVirtualSchemaRequired(properties);
     }
 
-    // TODO: can metadata and properties be changed during connection lifetime? If yes, our connection factory
-    //  is implemented wrongly
     private RemoteConnectionFactory getOrCreateConnectionFactory(final ExaMetadata metadata,
                                                                  final AdapterProperties properties) {
+        // Open question: can metadata and properties be changed during connection lifetime?
+        //  If yes, our connection factory is implemented wrongly.
         if (this.connectionFactory == null)
             this.connectionFactory = new RemoteConnectionFactory(metadata, properties);
         return this.connectionFactory;
