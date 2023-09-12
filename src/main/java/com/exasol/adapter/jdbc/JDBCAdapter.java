@@ -49,6 +49,7 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
             final SchemaMetadata remoteMeta = getRemoteMetadata(dialect, properties.getFilteredTables());
             return CreateVirtualSchemaResponse.builder().schemaMetadata(remoteMeta).build();
         } catch (final SQLException exception) {
+            this.connectionFactory.clean();
             throw new AdapterException(ExaError.messageBuilder("E-VSCJDBC-25")
                     .message("Unable create Virtual Schema \"{{virtualSchemaName|uq}}\". Cause: {{cause|uq}}",
                             request.getVirtualSchemaName(), exception.getMessage())
@@ -95,6 +96,7 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
                     : getRemoteMetadata(dialect, properties.getFilteredTables());
             return RefreshResponse.builder().schemaMetadata(remoteMetadata).build();
         } catch (final SQLException | PropertyValidationException exception) {
+            this.connectionFactory.clean();
             throw new AdapterException(ExaError.messageBuilder("E-VSCJDBC-26").message(
                     "Unable refresh metadata of Virtual Schema \"{{virtualSchemaName|uq}}\". Cause: {{cause|uq}}",
                     request.getSchemaMetadataInfo().getSchemaName(), exception.getMessage()).toString(), exception);
@@ -263,6 +265,7 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
                     request.getSelectListDataTypes(), exaMetadata);
             return PushDownResponse.builder().pushDownSql(importFromPushdownQuery).build();
         } catch (final SQLException exception) {
+            this.connectionFactory.clean();
             throw new AdapterException(ExaError.messageBuilder("E-VSCJDBC-27")
                     .message("Unable to execute push-down request. Cause: {{cause|uq}}", exception.getMessage())
                     .toString(), exception);

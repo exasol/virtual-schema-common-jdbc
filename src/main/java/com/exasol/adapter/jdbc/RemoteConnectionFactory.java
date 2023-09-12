@@ -125,4 +125,19 @@ public final class RemoteConnectionFactory implements ConnectionFactory {
         LOGGER.fine(
                 () -> "Connecting to \"" + address + "\" as user \"" + username + "\" using password authentication.");
     }
+
+    /**
+     * Closes cached connection if any.
+     */
+    public synchronized void clean() {
+        if (this.cachedConnection != null) {
+            LOGGER.fine("Closing cached connection...");
+            try {
+                this.cachedConnection.close();
+            } catch (final SQLException exception) {
+                LOGGER.warning("Error during connection close: " + exception.getMessage());
+            }
+            this.cachedConnection = null;
+        }
+    }
 }
