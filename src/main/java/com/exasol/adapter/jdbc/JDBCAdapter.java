@@ -28,6 +28,7 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
     private static final String TABLES_PROPERTY = "TABLE_FILTER";
     private static final Logger LOGGER = Logger.getLogger(JDBCAdapter.class.getName());
     private final SqlDialectFactory sqlDialectFactory;
+    private RemoteConnectionFactory connectionFactory = null;
 
     /**
      * Construct a new instance of {@link JDBCAdapter}
@@ -151,6 +152,13 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
                 || AdapterProperties.isRefreshingVirtualSchemaRequired(properties);
     }
 
+    private RemoteConnectionFactory getOrCreateConnectionFactory(final ExaMetadata metadata,
+                                                                 final AdapterProperties properties) {
+        if (this.connectionFactory == null)
+            this.connectionFactory = new RemoteConnectionFactory(metadata, properties);
+        return this.connectionFactory;
+    }
+
     private SqlDialect createDialectAndValidateProperties(final ExaMetadata metadata,
             final AdapterProperties properties) throws PropertyValidationException {
         final SqlDialect dialect = createDialect(metadata, properties);
@@ -159,7 +167,7 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
     }
 
     private SqlDialect createDialect(final ExaMetadata metadata, final AdapterProperties properties) {
-        final ConnectionFactory connectionFactory = new RemoteConnectionFactory(metadata, properties);
+        final ConnectionFactory connectionFactory = this.getOrCreateConnectionFactory(metadata, properties);
         return this.sqlDialectFactory.createSqlDialect(connectionFactory, properties);
     }
 
