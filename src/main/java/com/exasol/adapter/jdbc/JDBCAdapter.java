@@ -152,6 +152,8 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
                 || AdapterProperties.isRefreshingVirtualSchemaRequired(properties);
     }
 
+    // TODO: can metadata and properties be changed during connection lifetime? If yes, our connection factory
+    //  is implemented wrongly
     private RemoteConnectionFactory getOrCreateConnectionFactory(final ExaMetadata metadata,
                                                                  final AdapterProperties properties) {
         if (this.connectionFactory == null)
@@ -167,8 +169,8 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
     }
 
     private SqlDialect createDialect(final ExaMetadata metadata, final AdapterProperties properties) {
-        final ConnectionFactory connectionFactory = this.getOrCreateConnectionFactory(metadata, properties);
-        return this.sqlDialectFactory.createSqlDialect(connectionFactory, properties);
+        final ConnectionFactory factory = this.getOrCreateConnectionFactory(metadata, properties);
+        return this.sqlDialectFactory.createSqlDialect(factory, properties);
     }
 
     private Map<String, String> mergeProperties(final Map<String, String> previousRawProperties,
