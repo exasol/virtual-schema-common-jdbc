@@ -127,6 +127,14 @@ public final class RemoteConnectionFactory implements ConnectionFactory {
     }
 
     /**
+     * Checks presence of cached connection.
+     * @return true if cached connection is present.
+     */
+    public boolean hasCachedConnection() {
+        return this.cachedConnection != null;
+    }
+
+    /**
      * Closes cached connection if any.
      */
     public synchronized void clean() {

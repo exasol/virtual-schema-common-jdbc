@@ -4,13 +4,13 @@ import static com.exasol.auth.kerberos.KerberosConfigurationCreator.KERBEROS_CON
 import static com.exasol.auth.kerberos.KerberosConfigurationCreator.LOGIN_CONFIG_PROPERTY;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.matchesPattern;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -98,5 +98,22 @@ class RemoteConnectionFactoryTest {
                         matchesPattern(FilePatterns.KERBEROS_CONFIG_PATTERN)),
                 () -> assertThat(System.getProperty(LOGIN_CONFIG_PROPERTY),
                         matchesPattern(FilePatterns.JAAS_CONFIG_PATTERN)));
+    }
+
+    @Test
+    void testCleanCallClosesConnection() throws SQLException, ExaConnectionAccessException {
+        this.rawProperties.put("CONNECTION_NAME", CONNECTION_NAME);
+        when(this.exaMetadataMock.getConnection(CONNECTION_NAME)).thenReturn(this.exaConnectionMock);
+        when(this.exaConnectionMock.getUser()).thenReturn("user");
+        when(this.exaConnectionMock.getPassword()).thenReturn("pass");
+        when(this.exaConnectionMock.getAddress()).thenReturn(DERBY_INSTANT_JDBC_CONNECTION_STRING);
+        final AdapterProperties properties = new AdapterProperties(this.rawProperties);
+        final RemoteConnectionFactory factory = new RemoteConnectionFactory(this.exaMetadataMock, properties);
+        assertThat("Cached connection present", !factory.hasCachedConnection());
+        final Connection connection = factory.getConnection();
+        assertThat(connection, notNullValue());
+        assertThat("No cached connection", factory.hasCachedConnection());
+        factory.clean();
+        assertThat("Cached connection after clean()", !factory.hasCachedConnection());
     }
 }
