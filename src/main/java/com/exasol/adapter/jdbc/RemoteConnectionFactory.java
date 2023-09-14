@@ -4,6 +4,7 @@ import static com.exasol.adapter.AdapterProperties.CONNECTION_NAME_PROPERTY;
 
 import java.sql.*;
 import java.util.Properties;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.exasol.*;
@@ -143,7 +144,7 @@ public final class RemoteConnectionFactory implements ConnectionFactory {
             try {
                 this.cachedConnection.close();
             } catch (final SQLException exception) {
-                LOGGER.warning("Error during connection close: " + exception.getMessage(), exception);
+                LOGGER.log(Level.WARNING, "Error during connection close.", exception);
             }
             this.cachedConnection = null;
         }
