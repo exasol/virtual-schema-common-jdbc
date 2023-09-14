@@ -6,7 +6,7 @@ Code name:
 
 ## Features
 
-* #151: Ensure all connections are closed on failure, fix connection factory creation
+* #151: Ensured all connections are closed on failure, fixed connection factory creation
 
 ## Dependency Updates
 
