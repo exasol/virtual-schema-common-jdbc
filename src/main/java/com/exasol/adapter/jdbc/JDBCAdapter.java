@@ -28,6 +28,10 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
     private static final String TABLES_PROPERTY = "TABLE_FILTER";
     private static final Logger LOGGER = Logger.getLogger(JDBCAdapter.class.getName());
     private final SqlDialectFactory sqlDialectFactory;
+
+    /**
+     * Connection factory used to get and cache jdbc connection.
+     */
     protected RemoteConnectionFactory connectionFactory = null;
 
     /**
@@ -66,6 +70,11 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
         LOGGER.fine(() -> "Received request to create Virtual Schema \"" + request.getVirtualSchemaName() + "\".");
     }
 
+    /**
+     * Build {@link AdapterProperties} from {@link AdapterRequest} instance.
+     * @param request request to use
+     * @return adapter properties
+     */
     protected static AdapterProperties getPropertiesFromRequest(final AdapterRequest request) {
         return new AdapterProperties(request.getSchemaMetadataInfo().getProperties());
     }
@@ -155,6 +164,13 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
                 || AdapterProperties.isRefreshingVirtualSchemaRequired(properties);
     }
 
+    /**
+     * Create or get existing {@link RemoteConnectionFactory} instance.
+     *
+     * @param metadata metadata to use
+     * @param properties adapter properties
+     * @return connection factory
+     */
     protected RemoteConnectionFactory getOrCreateConnectionFactory(final ExaMetadata metadata,
               final AdapterProperties properties) {
         // Open question: can metadata and properties be changed during connection lifetime?
