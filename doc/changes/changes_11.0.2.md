@@ -1,8 +1,11 @@
-# Virtual Schema Common JDBC 11.0.2, released 2023-??-??
+# Virtual Schema Common JDBC 11.0.2, released 2023-09-15
 
-Code name:
+Code name: fix in jdbc connection management.
 
 ## Summary
+
+Connection factory is reused (might improve performance on high-latency DBs). 
+Close connections after the end of request.
 
 ## Features
 
