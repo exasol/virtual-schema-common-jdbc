@@ -143,7 +143,7 @@ public final class RemoteConnectionFactory implements ConnectionFactory {
             try {
                 this.cachedConnection.close();
             } catch (final SQLException exception) {
-                LOGGER.warning("Error during connection close: " + exception.getMessage());
+                LOGGER.warning("Error during connection close: " + exception.getMessage(), exception);
             }
             this.cachedConnection = null;
         }
