@@ -5,8 +5,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.util.*;
 
@@ -234,5 +233,24 @@ class JDBCAdapterTest {
         final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
                 () -> this.adapter.setProperties(exaMetadataMock, setPropertiesRequest));
         assertThat(exception.getMessage(), containsString("E-VSCJDBC-43"));
+    }
+
+    @Test
+    void testCleanCalledOnExitFromPushdown() throws ExaConnectionAccessException, AdapterException {
+        setDerbyConnectionNameProperty();
+        this.rawProperties.put(SCHEMA_NAME_PROPERTY, "SYSIBM");
+        final PushDownRequest request = new PushDownRequest(createSchemaMetadataInfo(),
+                TestSqlStatementFactory.createSelectOneFromSysDummy(),
+                null, EMPTY_SELECT_LIST_DATA_TYPES);
+        final ExaMetadata exaMetadataMock = mock(ExaMetadata.class);
+        when(exaMetadataMock.getConnection("DERBY_CONNECTION")).thenReturn(EXA_CONNECTION_INFORMATION);
+
+        final RemoteConnectionFactory realFactory = new RemoteConnectionFactory(exaMetadataMock,
+                JDBCAdapter.getPropertiesFromRequest(request));
+        final RemoteConnectionFactory spiedFactory = spy(realFactory);
+
+        ((JDBCAdapter)this.adapter).connectionFactory = spiedFactory;
+        this.adapter.pushdown(exaMetadataMock, request);
+        verify(spiedFactory).clean();
     }
 }

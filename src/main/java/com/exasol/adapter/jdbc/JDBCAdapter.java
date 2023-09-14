@@ -28,7 +28,7 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
     private static final String TABLES_PROPERTY = "TABLE_FILTER";
     private static final Logger LOGGER = Logger.getLogger(JDBCAdapter.class.getName());
     private final SqlDialectFactory sqlDialectFactory;
-    private RemoteConnectionFactory connectionFactory = null;
+    protected RemoteConnectionFactory connectionFactory = null;
 
     /**
      * Construct a new instance of {@link JDBCAdapter}
@@ -66,7 +66,7 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
         LOGGER.fine(() -> "Received request to create Virtual Schema \"" + request.getVirtualSchemaName() + "\".");
     }
 
-    private AdapterProperties getPropertiesFromRequest(final AdapterRequest request) {
+    protected static AdapterProperties getPropertiesFromRequest(final AdapterRequest request) {
         return new AdapterProperties(request.getSchemaMetadataInfo().getProperties());
     }
 
@@ -96,10 +96,11 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
                     : getRemoteMetadata(dialect, properties.getFilteredTables());
             return RefreshResponse.builder().schemaMetadata(remoteMetadata).build();
         } catch (final SQLException | PropertyValidationException exception) {
-            this.connectionFactory.clean();
             throw new AdapterException(ExaError.messageBuilder("E-VSCJDBC-26").message(
                     "Unable refresh metadata of Virtual Schema \"{{virtualSchemaName|uq}}\". Cause: {{cause|uq}}",
                     request.getSchemaMetadataInfo().getSchemaName(), exception.getMessage()).toString(), exception);
+        } finally {
+            this.connectionFactory.clean();
         }
     }
 
@@ -154,8 +155,8 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
                 || AdapterProperties.isRefreshingVirtualSchemaRequired(properties);
     }
 
-    private RemoteConnectionFactory getOrCreateConnectionFactory(final ExaMetadata metadata,
-                                                                 final AdapterProperties properties) {
+    protected RemoteConnectionFactory getOrCreateConnectionFactory(final ExaMetadata metadata,
+              final AdapterProperties properties) {
         // Open question: can metadata and properties be changed during connection lifetime?
         //  If yes, our connection factory is implemented wrongly.
         if (this.connectionFactory == null)
@@ -265,10 +266,11 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
                     request.getSelectListDataTypes(), exaMetadata);
             return PushDownResponse.builder().pushDownSql(importFromPushdownQuery).build();
         } catch (final SQLException exception) {
-            this.connectionFactory.clean();
             throw new AdapterException(ExaError.messageBuilder("E-VSCJDBC-27")
                     .message("Unable to execute push-down request. Cause: {{cause|uq}}", exception.getMessage())
                     .toString(), exception);
+        } finally {
+            this.connectionFactory.clean();
         }
     }
 }
