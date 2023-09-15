@@ -1,6 +1,6 @@
 # Virtual Schema Common JDBC 11.0.2, released 2023-09-15
 
-Code name: fix in jdbc connection management.
+Code name: Fix in JDBC connection management
 
 ## Summary
 
