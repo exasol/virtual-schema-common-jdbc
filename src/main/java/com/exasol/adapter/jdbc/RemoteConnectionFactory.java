@@ -4,6 +4,7 @@ import static com.exasol.adapter.AdapterProperties.CONNECTION_NAME_PROPERTY;
 
 import java.sql.*;
 import java.util.Properties;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.exasol.*;
@@ -124,5 +125,28 @@ public final class RemoteConnectionFactory implements ConnectionFactory {
     protected void logConnectionAttempt(final String address, final String username) {
         LOGGER.fine(
                 () -> "Connecting to \"" + address + "\" as user \"" + username + "\" using password authentication.");
+    }
+
+    /**
+     * Checks presence of cached connection.
+     * @return true if cached connection is present.
+     */
+    public boolean hasCachedConnection() {
+        return this.cachedConnection != null;
+    }
+
+    /**
+     * Closes cached connection if any.
+     */
+    public synchronized void clean() {
+        if (this.cachedConnection != null) {
+            LOGGER.fine("Closing cached connection...");
+            try {
+                this.cachedConnection.close();
+            } catch (final SQLException exception) {
+                LOGGER.log(Level.WARNING, "Error during connection close.", exception);
+            }
+            this.cachedConnection = null;
+        }
     }
 }

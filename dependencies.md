@@ -16,7 +16,7 @@
 | [Hamcrest][6]                                               | [BSD License 3][7]                            |
 | [JSONassert][8]                                             | [The Apache Software License, Version 2.0][9] |
 | [JUnit Jupiter (Aggregator)][10]                            | [Eclipse Public License v2.0][11]             |
-| [EqualsVerifier | release normal jar][12]                   | [Apache License, Version 2.0][13]             |
+| [EqualsVerifier \| release normal jar][12]                  | [Apache License, Version 2.0][13]             |
 | [mockito-junit-jupiter][14]                                 | [The MIT License][15]                         |
 | [Apache Derby Database Engine and Embedded JDBC Driver][16] | [Apache 2][9]                                 |
 

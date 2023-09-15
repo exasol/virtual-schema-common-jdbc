@@ -30,6 +30,11 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
     private final SqlDialectFactory sqlDialectFactory;
 
     /**
+     * Connection factory used to get and cache jdbc connection.
+     */
+    protected RemoteConnectionFactory connectionFactory = null;
+
+    /**
      * Construct a new instance of {@link JDBCAdapter}
      *
      * @param sqlDialectFactory {@link SqlDialectFactory} for creating {@link SqlDialect}
@@ -48,6 +53,7 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
             final SchemaMetadata remoteMeta = getRemoteMetadata(dialect, properties.getFilteredTables());
             return CreateVirtualSchemaResponse.builder().schemaMetadata(remoteMeta).build();
         } catch (final SQLException exception) {
+            this.connectionFactory.clean();
             throw new AdapterException(ExaError.messageBuilder("E-VSCJDBC-25")
                     .message("Unable create Virtual Schema \"{{virtualSchemaName|uq}}\". Cause: {{cause|uq}}",
                             request.getVirtualSchemaName(), exception.getMessage())
@@ -64,7 +70,12 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
         LOGGER.fine(() -> "Received request to create Virtual Schema \"" + request.getVirtualSchemaName() + "\".");
     }
 
-    private AdapterProperties getPropertiesFromRequest(final AdapterRequest request) {
+    /**
+     * Build {@link AdapterProperties} from {@link AdapterRequest} instance.
+     * @param request request to use
+     * @return adapter properties
+     */
+    protected static AdapterProperties getPropertiesFromRequest(final AdapterRequest request) {
         return new AdapterProperties(request.getSchemaMetadataInfo().getProperties());
     }
 
@@ -97,6 +108,8 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
             throw new AdapterException(ExaError.messageBuilder("E-VSCJDBC-26").message(
                     "Unable refresh metadata of Virtual Schema \"{{virtualSchemaName|uq}}\". Cause: {{cause|uq}}",
                     request.getSchemaMetadataInfo().getSchemaName(), exception.getMessage()).toString(), exception);
+        } finally {
+            this.connectionFactory.clean();
         }
     }
 
@@ -151,6 +164,23 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
                 || AdapterProperties.isRefreshingVirtualSchemaRequired(properties);
     }
 
+    /**
+     * Create or get existing {@link RemoteConnectionFactory} instance.
+     *
+     * @param metadata metadata to use
+     * @param properties adapter properties
+     * @return connection factory
+     */
+    protected RemoteConnectionFactory getOrCreateConnectionFactory(final ExaMetadata metadata,
+              final AdapterProperties properties) {
+        // Open question: can metadata and properties be changed during connection lifetime?
+        //  If yes, our connection factory is implemented wrongly.
+        if (this.connectionFactory == null) {
+            this.connectionFactory = new RemoteConnectionFactory(metadata, properties);
+        }
+        return this.connectionFactory;
+    }
+
     private SqlDialect createDialectAndValidateProperties(final ExaMetadata metadata,
             final AdapterProperties properties) throws PropertyValidationException {
         final SqlDialect dialect = createDialect(metadata, properties);
@@ -159,8 +189,8 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
     }
 
     private SqlDialect createDialect(final ExaMetadata metadata, final AdapterProperties properties) {
-        final ConnectionFactory connectionFactory = new RemoteConnectionFactory(metadata, properties);
-        return this.sqlDialectFactory.createSqlDialect(connectionFactory, properties);
+        final ConnectionFactory factory = this.getOrCreateConnectionFactory(metadata, properties);
+        return this.sqlDialectFactory.createSqlDialect(factory, properties);
     }
 
     private Map<String, String> mergeProperties(final Map<String, String> previousRawProperties,
@@ -256,6 +286,8 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
             throw new AdapterException(ExaError.messageBuilder("E-VSCJDBC-27")
                     .message("Unable to execute push-down request. Cause: {{cause|uq}}", exception.getMessage())
                     .toString(), exception);
+        } finally {
+            this.connectionFactory.clean();
         }
     }
 }
