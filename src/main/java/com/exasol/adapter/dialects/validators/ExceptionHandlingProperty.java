@@ -14,7 +14,10 @@ import com.exasol.errorreporting.ExaError;
 
 /**
  * This class enables to validate the value of the exception handling property.
+ * 
+ * @deprecated this will be removed in the next release
  */
+@Deprecated(forRemoval = true)
 public class ExceptionHandlingProperty implements PropertyValueValidator {
 
     /**
