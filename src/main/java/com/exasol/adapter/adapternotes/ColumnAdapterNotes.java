@@ -116,7 +116,7 @@ public final class ColumnAdapterNotes {
          * @return data type name
          */
         public String getTypeName() {
-            return this.getTypeName();
+            return this.typeName;
         }
 
         /**
