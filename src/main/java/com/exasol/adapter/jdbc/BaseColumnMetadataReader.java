@@ -1,7 +1,6 @@
 package com.exasol.adapter.jdbc;
 
 import static com.exasol.adapter.jdbc.RemoteMetadataReaderConstants.*;
-import static com.exasol.adapter.metadata.DataType.ExaCharset.ASCII;
 import static com.exasol.adapter.metadata.DataType.ExaCharset.UTF8;
 
 import java.sql.*;
@@ -318,7 +317,7 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
         case Types.NVARCHAR:
         case Types.LONGVARCHAR:
         case Types.LONGNVARCHAR:
-            return convertVarChar(jdbcTypeDescription.getPrecisionOrSize(), jdbcTypeDescription.getByteSize());
+            return convertVarChar(jdbcTypeDescription.getPrecisionOrSize());
         case Types.CHAR:
         case Types.NCHAR:
             return convertChar(jdbcTypeDescription.getPrecisionOrSize(), jdbcTypeDescription.getByteSize());
@@ -382,8 +381,8 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
         return DataType.createMaximumSizeVarChar(UTF8);
     }
 
-    private static DataType convertVarChar(final int size, final int octetLength) {
-        final DataType.ExaCharset charset = (octetLength == size) ? ASCII : UTF8;
+    private static DataType convertVarChar(final int size) {
+        final DataType.ExaCharset charset = UTF8;
         if (size <= DataType.MAX_EXASOL_VARCHAR_SIZE) {
             final int precision = size == 0 ? DataType.MAX_EXASOL_VARCHAR_SIZE : size;
             return DataType.createVarChar(precision, charset);
@@ -393,7 +392,7 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
     }
 
     private static DataType convertChar(final int size, final int octetLength) {
-        final DataType.ExaCharset charset = (octetLength == size) ? ASCII : UTF8;
+        final DataType.ExaCharset charset = UTF8;
         if (size <= DataType.MAX_EXASOL_CHAR_SIZE) {
             return DataType.createChar(size, charset);
         } else {
