@@ -51,9 +51,15 @@ public abstract class AbstractQueryRewriter implements QueryRewriter {
                                 properties);
                 final String connectionDefinition = this.connectionDefinitionBuilder
                                 .buildConnectionDefinition(properties, exaConnectionInformation);
-                if (calculateDatatypes(selectListDataTypes, properties)) {
-                        final String importStatement = generateImportStatement(connectionDefinition,
-                                        selectListDataTypes, pushdownQuery);
+
+                if (DataTypeDetection.from(properties).getStrategy() == Strategy.EXASOL_CALCULATED) {
+                        String importStatement;
+                        if (!selectListDataTypes.isEmpty()) {
+                                importStatement = generateImportStatement(connectionDefinition, selectListDataTypes,
+                                                pushdownQuery);
+                        } else {
+                                importStatement = generateImportStatement(connectionDefinition, pushdownQuery);
+                        }
                         LOGGER.finer(() -> "Import push-down statement:\n" + importStatement);
                         return importStatement;
                 } else {
@@ -62,12 +68,6 @@ public abstract class AbstractQueryRewriter implements QueryRewriter {
                                         .mitigation("Please remove the `IMPORT_DATA_TYPES` property from the virtual schema so the default value 'EXASOL_CALCULATED' is used.")
                                         .toString());
                 }
-        }
-
-        private boolean calculateDatatypes(final List<DataType> selectListDataTypes,
-                        final AdapterProperties properties) {
-                return (DataTypeDetection.from(properties).getStrategy() == Strategy.EXASOL_CALCULATED)
-                                && !selectListDataTypes.isEmpty();
         }
 
         private String createPushdownQuery(final SqlStatement statement, final AdapterProperties properties)
