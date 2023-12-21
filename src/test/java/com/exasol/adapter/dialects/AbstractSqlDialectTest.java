@@ -161,11 +161,6 @@ class AbstractSqlDialectTest {
     }
 
     @Test
-    void testValidateExceptionHandling() {
-        verifyValidationException(EXCEPTION_HANDLING_PROPERTY, "unknown mode", "E-VSCJDBC-16");
-    }
-
-    @Test
     void validateDataTypeDetectionStrategy() {
         verifyValidationException(DataTypeDetection.STRATEGY_PROPERTY, "unknown strategy", "E-VSCJDBC-41");
     }

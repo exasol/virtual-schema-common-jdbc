@@ -72,7 +72,6 @@ public abstract class AbstractSqlDialect implements SqlDialect {
                 .add(PropertyValidator.forStructureElement(supportsJdbcCatalogs(), "catalogs", CATALOG_NAME_PROPERTY))
                 .add(DebugPortNumberProperty.validator()) //
                 .add(PropertyValidator.forStructureElement(supportsJdbcSchemas(), "schemas", SCHEMA_NAME_PROPERTY))
-                .add(ExceptionHandlingProperty.validator()) //
                 .add(DataTypeDetection.getValidator()) //
                 .add(TableCountLimit.getValidator()) //
                 .addAll(dialectSpecificPropertyValidators);

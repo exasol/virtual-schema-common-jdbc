@@ -1,6 +1,7 @@
 package com.exasol.adapter.dialects.dummy;
 
-import static com.exasol.adapter.AdapterProperties.*;
+import static com.exasol.adapter.AdapterProperties.CATALOG_NAME_PROPERTY;
+import static com.exasol.adapter.AdapterProperties.SCHEMA_NAME_PROPERTY;
 
 import java.sql.SQLException;
 import java.util.Set;
@@ -17,8 +18,7 @@ public class DummySqlDialect extends AbstractSqlDialect {
     static final String NAME = "DUMMYDIALECT";
 
     public DummySqlDialect(final ConnectionFactory connectionFactory, final AdapterProperties properties) {
-        super(connectionFactory, properties,
-                Set.of(SCHEMA_NAME_PROPERTY, CATALOG_NAME_PROPERTY, EXCEPTION_HANDLING_PROPERTY));
+        super(connectionFactory, properties, Set.of(SCHEMA_NAME_PROPERTY, CATALOG_NAME_PROPERTY));
     }
 
     @Override
