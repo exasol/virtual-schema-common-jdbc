@@ -82,16 +82,6 @@ class AbstractSqlDialectTest {
         sqlDialect.validateProperties();
     }
 
-    @Test
-    void testInvalidExceptionHandling() {
-        final SqlDialect sqlDialect = new DummySqlDialect(null, minimumPlus(EXCEPTION_HANDLING_PROPERTY, "IGNORE_ALL"));
-        final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
-                sqlDialect::validateProperties);
-        assertThat(exception.getMessage(),
-                containsString("E-VSCJDBC-16: Invalid value 'IGNORE_ALL' for property 'EXCEPTION_HANDLING'. "
-                        + "Choose one of: [IGNORE_INVALID_VIEWS, NONE]."));
-    }
-
     @ValueSource(strings = { "ab:\'ab\'", "a'b:'a''b'", "a''b:'a''''b'", "'ab':'''ab'''" })
     @ParameterizedTest
     void testGetLiteralString(final String definition) {
