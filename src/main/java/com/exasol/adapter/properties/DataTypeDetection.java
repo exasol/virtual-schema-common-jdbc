@@ -25,7 +25,7 @@ public class DataTypeDetection {
     }
 
     private static void validatePropertyValue(final String value) throws PropertyValidationException {
-        if (value == Strategy.FROM_RESULT_SET.toString()) {
+        if (value.equals(Strategy.FROM_RESULT_SET.toString())) {
             throw new PropertyValidationException(ExaError.messageBuilder("E-VSCJDBC-47")
                     .message("Property `IMPORT_DATA_TYPES` value 'FROM_RESULT_SET' is no longer supported.")
                     .mitigation(

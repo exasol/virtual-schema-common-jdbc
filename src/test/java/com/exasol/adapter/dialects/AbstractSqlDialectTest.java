@@ -156,7 +156,7 @@ class AbstractSqlDialectTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { "", "EXASOL_CALCULATED", "FROM_RESULT_SET" })
+    @ValueSource(strings = { "", "EXASOL_CALCULATED" })
     void validDataTypeDetectionStrategies(final String strategy) {
         final Map<String, String> raw = new HashMap<>(Map.of(CONNECTION_NAME_PROPERTY, ""));
         if (!strategy.isEmpty()) {
@@ -164,6 +164,16 @@ class AbstractSqlDialectTest {
         }
         final SqlDialect sqlDialect = new DummySqlDialect(null, new AdapterProperties(raw));
         assertDoesNotThrow(sqlDialect::validateProperties);
+    }
+    @Test
+    void validDataTypeDetectionStrategiesFromResultSet() {
+        final String strategy = "FROM_RESULT_SET";
+        final Map<String, String> raw = new HashMap<>(Map.of(CONNECTION_NAME_PROPERTY, ""));
+        if (!strategy.isEmpty()) {
+            raw.put(DataTypeDetection.STRATEGY_PROPERTY, strategy);
+        }
+        final SqlDialect sqlDialect = new DummySqlDialect(null, new AdapterProperties(raw));
+        assertThrows(PropertyValidationException.class,sqlDialect::validateProperties);
     }
 
     private void verifyValidationException(final String property, final String value, final String errorcode) {
