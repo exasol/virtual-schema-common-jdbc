@@ -320,7 +320,7 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
             return convertVarChar(jdbcTypeDescription.getPrecisionOrSize());
         case Types.CHAR:
         case Types.NCHAR:
-            return convertChar(jdbcTypeDescription.getPrecisionOrSize(), jdbcTypeDescription.getByteSize());
+            return convertChar(jdbcTypeDescription.getPrecisionOrSize());
         case Types.DATE:
             return DataType.createDate();
         case Types.TIMESTAMP:
@@ -391,7 +391,7 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
         }
     }
 
-    private static DataType convertChar(final int size, final int octetLength) {
+    private static DataType convertChar(final int size) {
         final DataType.ExaCharset charset = UTF8;
         if (size <= DataType.MAX_EXASOL_CHAR_SIZE) {
             return DataType.createChar(size, charset);
