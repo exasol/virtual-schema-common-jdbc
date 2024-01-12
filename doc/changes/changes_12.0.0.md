@@ -1,4 +1,4 @@
-# Virtual Schema Common JDBC 12.0.0, released 2023-??-??
+# Virtual Schema Common JDBC 12.0.0, released 2024-01-12
 
 Code name: Changes to importing text types and removing deprecated property exception handling.
 
@@ -10,6 +10,12 @@ Changes to importing text types and removing deprecated property exception handl
 
 * #157: Always use utf-8 characterset when importing text types and deprecate IMPORT_DATA_TYPES property (and value FROM_RESULT_SET)
 * #156: Remove deprecated property EXCEPTION_HANDLING 
+
+**Note:** This release excludes vulnerability CVE-2022-46337 in test dependency `org.apache.derby:derby:jar:10.14.2.0`. Newer versions don’t support Java 8 any more.
+
+## Security
+
+* #154: Updated dependencies
 
 ## Dependency Updates
 
