@@ -16,8 +16,7 @@ public abstract class AbstractColumnMetadataReaderTestBase {
 
     protected DataType mapJdbcTypeWithName(final int type, final String typeName) {
         final JDBCTypeDescription jdbcTypeDescription = new JDBCTypeDescription(type, 0, 0, 0, typeName);
-        final DataType jdbcType = this.columnMetadataReader.mapJdbcType(jdbcTypeDescription);
-        return jdbcType;
+        return this.columnMetadataReader.mapJdbcType(jdbcTypeDescription);
     }
 
     protected void assertNumericMappedToDecimalWithPrecisionAndScale(final int expectedPrecision,

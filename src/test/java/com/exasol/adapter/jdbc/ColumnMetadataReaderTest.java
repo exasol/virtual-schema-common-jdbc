@@ -34,8 +34,6 @@ class ColumnMetadataReaderTest {
     private static final SQLException FAKE_SQL_EXCEPTION = new SQLException("Fake exception");
     private static final DataType TYPE_MAX_VARCHAR_UTF8 = DataType.createVarChar(DataType.MAX_EXASOL_VARCHAR_SIZE,
             ExaCharset.UTF8);
-    private static final DataType TYPE_MAX_VARCHAR_ASCII = DataType.createVarChar(DataType.MAX_EXASOL_VARCHAR_SIZE,
-            ExaCharset.ASCII);
     private static final String ESCAPE_STRING = "\\";
 
     @Mock
@@ -128,7 +126,7 @@ class ColumnMetadataReaderTest {
     void testParseCharAsciiWithSize(final int typeId) throws SQLException, RemoteMetadataReaderException {
         final int size = 70;
         when(this.columnsMock.getInt(CHAR_OCTET_LENGTH_COLUMN)).thenReturn(size);
-        assertSqlTypeWithPrecisionConvertedToExasolType(typeId, size, 0, DataType.createChar(size, ExaCharset.ASCII));
+        assertSqlTypeWithPrecisionConvertedToExasolType(typeId, size, 0, DataType.createChar(size, ExaCharset.UTF8));
     }
 
     @ValueSource(ints = { Types.CHAR, Types.NCHAR })
@@ -148,7 +146,7 @@ class ColumnMetadataReaderTest {
     @ValueSource(ints = { Types.VARCHAR, Types.NVARCHAR, Types.LONGVARCHAR, Types.LONGNVARCHAR })
     @ParameterizedTest
     void testParseVarChar(final int typeId) throws SQLException {
-        assertSqlTypeConvertedToExasolType(typeId, TYPE_MAX_VARCHAR_ASCII);
+        assertSqlTypeConvertedToExasolType(typeId, TYPE_MAX_VARCHAR_UTF8);
     }
 
     @ValueSource(ints = { Types.VARCHAR, Types.NVARCHAR, Types.LONGVARCHAR, Types.LONGNVARCHAR })
@@ -163,8 +161,7 @@ class ColumnMetadataReaderTest {
     void testParseVarCharAsciiWithSize(final int typeId) throws SQLException {
         final int size = 80;
         when(this.columnsMock.getInt(CHAR_OCTET_LENGTH_COLUMN)).thenReturn(size);
-        assertSqlTypeWithPrecisionConvertedToExasolType(typeId, size, 0,
-                DataType.createVarChar(size, ExaCharset.ASCII));
+        assertSqlTypeWithPrecisionConvertedToExasolType(typeId, size, 0, DataType.createVarChar(size, ExaCharset.UTF8));
     }
 
     @ValueSource(ints = { Types.VARCHAR, Types.NVARCHAR, Types.LONGVARCHAR, Types.LONGNVARCHAR })

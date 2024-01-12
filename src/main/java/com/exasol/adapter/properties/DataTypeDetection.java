@@ -25,6 +25,13 @@ public class DataTypeDetection {
     }
 
     private static void validatePropertyValue(final String value) throws PropertyValidationException {
+        if (value.equals(Strategy.FROM_RESULT_SET.toString())) {
+            throw new PropertyValidationException(ExaError.messageBuilder("E-VSCJDBC-47")
+                    .message("Property `IMPORT_DATA_TYPES` value 'FROM_RESULT_SET' is no longer supported.")
+                    .mitigation(
+                            "Please remove the `IMPORT_DATA_TYPES` property from the virtual schema so the default value 'EXASOL_CALCULATED' is used.")
+                    .toString());
+        }
         if (!strategies(Collectors.toSet()).contains(value)) {
             throw new PropertyValidationException(ExaError.messageBuilder("E-VSCJDBC-41")
                     .message("Invalid value {{value}} for property {{property}}.", value, STRATEGY_PROPERTY)

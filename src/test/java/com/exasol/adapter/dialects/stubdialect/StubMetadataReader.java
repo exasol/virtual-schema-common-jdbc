@@ -16,8 +16,7 @@ public class StubMetadataReader implements RemoteMetadataReader {
                 List.of(ColumnMetadata.builder().name("C1").type(DataType.createDouble()).build()), "");
         final TableMetadata table2 = new TableMetadata("T2", "",
                 List.of(ColumnMetadata.builder().name("C1").type(DataType.createDate()).build()), "");
-        final List<TableMetadata> tables = List.of(table1, table2);
-        return tables;
+        return List.of(table1, table2);
     }
 
     @Override

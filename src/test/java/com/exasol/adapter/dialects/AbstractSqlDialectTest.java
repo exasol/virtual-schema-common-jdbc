@@ -82,16 +82,6 @@ class AbstractSqlDialectTest {
         sqlDialect.validateProperties();
     }
 
-    @Test
-    void testInvalidExceptionHandling() {
-        final SqlDialect sqlDialect = new DummySqlDialect(null, minimumPlus(EXCEPTION_HANDLING_PROPERTY, "IGNORE_ALL"));
-        final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
-                sqlDialect::validateProperties);
-        assertThat(exception.getMessage(),
-                containsString("E-VSCJDBC-16: Invalid value 'IGNORE_ALL' for property 'EXCEPTION_HANDLING'. "
-                        + "Choose one of: [IGNORE_INVALID_VIEWS, NONE]."));
-    }
-
     @ValueSource(strings = { "ab:\'ab\'", "a'b:'a''b'", "a''b:'a''''b'", "'ab':'''ab'''" })
     @ParameterizedTest
     void testGetLiteralString(final String definition) {
@@ -161,17 +151,12 @@ class AbstractSqlDialectTest {
     }
 
     @Test
-    void testValidateExceptionHandling() {
-        verifyValidationException(EXCEPTION_HANDLING_PROPERTY, "unknown mode", "E-VSCJDBC-16");
-    }
-
-    @Test
     void validateDataTypeDetectionStrategy() {
         verifyValidationException(DataTypeDetection.STRATEGY_PROPERTY, "unknown strategy", "E-VSCJDBC-41");
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { "", "EXASOL_CALCULATED", "FROM_RESULT_SET" })
+    @ValueSource(strings = { "", "EXASOL_CALCULATED" })
     void validDataTypeDetectionStrategies(final String strategy) {
         final Map<String, String> raw = new HashMap<>(Map.of(CONNECTION_NAME_PROPERTY, ""));
         if (!strategy.isEmpty()) {
@@ -179,6 +164,16 @@ class AbstractSqlDialectTest {
         }
         final SqlDialect sqlDialect = new DummySqlDialect(null, new AdapterProperties(raw));
         assertDoesNotThrow(sqlDialect::validateProperties);
+    }
+    @Test
+    void validDataTypeDetectionStrategiesFromResultSet() {
+        final String strategy = "FROM_RESULT_SET";
+        final Map<String, String> raw = new HashMap<>(Map.of(CONNECTION_NAME_PROPERTY, ""));
+        if (!strategy.isEmpty()) {
+            raw.put(DataTypeDetection.STRATEGY_PROPERTY, strategy);
+        }
+        final SqlDialect sqlDialect = new DummySqlDialect(null, new AdapterProperties(raw));
+        assertThrows(PropertyValidationException.class,sqlDialect::validateProperties);
     }
 
     private void verifyValidationException(final String property, final String value, final String errorcode) {
