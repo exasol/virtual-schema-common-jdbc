@@ -1,7 +1,5 @@
 package com.exasol.adapter.dialects.validators;
 
-import static com.exasol.adapter.AdapterProperties.EXCEPTION_HANDLING_PROPERTY;
-
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -19,12 +17,13 @@ import com.exasol.errorreporting.ExaError;
  */
 @Deprecated(forRemoval = true)
 public class ExceptionHandlingProperty implements PropertyValueValidator {
+    private static final String PROPERTY_NAME = "EXCEPTION_HANDLING";
 
     /**
      * @return new instance of {@link PropertyValidator} for validation of exception handling property.
      */
     public static PropertyValidator validator() {
-        return PropertyValidator.ignoreEmpty(EXCEPTION_HANDLING_PROPERTY, new ExceptionHandlingProperty());
+        return PropertyValidator.ignoreEmpty(PROPERTY_NAME, new ExceptionHandlingProperty());
     }
 
     @Override
@@ -37,7 +36,7 @@ public class ExceptionHandlingProperty implements PropertyValueValidator {
         throw new PropertyValidationException(ExaError.messageBuilder("E-VSCJDBC-16")
                 .message("Invalid value {{exceptionHandlingValue}} for property {{exceptionHandlingProperty}}.")
                 .parameter("exceptionHandlingValue", exceptionHandling)
-                .parameter("exceptionHandlingProperty", EXCEPTION_HANDLING_PROPERTY)
+                .parameter("exceptionHandlingProperty", PROPERTY_NAME)
                 .mitigation("Choose one of: {{availableValues|uq}}.", Arrays.stream(ExceptionHandlingMode.values())
                         .map(Enum::toString).collect(Collectors.toList()).toString())
                 .toString());
