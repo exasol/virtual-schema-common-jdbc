@@ -324,7 +324,7 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
         case Types.DATE:
             return DataType.createDate();
         case Types.TIMESTAMP:
-            return DataType.createTimestamp(false);
+            return DataType.createTimestamp(false, jdbcTypeDescription.getPrecisionOrSize());
         case Types.BIT:
         case Types.BOOLEAN:
             return DataType.createBool();
