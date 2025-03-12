@@ -324,7 +324,9 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
         case Types.DATE:
             return DataType.createDate();
         case Types.TIMESTAMP:
-            return DataType.createTimestamp(false);
+            // As long as we still need to support Exasol 7.1 we limit the precision to 3.
+            final int precision = Math.max(jdbcTypeDescription.getPrecisionOrSize(), 3);
+            return DataType.createTimestamp(false, precision);
         case Types.BIT:
         case Types.BOOLEAN:
             return DataType.createBool();

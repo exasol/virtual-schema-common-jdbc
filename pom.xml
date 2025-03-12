@@ -57,7 +57,7 @@
             <groupId>org.apache.derby</groupId>
             <artifactId>derby</artifactId>
             <!-- We can't update this since the newer version uses Java 17. -->
-            <version>10.17.1.0</version>
+            <version>10.15.2.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -65,8 +65,20 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <compilerArgs>
+                        <!-- Excluding path to suppress warning when compiling tests:
+                        "[path] bad path element "/home/xyz/.m2/…/derbyshared.jar": no such file or directory -->
+                        <arg>-Xlint:all,-path</arg>
+                        <arg>-Werror</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.2.0</version>
+                <version>3.4.2</version>
                 <executions>
                     <execution>
                         <goals>

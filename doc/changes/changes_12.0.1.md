@@ -5,6 +5,7 @@ Code name: Security Policy
 ## Summary
 
 In this release we added a security policy that explains how to best report vulnerabilities.
+We also removed the deprecated `EXCEPTION_HANDLING` property.
 
 ## Features
 
@@ -19,7 +20,6 @@ In this release we added a security policy that explains how to best report vuln
 ### Test Dependency Updates
 
 * Updated `nl.jqno.equalsverifier:equalsverifier:3.15.3` to `3.19.1`
-* Updated `org.apache.derby:derby:10.15.2.0` to `10.17.1.0`
 * Updated `org.hamcrest:hamcrest:2.2` to `3.0`
 * Updated `org.junit.jupiter:junit-jupiter:5.10.1` to `5.12.0`
 * Updated `org.mockito:mockito-junit-jupiter:5.7.0` to `5.16.0`
@@ -38,6 +38,7 @@ In this release we added a security policy that explains how to best report vuln
 * Updated `org.apache.maven.plugins:maven-failsafe-plugin:3.2.3` to `3.5.2`
 * Updated `org.apache.maven.plugins:maven-gpg-plugin:3.1.0` to `3.2.7`
 * Updated `org.apache.maven.plugins:maven-install-plugin:2.4` to `3.1.3`
+* Updated `org.apache.maven.plugins:maven-jar-plugin:3.2.0` to `3.4.2`
 * Updated `org.apache.maven.plugins:maven-javadoc-plugin:3.6.3` to `3.11.1`
 * Updated `org.apache.maven.plugins:maven-resources-plugin:2.6` to `3.3.1`
 * Updated `org.apache.maven.plugins:maven-site-plugin:3.3` to `3.21.0`
