@@ -21,7 +21,7 @@ We also removed the deprecated `EXCEPTION_HANDLING` property.
 
 * Updated `nl.jqno.equalsverifier:equalsverifier:3.15.3` to `3.19.1`
 * Updated `org.hamcrest:hamcrest:2.2` to `3.0`
-* Added `org.junit.jupiter:junit-jupiter-api:5.12.0`
+* Added `org.junit.jupiter:junit-jupiter-params:5.12.0`
 * Removed `org.junit.jupiter:junit-jupiter:5.10.1`
 * Updated `org.mockito:mockito-junit-jupiter:5.7.0` to `5.16.0`
 * Updated `org.skyscreamer:jsonassert:1.5.1` to `1.5.3`
