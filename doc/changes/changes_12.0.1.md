@@ -9,7 +9,7 @@ We also removed the deprecated `EXCEPTION_HANDLING` property.
 
 ## Features
 
-* 159: Added security policy
+* Added security policy (PR #159)
 
 ## Dependency Updates
 
