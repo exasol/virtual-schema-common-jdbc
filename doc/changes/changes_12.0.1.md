@@ -1,4 +1,4 @@
-# Virtual Schema Common JDBC 12.0.1, released 2025-03-12
+# Virtual Schema Common JDBC 12.0.1, released 2025-03-13
 
 Code name: Security Policy
 
