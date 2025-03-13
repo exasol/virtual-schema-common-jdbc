@@ -15,7 +15,7 @@
 | [Test utilities for `java.util.logging`][4]                 | [MIT][5]                                      |
 | [Hamcrest][6]                                               | [BSD-3-Clause][7]                             |
 | [JSONassert][8]                                             | [The Apache Software License, Version 2.0][9] |
-| [JUnit Jupiter (Aggregator)][10]                            | [Eclipse Public License v2.0][11]             |
+| [JUnit Jupiter API][10]                                     | [Eclipse Public License v2.0][11]             |
 | [EqualsVerifier \| release normal jar][12]                  | [Apache License, Version 2.0][13]             |
 | [mockito-junit-jupiter][14]                                 | [MIT][5]                                      |
 | [Apache Derby Database Engine and Embedded JDBC Driver][15] | [Apache 2][9]                                 |
