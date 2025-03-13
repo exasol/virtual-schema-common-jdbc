@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>virtual-schema-common-jdbc</artifactId>
-    <version>12.0.0</version>
+    <version>12.0.1</version>
     <name>Virtual Schema Common JDBC</name>
     <description>Common module for JDBC-based data access from Virtual Schemas.</description>
     <url>https://github.com/exasol/virtual-schema-common-jdbc/</url>
@@ -10,7 +10,7 @@
         <dependency>
             <groupId>com.exasol</groupId>
             <artifactId>virtual-schema-common-java</artifactId>
-            <version>17.0.1</version>
+            <version>17.1.0</version>
         </dependency>
         <dependency>
             <groupId>com.exasol</groupId>
@@ -26,31 +26,31 @@
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest</artifactId>
-            <version>2.2</version>
+            <version>3.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.skyscreamer</groupId>
             <artifactId>jsonassert</artifactId>
-            <version>1.5.1</version>
+            <version>1.5.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>5.10.1</version>
+            <artifactId>junit-jupiter-params</artifactId>
+            <version>5.12.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>nl.jqno.equalsverifier</groupId>
             <artifactId>equalsverifier</artifactId>
-            <version>3.15.3</version>
+            <version>3.19.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
-            <version>5.7.0</version>
+            <version>5.16.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -65,8 +65,20 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <compilerArgs>
+                        <!-- Excluding path to suppress warning when compiling tests:
+                        "[path] bad path element "/home/xyz/.m2/…/derbyshared.jar": no such file or directory -->
+                        <arg>-Xlint:all,-path</arg>
+                        <arg>-Werror</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.2.0</version>
+                <version>3.4.2</version>
                 <executions>
                     <execution>
                         <goals>
@@ -84,7 +96,7 @@
             <plugin>
                 <groupId>com.exasol</groupId>
                 <artifactId>project-keeper-maven-plugin</artifactId>
-                <version>3.0.0</version>
+                <version>4.5.0</version>
                 <executions>
                     <execution>
                         <goals>
@@ -108,7 +120,7 @@
     <parent>
         <artifactId>virtual-schema-common-jdbc-generated-parent</artifactId>
         <groupId>com.exasol</groupId>
-        <version>12.0.0</version>
+        <version>12.0.1</version>
         <relativePath>pk_generated_parent.pom</relativePath>
     </parent>
 </project>
