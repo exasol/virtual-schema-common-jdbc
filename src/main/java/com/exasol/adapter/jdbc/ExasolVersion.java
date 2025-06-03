@@ -13,7 +13,7 @@ public final class ExasolVersion {
     /** Logger */
     public static final Logger LOGGER = Logger.getLogger(ExasolVersion.class.getName());
 
-    private static final Pattern VERSION_PATTERN = Pattern.compile("^(\\d+)\\.(\\d+)(?:.+)?$");
+    private static final Pattern VERSION_PATTERN = Pattern.compile("^(\\d+)\\.(\\d+).*$");
 
     private final int major;
     private final int minor;
