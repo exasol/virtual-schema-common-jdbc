@@ -42,11 +42,11 @@ public final class ExasolVersion {
 
     /**
      * Returns if the Exasol versions is at least the specified version.
-     * @param targetMajor required major version.
-     * @param targetMinor required minor version.
+     * @param major required major version.
+     * @param minor required minor version.
      * @return true if the version is at least the specified version, false otherwise.
      */
-    public boolean atLeast(int targetMajor, int targetMinor) {
-        return this.major > targetMajor || (this.major == targetMajor && this.minor >= targetMinor);
+    public boolean atLeast(int major, int minor) {
+        return this.major > major || (this.major == major && this.minor >= minor);
     }
 }
