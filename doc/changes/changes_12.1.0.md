@@ -10,6 +10,12 @@ Code name:
 
 ## Dependency Updates
 
+### Test Dependency Updates
+
+* Updated `nl.jqno.equalsverifier:equalsverifier:3.19.1` to `3.19.4`
+* Updated `org.junit.jupiter:junit-jupiter-params:5.12.0` to `5.13.0`
+* Updated `org.mockito:mockito-junit-jupiter:5.16.0` to `5.18.0`
+
 ### Plugin Dependency Updates
 
 * Updated `com.exasol:project-keeper-maven-plugin:4.5.0` to `5.1.0`
