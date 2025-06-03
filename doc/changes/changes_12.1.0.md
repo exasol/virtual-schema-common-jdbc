@@ -1,12 +1,18 @@
-# Virtual Schema Common JDBC 12.1.0, released 2025-??-??
+# Virtual Schema Common JDBC 12.1.0, released 2025-06-03
 
-Code name:
+Code name: Support for TIMESTAMP types with fractional second precision greater than millis.
 
 ## Summary
 
+This release adds support for mapping TIMESTAMP with fractional second precision greater than millis.
+If the Virtual Schema Adapter runs on Exasol 8.32 or newer, TIMESTAMP precision up to nanoseconds can will be used.
+
+Warning: The API contains a breaking change. The method `createSqlDialect` in `SqlDialectFactory` now receives also
+an `ExaMetadata` parameter.
+
 ## Features
 
-* ISSUE_NUMBER: description
+* #160: Fix support for timestamp mapping with fractional seconds
 
 ## Dependency Updates
 
