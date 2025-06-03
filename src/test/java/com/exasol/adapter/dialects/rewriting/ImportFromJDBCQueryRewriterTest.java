@@ -3,10 +3,12 @@ package com.exasol.adapter.dialects.rewriting;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
 
 import java.sql.SQLException;
 import java.util.*;
 
+import com.exasol.ExaMetadata;
 import org.junit.jupiter.api.Test;
 
 import com.exasol.adapter.AdapterException;
@@ -19,6 +21,7 @@ import com.exasol.adapter.jdbc.BaseRemoteMetadataReader;
 import com.exasol.adapter.metadata.DataType;
 import com.exasol.adapter.properties.DataTypeDetection;
 import com.exasol.adapter.sql.TestSqlStatementFactory;
+import org.mockito.Mockito;
 
 class ImportFromJDBCQueryRewriterTest extends AbstractQueryRewriterTestBase {
         private static final List<DataType> EMPTY_SELECT_LIST_DATA_TYPES = Collections.emptyList();
@@ -26,9 +29,11 @@ class ImportFromJDBCQueryRewriterTest extends AbstractQueryRewriterTestBase {
         @Test
         void rewriteWithJdbcConnection() throws AdapterException, SQLException {
                 final AdapterProperties properties = new AdapterProperties(Map.of("CONNECTION_NAME", CONNECTION_NAME));
-                final SqlDialect dialect = new DummySqlDialect(null, properties);
+                final SqlDialect dialect = new DummySqlDialect(null, properties, null);
+                final ExaMetadata exaMetadataMock = Mockito.mock(ExaMetadata.class);
+                when(exaMetadataMock.getDatabaseVersion()).thenReturn("8.34.0");
                 final BaseRemoteMetadataReader metadataReader = new BaseRemoteMetadataReader(mockConnection(),
-                                properties);
+                                properties, exaMetadataMock);
                 final QueryRewriter queryRewriter = new ImportFromJDBCQueryRewriter(dialect, metadataReader);
                 assertThat(queryRewriter.rewrite(TestSqlStatementFactory.createSelectOneFromDual(),
                                 EMPTY_SELECT_LIST_DATA_TYPES, EXA_METADATA, properties),
@@ -38,9 +43,11 @@ class ImportFromJDBCQueryRewriterTest extends AbstractQueryRewriterTestBase {
 
         @Test
         void rewriteWithCustomConnectionDefinitionBuilder() throws AdapterException, SQLException {
-                final SqlDialect dialect = new DummySqlDialect(null, AdapterProperties.emptyProperties());
+                final SqlDialect dialect = new DummySqlDialect(null, AdapterProperties.emptyProperties(), null);
+                final ExaMetadata exaMetadataMock = Mockito.mock(ExaMetadata.class);
+                when(exaMetadataMock.getDatabaseVersion()).thenReturn("8.34.0");
                 final BaseRemoteMetadataReader metadataReader = new BaseRemoteMetadataReader(mockConnection(),
-                                AdapterProperties.emptyProperties());
+                                AdapterProperties.emptyProperties(), exaMetadataMock);
                 final QueryRewriter queryRewriter = new ImportFromJDBCQueryRewriter(dialect, metadataReader,
                                 new DummyConnectionDefinitionBuilder());
                 assertThat(queryRewriter.rewrite(TestSqlStatementFactory.createSelectOneFromDual(),
@@ -49,10 +56,12 @@ class ImportFromJDBCQueryRewriterTest extends AbstractQueryRewriterTestBase {
         }
 
         @Test
-        void rewriteWithFromResultSetDatatypeDetection() throws AdapterException, SQLException {
-                final SqlDialect dialect = new DummySqlDialect(null, AdapterProperties.emptyProperties());
+        void rewriteWithFromResultSetDatatypeDetection() throws SQLException {
+                final SqlDialect dialect = new DummySqlDialect(null, AdapterProperties.emptyProperties(), null);
+                final ExaMetadata exaMetadataMock = Mockito.mock(ExaMetadata.class);
+                when(exaMetadataMock.getDatabaseVersion()).thenReturn("8.34.0");
                 final BaseRemoteMetadataReader metadataReader = new BaseRemoteMetadataReader(mockConnection(),
-                                AdapterProperties.emptyProperties());
+                                AdapterProperties.emptyProperties(), exaMetadataMock);
                 final QueryRewriter queryRewriter = new ImportFromJDBCQueryRewriter(dialect, metadataReader,
                                 new DummyConnectionDefinitionBuilder());
                 final Exception exception = assertThrows(AdapterException.class, () -> queryRewriter.rewrite(

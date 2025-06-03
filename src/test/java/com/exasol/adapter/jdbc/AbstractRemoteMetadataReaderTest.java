@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 
+import com.exasol.ExaMetadata;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -19,8 +20,9 @@ class AbstractRemoteMetadataReaderTest {
     @Test
     void testGetSchemaAdapterNotesWithSqlException() throws SQLException {
         final Connection connectionMock = mockConnectionThrowingExceptionOnGetMetadata();
+        final ExaMetadata exaMetadataMock = Mockito.mock(ExaMetadata.class);
         final RemoteMetadataReader reader = new DummyRemoteMetadataReader(connectionMock,
-                AdapterProperties.emptyProperties());
+                AdapterProperties.emptyProperties(), exaMetadataMock);
         assertThrows(RemoteMetadataReaderException.class, () -> reader.getSchemaAdapterNotes());
     }
 
@@ -33,16 +35,18 @@ class AbstractRemoteMetadataReaderTest {
     @Test
     void testReadRemoteSchemaMetadataWithSqlException() throws SQLException {
         final Connection connectionMock = mockConnectionThrowingExceptionOnGetMetadata();
+        final ExaMetadata exaMetadataMock = Mockito.mock(ExaMetadata.class);
         final RemoteMetadataReader reader = new DummyRemoteMetadataReader(connectionMock,
-                AdapterProperties.emptyProperties());
+                AdapterProperties.emptyProperties(), exaMetadataMock);
         assertThrows(RemoteMetadataReaderException.class, () -> reader.readRemoteSchemaMetadata());
     }
 
     @Test
     void testReadRemoteSchemaMetadataWithTableListAndSqlException() throws SQLException {
         final Connection connectionMock = mockConnectionThrowingExceptionOnGetMetadata();
+        final ExaMetadata exaMetadataMock = Mockito.mock(ExaMetadata.class);
         final RemoteMetadataReader reader = new DummyRemoteMetadataReader(connectionMock,
-                AdapterProperties.emptyProperties());
+                AdapterProperties.emptyProperties(), exaMetadataMock);
         final List<String> tables = Collections.emptyList();
         final RemoteMetadataReaderException exception = assertThrows(RemoteMetadataReaderException.class,
                 () -> reader.readRemoteSchemaMetadata(tables));

@@ -1,5 +1,6 @@
 package com.exasol.adapter.dialects.derby;
 
+import com.exasol.ExaMetadata;
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.dialects.SqlDialect;
 import com.exasol.adapter.dialects.SqlDialectFactory;
@@ -15,8 +16,9 @@ public class DerbySqlDialectFactory implements SqlDialectFactory {
     }
 
     @Override
-    public SqlDialect createSqlDialect(final ConnectionFactory connectionFactory, final AdapterProperties properties) {
-        return new DerbySqlDialect(connectionFactory, properties);
+    public SqlDialect createSqlDialect(final ConnectionFactory connectionFactory, final AdapterProperties properties,
+                final ExaMetadata exaMetadata) {
+        return new DerbySqlDialect(connectionFactory, properties, exaMetadata);
     }
 
     @Override

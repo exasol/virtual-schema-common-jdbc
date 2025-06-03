@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 import java.sql.*;
 import java.util.List;
 
+import com.exasol.ExaMetadata;
 import org.json.JSONException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,6 +40,8 @@ class ColumnMetadataReaderTest {
     @Mock
     private Connection connectionMock;
     @Mock
+    private ExaMetadata exaMetadataMock;
+    @Mock
     private DatabaseMetaData remoteMetadataMock;
     @Mock
     private ResultSet columnsMock;
@@ -47,6 +50,7 @@ class ColumnMetadataReaderTest {
     void beforeEach() throws SQLException {
         lenient().when(this.connectionMock.getMetaData()).thenReturn(this.remoteMetadataMock);
         lenient().when(this.remoteMetadataMock.getSearchStringEscape()).thenReturn(ESCAPE_STRING);
+        lenient().when(this.exaMetadataMock.getDatabaseVersion()).thenReturn("8.34.0");
     }
 
     @Test
@@ -80,7 +84,7 @@ class ColumnMetadataReaderTest {
 
     protected BaseColumnMetadataReader createDefaultColumnMetadataReader() {
         return new BaseColumnMetadataReader(this.connectionMock, AdapterProperties.emptyProperties(),
-                BaseIdentifierConverter.createDefault());
+                exaMetadataMock, BaseIdentifierConverter.createDefault());
     }
 
     @Test
@@ -172,9 +176,26 @@ class ColumnMetadataReaderTest {
     }
 
     @Test
-    void testParseTimestamp() throws SQLException {
+    void testParseTimestampV7() throws SQLException {
+        when(this.exaMetadataMock.getDatabaseVersion()).thenReturn("7.1.30");
         when(this.columnsMock.getInt(DATA_TYPE_COLUMN)).thenReturn(Types.TIMESTAMP);
         assertThat(mapSingleMockedColumn("TIMESTAMP").getType().toString(), equalTo("TIMESTAMP"));
+    }
+
+    @Test
+    void testParseTimestampV8MicroSecond() throws SQLException {
+        when(this.exaMetadataMock.getDatabaseVersion()).thenReturn("8.32.0");
+        when(this.columnsMock.getInt(SCALE_COLUMN)).thenReturn(6);
+        when(this.columnsMock.getInt(DATA_TYPE_COLUMN)).thenReturn(Types.TIMESTAMP);
+        assertThat(mapSingleMockedColumn("TIMESTAMP").getType().toString(), equalTo("TIMESTAMP(6)"));
+    }
+
+    @Test
+    void testParseTimestampV8PicoSecond() throws SQLException {
+        when(this.exaMetadataMock.getDatabaseVersion()).thenReturn("8.32.0");
+        when(this.columnsMock.getInt(SCALE_COLUMN)).thenReturn(12);
+        when(this.columnsMock.getInt(DATA_TYPE_COLUMN)).thenReturn(Types.TIMESTAMP);
+        assertThat(mapSingleMockedColumn("TIMESTAMP").getType().toString(), equalTo("TIMESTAMP(9)"));
     }
 
     @ValueSource(ints = { Types.TINYINT, Types.SMALLINT })

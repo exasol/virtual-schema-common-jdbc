@@ -78,6 +78,7 @@ class JDBCAdapterTest {
                                 involvedTablesMetadata, selectListDataTypes);
                 final ExaMetadata exaMetadataMock = mock(ExaMetadata.class);
                 when(exaMetadataMock.getConnection("DERBY_CONNECTION")).thenReturn(EXA_CONNECTION_INFORMATION);
+                when(exaMetadataMock.getDatabaseVersion()).thenReturn("8.34.0");
                 return this.adapter.pushdown(exaMetadataMock, request);
         }
 
@@ -150,6 +151,7 @@ class JDBCAdapterTest {
                                 newRawProperties);
                 final ExaMetadata exaMetadataMock = mock(ExaMetadata.class);
                 when(exaMetadataMock.getConnection("DERBY_CONNECTION")).thenReturn(EXA_CONNECTION_INFORMATION);
+                when(exaMetadataMock.getDatabaseVersion()).thenReturn("8.34.0");
                 final SetPropertiesResponse response = this.adapter.setProperties(exaMetadataMock, request);
                 assertThat(response.getSchemaMetadata().getTables(), emptyCollectionOf(TableMetadata.class));
         }
@@ -160,7 +162,7 @@ class JDBCAdapterTest {
                 when(dialect.readSchemaMetadata(any())).thenReturn(new SchemaMetadata("", Arrays
                                 .asList(new TableMetadata("T1", "", null, ""), new TableMetadata("T2", "", null, ""))));
                 final SqlDialectFactory factory = mock(SqlDialectFactory.class);
-                when(factory.createSqlDialect(any(), any())).thenReturn(dialect);
+                when(factory.createSqlDialect(any(), any(), any())).thenReturn(dialect);
                 final JDBCAdapter adapter = new JDBCAdapter(factory);
                 setDerbyConnectionNameProperty();
                 final Map<String, String> newRawProperties = new HashMap<>();
@@ -169,6 +171,7 @@ class JDBCAdapterTest {
                 final SetPropertiesRequest request = new SetPropertiesRequest(createSchemaMetadataInfo(),
                                 newRawProperties);
                 final ExaMetadata exaMetadataMock = mock(ExaMetadata.class);
+                when(exaMetadataMock.getDatabaseVersion()).thenReturn("8.34.0");
                 final SetPropertiesResponse response = adapter.setProperties(exaMetadataMock, request);
                 final List<TableMetadata> tables = response.getSchemaMetadata().getTables();
                 assertAll(() -> assertThat(tables, hasSize(2)), //
@@ -182,6 +185,7 @@ class JDBCAdapterTest {
                 final CreateVirtualSchemaRequest request = new CreateVirtualSchemaRequest(createSchemaMetadataInfo());
                 final ExaMetadata exaMetadataMock = mock(ExaMetadata.class);
                 when(exaMetadataMock.getConnection("DERBY_CONNECTION")).thenReturn(EXA_CONNECTION_INFORMATION);
+                when(exaMetadataMock.getDatabaseVersion()).thenReturn("8.34.0");
                 final CreateVirtualSchemaResponse response = this.adapter.createVirtualSchema(exaMetadataMock, request);
                 assertAll(() -> assertThat(response, instanceOf(CreateVirtualSchemaResponse.class)),
                                 () -> assertThat(response.getSchemaMetadata(), instanceOf(SchemaMetadata.class)),
@@ -204,6 +208,7 @@ class JDBCAdapterTest {
                 final RefreshRequest request = new RefreshRequest(createSchemaMetadataInfo(), tablesList);
                 final ExaMetadata exaMetadataMock = mock(ExaMetadata.class);
                 when(exaMetadataMock.getConnection("DERBY_CONNECTION")).thenReturn(EXA_CONNECTION_INFORMATION);
+                when(exaMetadataMock.getDatabaseVersion()).thenReturn("8.34.0");
                 final RefreshResponse response = this.adapter.refresh(exaMetadataMock, request);
                 assertAll(() -> assertThat(response, instanceOf(RefreshResponse.class)),
                                 () -> assertThat(response.getSchemaMetadata(), instanceOf(SchemaMetadata.class)),
@@ -230,6 +235,7 @@ class JDBCAdapterTest {
                 final CreateVirtualSchemaRequest request = new CreateVirtualSchemaRequest(createSchemaMetadataInfo());
                 final ExaMetadata exaMetadataMock = mock(ExaMetadata.class);
                 when(exaMetadataMock.getConnection("DERBY_CONNECTION")).thenReturn(EXA_CONNECTION_INFORMATION);
+                when(exaMetadataMock.getDatabaseVersion()).thenReturn("8.34.0");
                 assertDoesNotThrow(() -> this.adapter.createVirtualSchema(exaMetadataMock, request));
 
                 final Map<String, String> newRawProperties = new HashMap<>();
@@ -251,6 +257,7 @@ class JDBCAdapterTest {
                                 EMPTY_SELECT_LIST_DATA_TYPES);
                 final ExaMetadata exaMetadataMock = mock(ExaMetadata.class);
                 when(exaMetadataMock.getConnection("DERBY_CONNECTION")).thenReturn(EXA_CONNECTION_INFORMATION);
+                when(exaMetadataMock.getDatabaseVersion()).thenReturn("8.34.0");
 
                 final RemoteConnectionFactory realFactory = new RemoteConnectionFactory(exaMetadataMock,
                                 JDBCAdapter.getPropertiesFromRequest(request));

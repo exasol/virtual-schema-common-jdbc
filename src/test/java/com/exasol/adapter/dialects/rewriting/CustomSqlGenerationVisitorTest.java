@@ -29,7 +29,7 @@ class CustomSqlGenerationVisitorTest {
         final String expectedSql = "SELECT NOT_CUSTOM (NOT_CUSTOM (\"C1\")) FROM \"" + schemaName + "\".\"TEST\"";
         final SqlGenerationContext context = new SqlGenerationContext("", schemaName, false);
         final SqlNodeVisitor<String> generator = new TestSqlGenerationVisitor(
-                new DerbySqlDialect(null, AdapterProperties.emptyProperties()), context);
+                new DerbySqlDialect(null, AdapterProperties.emptyProperties(), null), context);
         final String actualSql = node.accept(generator);
         assertEquals(SqlNormalizer.normalizeSql(expectedSql), SqlNormalizer.normalizeSql(actualSql));
     }

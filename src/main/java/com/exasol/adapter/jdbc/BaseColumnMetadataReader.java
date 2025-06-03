@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.exasol.ExaMetadata;
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.adapternotes.ColumnAdapterNotes;
 import com.exasol.adapter.adapternotes.ColumnAdapterNotesJsonConverter;
@@ -46,19 +47,29 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
     /** Key for is nullable */
     public static final String NULLABLE_COLUMN = "IS_NULLABLE";
     private static final boolean DEFAULT_NULLABLE = true;
+
+    private static final Pattern NUMBER_TYPE_PATTERN = Pattern.compile("\\s*(\\d+)\\s*,\\s*(\\d+)\\s*");
+
     private final IdentifierConverter identifierConverter;
+    private final boolean supportsTimestampsWithNanoPrecision;
 
     /**
      * Create a new instance of a {@link ColumnMetadataReader}.
      *
      * @param connection          JDBC connection through which the column metadata is read from the remote database
      * @param properties          user-defined adapter properties
+     * @param exaMetadata         metadata of the Exasol database
      * @param identifierConverter converter between source and Exasol identifiers
      */
     public BaseColumnMetadataReader(final Connection connection, final AdapterProperties properties,
-            final IdentifierConverter identifierConverter) {
-        super(connection, properties);
+                final ExaMetadata exaMetadata, final IdentifierConverter identifierConverter) {
+        super(connection, properties, exaMetadata);
         this.identifierConverter = identifierConverter;
+        this.supportsTimestampsWithNanoPrecision = ExasolVersion.parse(exaMetadata).atLeast(8, 32);
+    }
+
+    protected boolean supportsTimestampsWithNanoPrecision() {
+        return supportsTimestampsWithNanoPrecision;
     }
 
     /**
@@ -324,9 +335,7 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
         case Types.DATE:
             return DataType.createDate();
         case Types.TIMESTAMP:
-            // As long as we still need to support Exasol 7.1 we limit the precision to 3.
-            final int precision = Math.max(jdbcTypeDescription.getPrecisionOrSize(), 3);
-            return DataType.createTimestamp(false, precision);
+            return convertTimestamp(jdbcTypeDescription.getDecimalScale());
         case Types.BIT:
         case Types.BOOLEAN:
             return DataType.createBool();
@@ -406,6 +415,14 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
         }
     }
 
+    private DataType convertTimestamp(final int decimalScale) {
+        if (supportsTimestampsWithNanoPrecision) {
+            final int fractionalPrecision = Math.min(decimalScale, 9);
+            return DataType.createTimestamp(false, fractionalPrecision);
+        }
+        return DataType.createTimestamp(false, 3);
+    }
+
     /**
      * Convert the column name.
      *
@@ -443,9 +460,8 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
      * @return data type
      */
     protected DataType getNumberTypeFromProperty(final String property) {
-        final Pattern pattern = Pattern.compile("\\s*(\\d+)\\s*,\\s*(\\d+)\\s*");
         final String precisionAndScale = this.properties.get(property);
-        final Matcher matcher = pattern.matcher(precisionAndScale);
+        final Matcher matcher = NUMBER_TYPE_PATTERN.matcher(precisionAndScale);
         if (matcher.matches()) {
             final int precision = Integer.parseInt(matcher.group(1));
             final int scale = Integer.parseInt(matcher.group(2));

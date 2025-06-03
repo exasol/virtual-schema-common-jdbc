@@ -2,6 +2,7 @@ package com.exasol.adapter.jdbc;
 
 import java.sql.Connection;
 
+import com.exasol.ExaMetadata;
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.dialects.BaseIdentifierConverter;
 import com.exasol.adapter.dialects.IdentifierConverter;
@@ -18,9 +19,11 @@ public final class BaseRemoteMetadataReader extends AbstractRemoteMetadataReader
      *
      * @param connection database connection through which the reader retrieves the metadata from the remote source
      * @param properties user-defined properties
+     * @param exaMetadata metadata of the Exasol database
      */
-    public BaseRemoteMetadataReader(final Connection connection, final AdapterProperties properties) {
-        super(connection, properties);
+    public BaseRemoteMetadataReader(final Connection connection, final AdapterProperties properties,
+                final ExaMetadata exaMetadata) {
+        super(connection, properties, exaMetadata);
     }
 
     /**
@@ -32,7 +35,7 @@ public final class BaseRemoteMetadataReader extends AbstractRemoteMetadataReader
      */
     @Override
     protected ColumnMetadataReader createColumnMetadataReader() {
-        return new BaseColumnMetadataReader(this.connection, this.properties, this.identifierConverter);
+        return new BaseColumnMetadataReader(this.connection, this.properties, this.exaMetadata, this.identifierConverter);
     }
 
     /**
@@ -45,7 +48,7 @@ public final class BaseRemoteMetadataReader extends AbstractRemoteMetadataReader
     @Override
     protected TableMetadataReader createTableMetadataReader() {
         return new BaseTableMetadataReader(this.connection, this.columnMetadataReader, this.properties,
-                this.identifierConverter);
+                this.exaMetadata, this.identifierConverter);
     }
 
     /**

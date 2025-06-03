@@ -2,6 +2,7 @@ package com.exasol.adapter.dialects;
 
 import java.util.ServiceLoader;
 
+import com.exasol.ExaMetadata;
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.jdbc.ConnectionFactory;
 
@@ -19,21 +20,22 @@ public interface SqlDialectFactory {
      *
      * @param connectionFactory factory that allows creating a connection to the remote data source
      * @param properties        adapter properties
+     * @param metadata          metadata of the Exasol database
      * @return new {@link SqlDialect} instance
      */
-    public SqlDialect createSqlDialect(final ConnectionFactory connectionFactory, final AdapterProperties properties);
+    SqlDialect createSqlDialect(ConnectionFactory connectionFactory, AdapterProperties properties, ExaMetadata metadata);
 
     /**
      * Get the name of the SQL dialect this factory creates.
      *
      * @return SQL dialect name
      */
-    public String getSqlDialectName();
+    String getSqlDialectName();
 
     /**
      * Get the version of the SQL dialect this factory creates.
      *
      * @return SQL dialect version
      */
-    public String getSqlDialectVersion();
+    String getSqlDialectVersion();
 }

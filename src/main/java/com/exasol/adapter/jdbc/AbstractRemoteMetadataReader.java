@@ -6,6 +6,7 @@ import java.sql.*;
 import java.util.*;
 import java.util.logging.Logger;
 
+import com.exasol.ExaMetadata;
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.adapternotes.SchemaAdapterNotes;
 import com.exasol.adapter.adapternotes.SchemaAdapterNotesJsonConverter;
@@ -31,9 +32,11 @@ public abstract class AbstractRemoteMetadataReader extends AbstractMetadataReade
      *
      * @param connection SQl connection
      * @param properties adapter properties
+     * @param exaMetadata metadata of the Exasol database
      */
-    protected AbstractRemoteMetadataReader(final Connection connection, final AdapterProperties properties) {
-        super(connection, properties);
+    protected AbstractRemoteMetadataReader(final Connection connection, final AdapterProperties properties,
+                final ExaMetadata exaMetadata) {
+        super(connection, properties, exaMetadata);
         this.identifierConverter = createIdentifierConverter();
         this.columnMetadataReader = createColumnMetadataReader();
         this.tableMetadataReader = createTableMetadataReader();
