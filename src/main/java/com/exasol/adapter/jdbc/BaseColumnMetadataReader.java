@@ -68,6 +68,10 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
         this.supportsTimestampsWithNanoPrecision = ExasolVersion.parse(exaMetadata).atLeast(8, 32);
     }
 
+    /**
+     * Whether the Exasol database supports timestamp with precision up to nanoseconds.
+     * @return true if Exasol database supports timestamps with nanoseconds precision false otherwise.
+     */
     protected boolean supportsTimestampsWithNanoPrecision() {
         return supportsTimestampsWithNanoPrecision;
     }
@@ -416,7 +420,7 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
     }
 
     private DataType convertTimestamp(final int decimalScale) {
-        if (supportsTimestampsWithNanoPrecision) {
+        if (supportsTimestampsWithNanoPrecision()) {
             final int fractionalPrecision = Math.min(decimalScale, 9);
             return DataType.createTimestamp(false, fractionalPrecision);
         }
