@@ -6,16 +6,17 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.sql.*;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.exasol.ExaMetadata;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -25,13 +26,21 @@ import com.exasol.adapter.dialects.IdentifierCaseHandling;
 import com.exasol.adapter.metadata.ColumnMetadata;
 import com.exasol.adapter.metadata.DataType;
 import com.exasol.adapter.metadata.DataType.ExaDataType;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 class BaseColumnMetadataReaderTest {
+
+    @Mock
+    private ExaMetadata exaMetadataMock;
+
     private BaseColumnMetadataReader reader;
 
     @BeforeEach
     void beforeEach() {
-        this.reader = new BaseColumnMetadataReader(null, AdapterProperties.emptyProperties(),
+        when(this.exaMetadataMock.getDatabaseVersion()).thenReturn("8.34.0");
+        this.reader = new BaseColumnMetadataReader(null, AdapterProperties.emptyProperties(), exaMetadataMock,
                 new BaseIdentifierConverter(IdentifierCaseHandling.INTERPRET_AS_UPPER,
                         IdentifierCaseHandling.INTERPRET_CASE_SENSITIVE));
     }
@@ -62,9 +71,9 @@ class BaseColumnMetadataReaderTest {
     void testGetColumnsFromResultSetSkipsUnsupportedColumns() throws SQLException {
         final ResultSet remoteColumnsMock = mock(ResultSet.class);
         when(remoteColumnsMock.next()).thenReturn(true, true, true, false);
-        when(remoteColumnsMock.getString(BaseColumnMetadataReader.NAME_COLUMN)).thenReturn("DATE_COL", "BLOB_COL",
+        lenient().when(remoteColumnsMock.getString(BaseColumnMetadataReader.NAME_COLUMN)).thenReturn("DATE_COL", "BLOB_COL",
                 "DOUBLE_COL");
-        when(remoteColumnsMock.getInt(BaseColumnMetadataReader.DATA_TYPE_COLUMN)).thenReturn(Types.DATE, Types.BLOB,
+        lenient().when(remoteColumnsMock.getInt(BaseColumnMetadataReader.DATA_TYPE_COLUMN)).thenReturn(Types.DATE, Types.BLOB,
                 Types.DOUBLE);
         final List<ColumnMetadata> columns = this.reader.getColumnsFromResultSet(remoteColumnsMock);
         final List<ExaDataType> columnTypes = columns //
@@ -107,7 +116,7 @@ class BaseColumnMetadataReaderTest {
     @Test
     void testGetNumberTypeFromProperty() {
         final BaseColumnMetadataReader reader = new BaseColumnMetadataReader(null,
-                new AdapterProperties(Map.of("SOME_PROPERTY", "abc")), new BaseIdentifierConverter(
+                new AdapterProperties(Map.of("SOME_PROPERTY", "abc")), exaMetadataMock, new BaseIdentifierConverter(
                         IdentifierCaseHandling.INTERPRET_AS_UPPER, IdentifierCaseHandling.INTERPRET_CASE_SENSITIVE));
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> reader.getNumberTypeFromProperty("SOME_PROPERTY"));

@@ -12,6 +12,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
+import com.exasol.ExaMetadata;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -29,6 +30,8 @@ import com.exasol.logging.CapturingLogHandler;
 class BaseTableMetadataReaderTest {
     @Mock
     private Connection connectionMock;
+    @Mock
+    private ExaMetadata exaMetadataMock;
     @Mock
     private DatabaseMetaData remoteMetadataMock;
     @Mock
@@ -71,7 +74,7 @@ class BaseTableMetadataReaderTest {
 
     private TableMetadataReader createTableMetadataReaderWithProperties(final AdapterProperties properties) {
         return new BaseTableMetadataReader(this.connectionMock, this.columnMetadataReaderMock, properties,
-                BaseIdentifierConverter.createDefault());
+                exaMetadataMock, BaseIdentifierConverter.createDefault());
     }
 
     protected void mockConnection() throws SQLException {

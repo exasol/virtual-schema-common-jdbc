@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.math.BigDecimal;
 import java.util.*;
 
+import com.exasol.ExaMetadata;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -36,7 +37,7 @@ class SqlGenerationVisitorTest {
     static void beforeAll() {
         final Map<String, String> rawProperties = new HashMap<>();
         adapterProperties = new AdapterProperties(rawProperties);
-        final SqlDialect sqlDialect = new DummySqlDialect(null, adapterProperties);
+        final SqlDialect sqlDialect = new DummySqlDialect(null, adapterProperties, null);
         final SqlGenerationContext context = new SqlGenerationContext("", "TEXT_SCHEMA_NAME", false);
         sqlGenerationVisitor = new SqlGenerationVisitor(sqlDialect, context);
     }
@@ -409,7 +410,7 @@ class SqlGenerationVisitorTest {
 
     @Test
     void testVisitSqlTableCatalogAndSchemaQualifiedQuoting() {
-        final SqlDialect sqlDialect = new TestDialect(null, adapterProperties);
+        final SqlDialect sqlDialect = new TestDialect(null, adapterProperties, null);
         final SqlGenerationContext context = new SqlGenerationContext("catalog \" '", "schema \" '", false);
         final SqlGenerationVisitor sqlGenerationVisitor = new SqlGenerationVisitor(sqlDialect, context);
         final SqlTable sqlTable = new SqlTable("t \" '", "alias \" '",
@@ -662,8 +663,9 @@ class SqlGenerationVisitorTest {
     }
 
     private static class TestDialect extends DummySqlDialect {
-        public TestDialect(final ConnectionFactory connectionFactory, final AdapterProperties properties) {
-            super(connectionFactory, properties);
+        public TestDialect(final ConnectionFactory connectionFactory, final AdapterProperties properties,
+                    final ExaMetadata exaMetadata) {
+            super(connectionFactory, properties, exaMetadata);
         }
 
         @Override

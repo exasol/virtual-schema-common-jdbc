@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
+import com.exasol.ExaMetadata;
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.dialects.IdentifierConverter;
 import com.exasol.adapter.metadata.ColumnMetadata;
@@ -37,11 +38,13 @@ public class BaseTableMetadataReader extends AbstractMetadataReader implements T
      * @param connection           JDBC connection to remote data source
      * @param columnMetadataReader reader to be used to map the tables columns
      * @param properties           user-defined adapter properties
+     * @param exaMetadata          metadata of the Exasol database
      * @param identifierConverter  converter between source and Exasol identifiers
      */
     public BaseTableMetadataReader(final Connection connection, final ColumnMetadataReader columnMetadataReader,
-            final AdapterProperties properties, final IdentifierConverter identifierConverter) {
-        super(connection, properties);
+                final AdapterProperties properties, final ExaMetadata exaMetadata,
+                final IdentifierConverter identifierConverter) {
+        super(connection, properties, exaMetadata);
         this.columnMetadataReader = columnMetadataReader;
         this.identifierConverter = identifierConverter;
     }

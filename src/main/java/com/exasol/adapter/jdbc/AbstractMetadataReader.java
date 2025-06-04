@@ -2,6 +2,7 @@ package com.exasol.adapter.jdbc;
 
 import java.sql.Connection;
 
+import com.exasol.ExaMetadata;
 import com.exasol.adapter.AdapterProperties;
 
 /**
@@ -14,6 +15,8 @@ import com.exasol.adapter.AdapterProperties;
 public abstract class AbstractMetadataReader implements MetadataReader {
     /** Adapter properties */
     protected final AdapterProperties properties;
+    /** Metadata of the Exasol database */
+    protected final ExaMetadata exaMetadata;
     /** Connection */
     protected final Connection connection;
 
@@ -22,10 +25,13 @@ public abstract class AbstractMetadataReader implements MetadataReader {
      *
      * @param connection JDBC connection to remote data source
      * @param properties user-defined adapter properties
+     * @param exaMetadata metadata of the Exasol database
      */
-    protected AbstractMetadataReader(final Connection connection, final AdapterProperties properties) {
+    protected AbstractMetadataReader(final Connection connection, final AdapterProperties properties,
+                                     final ExaMetadata exaMetadata) {
         this.properties = properties;
         this.connection = connection;
+        this.exaMetadata = exaMetadata;
     }
 
     /**

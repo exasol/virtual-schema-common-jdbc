@@ -6,6 +6,7 @@ import static com.exasol.adapter.AdapterProperties.SCHEMA_NAME_PROPERTY;
 import java.sql.SQLException;
 import java.util.Set;
 
+import com.exasol.ExaMetadata;
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.capabilities.*;
 import com.exasol.adapter.dialects.AbstractSqlDialect;
@@ -36,8 +37,9 @@ public class DerbySqlDialect extends AbstractSqlDialect {
      * @param connectionFactory factory for JDBC connection to the Apache Derby database
      * @param properties        user-defined adapter properties
      */
-    public DerbySqlDialect(final ConnectionFactory connectionFactory, final AdapterProperties properties) {
-        super(connectionFactory, properties, Set.of(CATALOG_NAME_PROPERTY, SCHEMA_NAME_PROPERTY));
+    public DerbySqlDialect(final ConnectionFactory connectionFactory, final AdapterProperties properties,
+                final ExaMetadata exaMetadata) {
+        super(connectionFactory, properties, exaMetadata, Set.of(CATALOG_NAME_PROPERTY, SCHEMA_NAME_PROPERTY));
     }
 
     @Override
@@ -96,7 +98,7 @@ public class DerbySqlDialect extends AbstractSqlDialect {
     @Override
     protected RemoteMetadataReader createRemoteMetadataReader() {
         try {
-            return new BaseRemoteMetadataReader(this.connectionFactory.getConnection(), this.properties);
+            return new BaseRemoteMetadataReader(this.connectionFactory.getConnection(), this.properties, this.exaMetadata);
         } catch (final SQLException exception) {
             throw new RemoteMetadataReaderException("Unable to create a metadata reader for Derby.", exception);
         }

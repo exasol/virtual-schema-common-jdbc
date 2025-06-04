@@ -124,7 +124,7 @@ class SqlDialectTest {
         public AliasesSqlDialect(final Map<AggregateFunction, String> aggregationAliases,
                 final Map<ScalarFunction, String> scalarAliases, final Map<ScalarFunction, String> infixAliases,
                 final Map<ScalarFunction, String> prefixAliases) {
-            super(null, AdapterProperties.emptyProperties(), Collections.emptySet());
+            super(null, AdapterProperties.emptyProperties(), null, Collections.emptySet());
 
             this.aggregationAliases = aggregationAliases;
             this.scalarAliases = scalarAliases;
@@ -214,7 +214,8 @@ class SqlDialectTest {
         @Override
         protected RemoteMetadataReader createRemoteMetadataReader() {
             try {
-                return new BaseRemoteMetadataReader(this.connectionFactory.getConnection(), this.properties);
+                return new BaseRemoteMetadataReader(this.connectionFactory.getConnection(), this.properties,
+                        this.exaMetadata);
             } catch (final SQLException exception) {
                 throw new RemoteMetadataReaderException("Unable to create a metadata reader for the Aliases dialect.",
                         exception);

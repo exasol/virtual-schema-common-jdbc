@@ -4,9 +4,11 @@ import java.math.BigInteger;
 
 public class ExaMetadataStub implements ExaMetadata {
     private final ExaConnectionInformation exaConnectionInformation;
+    private final String databaseVersion;
 
     private ExaMetadataStub(final Builder builder) {
         this.exaConnectionInformation = builder.exaConnectionInformation;
+        this.databaseVersion = builder.databaseVersion;
     }
 
     @Override
@@ -16,7 +18,7 @@ public class ExaMetadataStub implements ExaMetadata {
 
     @Override
     public String getDatabaseVersion() {
-        throw new UnsupportedOperationException("not yet implemented");
+        return databaseVersion;
     }
 
     @Override
@@ -174,15 +176,21 @@ public class ExaMetadataStub implements ExaMetadata {
         return this.exaConnectionInformation;
     }
 
-    static public Builder builder() {
+    public static Builder builder() {
         return new Builder();
     }
 
     public static class Builder {
-        public ExaConnectionInformation exaConnectionInformation;
+        private ExaConnectionInformation exaConnectionInformation;
+        private String databaseVersion;
 
         public Builder exaConnectionInformation(final ExaConnectionInformation exaConnectionInformation) {
             this.exaConnectionInformation = exaConnectionInformation;
+            return this;
+        }
+
+        public Builder databaseVersion(final String databaseVersion) {
+            this.databaseVersion = databaseVersion;
             return this;
         }
 

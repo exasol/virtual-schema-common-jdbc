@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import java.sql.*;
 
+import com.exasol.ExaMetadata;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -24,6 +25,8 @@ class ResultSetMetadataReaderTest {
     @Mock
     private Connection connectionMock;
     @Mock
+    private ExaMetadata exaMetadataMock;
+    @Mock
     private PreparedStatement statementMock;
 
     @Test
@@ -38,10 +41,11 @@ class ResultSetMetadataReaderTest {
     }
 
     public ResultSetMetadataReader getReader() throws SQLException {
+        when(this.exaMetadataMock.getDatabaseVersion()).thenReturn("8.34.0");
         when(this.statementMock.getMetaData()).thenReturn(this.resultSetMetadataMock);
         when(this.connectionMock.prepareStatement(any())).thenReturn(this.statementMock);
         final ColumnMetadataReader columnMetadataReader = new BaseColumnMetadataReader(this.connectionMock,
-                AdapterProperties.emptyProperties(), BaseIdentifierConverter.createDefault());
+                AdapterProperties.emptyProperties(), exaMetadataMock, BaseIdentifierConverter.createDefault());
         return new ResultSetMetadataReader(this.connectionMock, columnMetadataReader);
     }
 
@@ -62,8 +66,9 @@ class ResultSetMetadataReaderTest {
     @Test
     void testEmptyMetadata() throws SQLException {
         when(this.connectionMock.prepareStatement(any())).thenReturn(this.statementMock);
+        when(this.exaMetadataMock.getDatabaseVersion()).thenReturn("8.34.0");
         final ColumnMetadataReader columnMetadataReader = new BaseColumnMetadataReader(this.connectionMock,
-                AdapterProperties.emptyProperties(), BaseIdentifierConverter.createDefault());
+                AdapterProperties.emptyProperties(), exaMetadataMock, BaseIdentifierConverter.createDefault());
         final ResultSetMetadataReader metadataReader = new ResultSetMetadataReader(this.connectionMock,
                 columnMetadataReader);
         final RemoteMetadataReaderException exception = assertThrows(RemoteMetadataReaderException.class,

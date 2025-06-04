@@ -30,9 +30,12 @@ public abstract class AbstractSqlDialect implements SqlDialect {
     private final SupportedPropertiesValidator supportedProperties;
 
     /** Set of functions for which the adapter should omit parentheses */
-    protected Set<ScalarFunction> omitParenthesesMap = EnumSet.noneOf(ScalarFunction.class);
+    protected final Set<ScalarFunction> omitParenthesesMap = EnumSet.noneOf(ScalarFunction.class);
     /** Adapter properties */
-    protected AdapterProperties properties;
+    protected final AdapterProperties properties;
+    /** Metadata of the Exasol database */
+    protected final ExaMetadata exaMetadata;
+
     private final ValidatorChain propertyValidators;
 
     /**
@@ -40,12 +43,14 @@ public abstract class AbstractSqlDialect implements SqlDialect {
      *
      * @param connectionFactory         factory for JDBC connection to remote data source
      * @param properties                user properties
+     * @param exaMetadata               metadata of the Exasol database
      * @param dialectSpecificProperties a set of properties that dialect supports additionally to the common set
      *                                  {@link com.exasol.adapter.dialects.AbstractSqlDialect#COMMON_SUPPORTED_PROPERTIES}
      */
     protected AbstractSqlDialect(final ConnectionFactory connectionFactory, final AdapterProperties properties,
+            final ExaMetadata exaMetadata,
             final Set<String> dialectSpecificProperties) {
-        this(connectionFactory, properties, dialectSpecificProperties, List.of());
+        this(connectionFactory, properties, exaMetadata, dialectSpecificProperties, List.of());
     }
 
     /**
@@ -53,16 +58,18 @@ public abstract class AbstractSqlDialect implements SqlDialect {
      *
      * @param connectionFactory                 factory for JDBC connection to remote data source
      * @param properties                        user properties
+     * @param exaMetadata                       metadata of the Exasol database
      * @param dialectSpecificProperties         a set of properties that dialect supports additionally to the common set
      *                                          {@link com.exasol.adapter.dialects.AbstractSqlDialect#COMMON_SUPPORTED_PROPERTIES}
      * @param dialectSpecificPropertyValidators a collection of property validators the dialect wants to apply
      *                                          additionally to the common validators
      */
     protected AbstractSqlDialect(final ConnectionFactory connectionFactory, final AdapterProperties properties,
-            final Set<String> dialectSpecificProperties,
+            final ExaMetadata exaMetadata, final Set<String> dialectSpecificProperties,
             final Collection<PropertyValidator> dialectSpecificPropertyValidators) {
         this.connectionFactory = connectionFactory;
         this.properties = properties;
+        this.exaMetadata = exaMetadata;
         this.supportedProperties = new SupportedPropertiesValidator() //
                 .add(COMMON_SUPPORTED_PROPERTIES) //
                 .add(dialectSpecificProperties);

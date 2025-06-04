@@ -190,7 +190,7 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
 
     private SqlDialect createDialect(final ExaMetadata metadata, final AdapterProperties properties) {
         final ConnectionFactory factory = this.getOrCreateConnectionFactory(metadata, properties);
-        return this.sqlDialectFactory.createSqlDialect(factory, properties);
+        return this.sqlDialectFactory.createSqlDialect(factory, properties, metadata);
     }
 
     private Map<String, String> mergeProperties(final Map<String, String> previousRawProperties,

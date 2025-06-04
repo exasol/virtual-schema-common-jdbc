@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
 
+import com.exasol.ExaMetadata;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,19 +32,24 @@ class ImportIntoTemporaryTableQueryRewriterTest extends AbstractQueryRewriterTes
 
     @Mock
     private ConnectionFactory connectionFactoryMock;
+    @Mock
+    private ExaMetadata exaMetadataMock;
+
     private Connection connectionMock;
 
     @BeforeEach
     void beforeEach() throws SQLException {
         this.connectionMock = mockConnection();
         when(this.connectionFactoryMock.getConnection()).thenReturn(this.connectionMock);
+        when(this.exaMetadataMock.getDatabaseVersion()).thenReturn("8.34.0");
     }
 
     @Test
     void testRewriteWithJdbcConnection() throws AdapterException, SQLException {
         final AdapterProperties properties = new AdapterProperties(Map.of("CONNECTION_NAME", CONNECTION_NAME));
-        final SqlDialect dialect = new DummySqlDialect(this.connectionFactoryMock, properties);
-        final BaseRemoteMetadataReader metadataReader = new BaseRemoteMetadataReader(this.connectionMock, properties);
+        final SqlDialect dialect = new DummySqlDialect(this.connectionFactoryMock, properties, exaMetadataMock);
+        final BaseRemoteMetadataReader metadataReader = new BaseRemoteMetadataReader(this.connectionMock, properties,
+                exaMetadataMock);
         final QueryRewriter queryRewriter = new ImportIntoTemporaryTableQueryRewriter(dialect, metadataReader,
                 this.connectionFactoryMock);
         assertThat(queryRewriter.rewrite(TestSqlStatementFactory.createSelectOneFromDual(), //
@@ -54,9 +60,10 @@ class ImportIntoTemporaryTableQueryRewriterTest extends AbstractQueryRewriterTes
 
     @Test
     void testRewriteWithCustomConnectionDefinitionBuilder() throws AdapterException, SQLException {
-        final SqlDialect dialect = new DummySqlDialect(this.connectionFactoryMock, AdapterProperties.emptyProperties());
+        final SqlDialect dialect = new DummySqlDialect(this.connectionFactoryMock, AdapterProperties.emptyProperties(),
+                exaMetadataMock);
         final BaseRemoteMetadataReader metadataReader = new BaseRemoteMetadataReader(this.connectionMock,
-                AdapterProperties.emptyProperties());
+                AdapterProperties.emptyProperties(), exaMetadataMock);
         final QueryRewriter queryRewriter = new ImportIntoTemporaryTableQueryRewriter(dialect, metadataReader,
                 this.connectionFactoryMock, new DummyConnectionDefinitionBuilder());
         assertThat(queryRewriter.rewrite(TestSqlStatementFactory.createSelectOneFromDual(), //

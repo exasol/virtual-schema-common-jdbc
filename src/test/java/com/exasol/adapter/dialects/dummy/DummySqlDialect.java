@@ -6,6 +6,7 @@ import static com.exasol.adapter.AdapterProperties.SCHEMA_NAME_PROPERTY;
 import java.sql.SQLException;
 import java.util.Set;
 
+import com.exasol.ExaMetadata;
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.capabilities.Capabilities;
 import com.exasol.adapter.dialects.AbstractSqlDialect;
@@ -17,8 +18,9 @@ import com.exasol.adapter.jdbc.*;
 public class DummySqlDialect extends AbstractSqlDialect {
     static final String NAME = "DUMMYDIALECT";
 
-    public DummySqlDialect(final ConnectionFactory connectionFactory, final AdapterProperties properties) {
-        super(connectionFactory, properties, Set.of(SCHEMA_NAME_PROPERTY, CATALOG_NAME_PROPERTY));
+    public DummySqlDialect(final ConnectionFactory connectionFactory, final AdapterProperties properties,
+                           final ExaMetadata exaMetadata) {
+        super(connectionFactory, properties, exaMetadata, Set.of(SCHEMA_NAME_PROPERTY, CATALOG_NAME_PROPERTY));
     }
 
     @Override
@@ -73,7 +75,7 @@ public class DummySqlDialect extends AbstractSqlDialect {
     @Override
     protected RemoteMetadataReader createRemoteMetadataReader() {
         try {
-            return new BaseRemoteMetadataReader(this.connectionFactory.getConnection(), this.properties);
+            return new BaseRemoteMetadataReader(this.connectionFactory.getConnection(), this.properties, this.exaMetadata);
         } catch (final SQLException exception) {
             throw new RemoteMetadataReaderException("Unable to create a metadata reader for the Dummy dialect.",
                     exception);

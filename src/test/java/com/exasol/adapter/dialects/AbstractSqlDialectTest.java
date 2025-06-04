@@ -38,7 +38,7 @@ class AbstractSqlDialectTest {
 
     @Test
     void testNoConnectionName() {
-        final SqlDialect sqlDialect = new DummySqlDialect(null, adapterProperties(SCHEMA_NAME_PROPERTY, "MY_SCHEMA"));
+        final SqlDialect sqlDialect = buildDummySqlDialect(adapterProperties(SCHEMA_NAME_PROPERTY, "MY_SCHEMA"));
         final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
                 sqlDialect::validateProperties);
         assertThat(exception.getMessage(), containsString(
@@ -53,7 +53,7 @@ class AbstractSqlDialectTest {
 
     private void assertWarningIssued(final AdapterProperties adapterProperties, final String expectedMessagePart)
             throws PropertyValidationException {
-        final SqlDialect sqlDialect = new DummySqlDialect(null, adapterProperties);
+        final SqlDialect sqlDialect = buildDummySqlDialect(adapterProperties);
         sqlDialect.validateProperties();
         assertThat(this.capturingLogHandler.getCapturedData(), containsString(expectedMessagePart));
     }
@@ -72,60 +72,60 @@ class AbstractSqlDialectTest {
 
     @Test
     void testValidDebugAddress() throws PropertyValidationException {
-        final SqlDialect sqlDialect = new DummySqlDialect(null, minimumPlus(DEBUG_ADDRESS_PROPERTY, "bla:123"));
+        final SqlDialect sqlDialect = buildDummySqlDialect(minimumPlus(DEBUG_ADDRESS_PROPERTY, "bla:123"));
         sqlDialect.validateProperties();
     }
 
     @Test
     void testSchemaAndCatalogOptional() throws PropertyValidationException {
-        final SqlDialect sqlDialect = new DummySqlDialect(null, adapterProperties(CONNECTION_NAME_PROPERTY, "MY_CONN"));
+        final SqlDialect sqlDialect = buildDummySqlDialect(adapterProperties(CONNECTION_NAME_PROPERTY, "MY_CONN"));
         sqlDialect.validateProperties();
     }
 
-    @ValueSource(strings = { "ab:\'ab\'", "a'b:'a''b'", "a''b:'a''''b'", "'ab':'''ab'''" })
+    @ValueSource(strings = { "ab:'ab'", "a'b:'a''b'", "a''b:'a''''b'", "'ab':'''ab'''" })
     @ParameterizedTest
     void testGetLiteralString(final String definition) {
         final int colonPosition = definition.indexOf(':');
         final String original = definition.substring(0, colonPosition);
         final String literal = definition.substring(colonPosition + 1);
-        final SqlDialect sqlDialect = new DummySqlDialect(null, AdapterProperties.emptyProperties());
+        final SqlDialect sqlDialect = buildDummySqlDialect(AdapterProperties.emptyProperties());
         assertThat(sqlDialect.getStringLiteral(original), equalTo(literal));
     }
 
     @Test
     void testGetStringLiteralWithNull() {
-        final SqlDialect sqlDialect = new DummySqlDialect(null, AdapterProperties.emptyProperties());
+        final SqlDialect sqlDialect = buildDummySqlDialect(AdapterProperties.emptyProperties());
         assertThat(sqlDialect.getStringLiteral(null), equalTo("NULL"));
     }
 
     @Test
     void testOmitParenthesesFalse() {
-        final SqlDialect sqlDialect = new DummySqlDialect(null, AdapterProperties.emptyProperties());
+        final SqlDialect sqlDialect = buildDummySqlDialect(AdapterProperties.emptyProperties());
         assertThat(sqlDialect.omitParentheses(ScalarFunction.ADD_DAYS), equalTo(false));
     }
 
     @Test
     void testGetTableCatalogAndSchemaSeparator() {
-        final SqlDialect sqlDialect = new DummySqlDialect(null, AdapterProperties.emptyProperties());
+        final SqlDialect sqlDialect = buildDummySqlDialect(AdapterProperties.emptyProperties());
         assertThat(sqlDialect.getTableCatalogAndSchemaSeparator(), equalTo("."));
     }
 
     @Test
     void testGetSqlGenerationVisitor() {
-        final SqlDialect sqlDialect = new DummySqlDialect(null, AdapterProperties.emptyProperties());
+        final SqlDialect sqlDialect = buildDummySqlDialect(AdapterProperties.emptyProperties());
         final SqlGenerationContext context = new SqlGenerationContext("catalogName", "schemaName", false);
         assertThat(sqlDialect.getSqlGenerator(context), instanceOf(SqlGenerationVisitor.class));
     }
 
     @Test
     void testGetScalarFunctionAliases() {
-        final SqlDialect sqlDialect = new DummySqlDialect(null, AdapterProperties.emptyProperties());
+        final SqlDialect sqlDialect = buildDummySqlDialect(AdapterProperties.emptyProperties());
         assertThat(sqlDialect.getScalarFunctionAliases(), anEmptyMap());
     }
 
     @Test
     void testGetBinaryInfixFunctionAliases() {
-        final SqlDialect sqlDialect = new DummySqlDialect(null, AdapterProperties.emptyProperties());
+        final SqlDialect sqlDialect = buildDummySqlDialect(AdapterProperties.emptyProperties());
         assertAll(() -> assertThat(sqlDialect.getBinaryInfixFunctionAliases().get(ScalarFunction.ADD), equalTo("+")), //
                 () -> assertThat(sqlDialect.getBinaryInfixFunctionAliases().get(ScalarFunction.SUB), equalTo("-")), //
                 () -> assertThat(sqlDialect.getBinaryInfixFunctionAliases().get(ScalarFunction.MULT), equalTo("*")), //
@@ -135,7 +135,7 @@ class AbstractSqlDialectTest {
 
     @Test
     void testGetPrefixFunctionAliases() {
-        final SqlDialect sqlDialect = new DummySqlDialect(null, AdapterProperties.emptyProperties());
+        final SqlDialect sqlDialect = buildDummySqlDialect(AdapterProperties.emptyProperties());
         assertThat(sqlDialect.getPrefixFunctionAliases().get(ScalarFunction.NEG), equalTo("-"));
     }
 
@@ -162,17 +162,15 @@ class AbstractSqlDialectTest {
         if (!strategy.isEmpty()) {
             raw.put(DataTypeDetection.STRATEGY_PROPERTY, strategy);
         }
-        final SqlDialect sqlDialect = new DummySqlDialect(null, new AdapterProperties(raw));
+        final SqlDialect sqlDialect = buildDummySqlDialect(new AdapterProperties(raw));
         assertDoesNotThrow(sqlDialect::validateProperties);
     }
+
     @Test
     void validDataTypeDetectionStrategiesFromResultSet() {
-        final String strategy = "FROM_RESULT_SET";
         final Map<String, String> raw = new HashMap<>(Map.of(CONNECTION_NAME_PROPERTY, ""));
-        if (!strategy.isEmpty()) {
-            raw.put(DataTypeDetection.STRATEGY_PROPERTY, strategy);
-        }
-        final SqlDialect sqlDialect = new DummySqlDialect(null, new AdapterProperties(raw));
+        raw.put(DataTypeDetection.STRATEGY_PROPERTY, "FROM_RESULT_SET");
+        final SqlDialect sqlDialect = buildDummySqlDialect(new AdapterProperties(raw));
         assertThrows(PropertyValidationException.class,sqlDialect::validateProperties);
     }
 
@@ -180,7 +178,7 @@ class AbstractSqlDialectTest {
         final AdapterProperties properties = adapterProperties( //
                 CONNECTION_NAME_PROPERTY, "", //
                 property, value);
-        final SqlDialect sqlDialect = new DummySqlDialect(null, properties);
+        final SqlDialect sqlDialect = buildDummySqlDialect(properties);
         final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
                 sqlDialect::validateProperties);
         assertAll(() -> assertThat(exception.getMessage(), containsString(errorcode)),
@@ -207,6 +205,10 @@ class AbstractSqlDialectTest {
         final Exception exception = assertThrows(PropertyValidationException.class,
                 () -> validator.validate(properties));
         assertThat(exception.getMessage(), containsString("E-VSCJDBC-17"));
+    }
+
+    private static DummySqlDialect buildDummySqlDialect(final AdapterProperties adapterProperties) {
+        return new DummySqlDialect(null, adapterProperties, null);
     }
 
     private AdapterProperties minimumPlus(final String key, final String value) {
