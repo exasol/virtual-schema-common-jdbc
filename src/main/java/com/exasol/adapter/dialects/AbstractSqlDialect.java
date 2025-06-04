@@ -30,9 +30,9 @@ public abstract class AbstractSqlDialect implements SqlDialect {
     private final SupportedPropertiesValidator supportedProperties;
 
     /** Set of functions for which the adapter should omit parentheses */
-    protected Set<ScalarFunction> omitParenthesesMap = EnumSet.noneOf(ScalarFunction.class);
+    protected final Set<ScalarFunction> omitParenthesesMap = EnumSet.noneOf(ScalarFunction.class);
     /** Adapter properties */
-    protected AdapterProperties properties;
+    protected final AdapterProperties properties;
     /** Metadata of the Exasol database */
     protected final ExaMetadata exaMetadata;
 
