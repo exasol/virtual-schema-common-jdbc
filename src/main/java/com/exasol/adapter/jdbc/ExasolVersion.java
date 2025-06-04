@@ -7,11 +7,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Represents the version of am Exasol database.
+ * Represents the version of a Exasol database.
  */
 public final class ExasolVersion {
-    /** Logger */
-    public static final Logger LOGGER = Logger.getLogger(ExasolVersion.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(ExasolVersion.class.getName());
 
     private static final Pattern VERSION_PATTERN = Pattern.compile("^(\\d+)\\.(\\d+)");
 
@@ -35,7 +34,7 @@ public final class ExasolVersion {
             final int minor = Integer.parseInt(matcher.group(2));
             return new ExasolVersion(major, minor);
         } else {
-            LOGGER.warning("Could not parse Exasol version " + exaMetadata.getDatabaseVersion());
+            LOGGER.warning("Could not parse Exasol version '" + exaMetadata.getDatabaseVersion() + "'");
             return new ExasolVersion(0, 0);
         }
     }
