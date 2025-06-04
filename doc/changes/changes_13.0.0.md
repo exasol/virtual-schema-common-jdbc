@@ -1,4 +1,4 @@
-# Virtual Schema Common JDBC 12.1.0, released 2025-06-03
+# Virtual Schema Common JDBC 13.0.0, released 2025-06-04
 
 Code name: Support for TIMESTAMP types with fractional second precision greater than millis.
 
