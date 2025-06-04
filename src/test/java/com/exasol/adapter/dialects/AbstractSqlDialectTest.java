@@ -82,7 +82,7 @@ class AbstractSqlDialectTest {
         sqlDialect.validateProperties();
     }
 
-    @ValueSource(strings = { "ab:\'ab\'", "a'b:'a''b'", "a''b:'a''''b'", "'ab':'''ab'''" })
+    @ValueSource(strings = { "ab:'ab'", "a'b:'a''b'", "a''b:'a''''b'", "'ab':'''ab'''" })
     @ParameterizedTest
     void testGetLiteralString(final String definition) {
         final int colonPosition = definition.indexOf(':');
@@ -165,13 +165,11 @@ class AbstractSqlDialectTest {
         final SqlDialect sqlDialect = buildDummySqlDialect(new AdapterProperties(raw));
         assertDoesNotThrow(sqlDialect::validateProperties);
     }
+
     @Test
     void validDataTypeDetectionStrategiesFromResultSet() {
-        final String strategy = "FROM_RESULT_SET";
         final Map<String, String> raw = new HashMap<>(Map.of(CONNECTION_NAME_PROPERTY, ""));
-        if (!strategy.isEmpty()) {
-            raw.put(DataTypeDetection.STRATEGY_PROPERTY, strategy);
-        }
+        raw.put(DataTypeDetection.STRATEGY_PROPERTY, "FROM_RESULT_SET");
         final SqlDialect sqlDialect = buildDummySqlDialect(new AdapterProperties(raw));
         assertThrows(PropertyValidationException.class,sqlDialect::validateProperties);
     }

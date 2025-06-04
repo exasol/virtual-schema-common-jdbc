@@ -248,7 +248,7 @@ class BaseRemoteMetadataReaderTest {
         mockGetTableCalls(remoteMetadataMock);
         mockTableA(remoteMetadataMock);
         final RemoteMetadataReader reader = buildBaseRemoteMetadataReader();
-        final SchemaMetadata metadata = reader.readRemoteSchemaMetadata(Arrays.asList(TABLE_A));
+        final SchemaMetadata metadata = reader.readRemoteSchemaMetadata(List.of(TABLE_A));
         final List<TableMetadata> tables = metadata.getTables();
         final TableMetadata tableAMetadata = tables.get(0);
         assertAll(() -> assertThat(tables, iterableWithSize(1)),
