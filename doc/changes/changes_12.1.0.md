@@ -5,9 +5,9 @@ Code name: Support for TIMESTAMP types with fractional second precision greater 
 ## Summary
 
 This release adds support for mapping TIMESTAMP with fractional second precision greater than millis.
-If the Virtual Schema Adapter runs on Exasol 8.32 or newer, TIMESTAMP precision up to nanoseconds can will be used.
+If the Virtual Schema Adapter runs on Exasol 8.32 or newer, TIMESTAMP precision up to nanoseconds can be used.
 
-Warning: The API contains a breaking change. The method `createSqlDialect` in `SqlDialectFactory` now receives also
+**Warning:** The API contains a breaking change. The method `createSqlDialect` in `SqlDialectFactory` now receives also
 an `ExaMetadata` parameter.
 
 ## Features
