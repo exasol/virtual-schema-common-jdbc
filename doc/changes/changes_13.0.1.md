@@ -1,12 +1,10 @@
-# Virtual Schema Common JDBC 13.0.1, released 2025-??-??
+# Virtual Schema Common JDBC 13.0.1, released 2025-11-24
 
-Code name:
+Code name: Upgrade virtual-schema-common-java to propagate fixes
 
 ## Summary
 
-## Features
-
-* ISSUE_NUMBER: description
+This release upgrades the virtual-schema-common-java to take into account recent fixes in sql tree handling.
 
 ## Dependency Updates
 
