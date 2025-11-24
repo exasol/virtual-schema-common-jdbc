@@ -32,7 +32,7 @@
 | [Apache Maven Toolchains Plugin][22]                    | [Apache-2.0][13]                            |
 | [Apache Maven Compiler Plugin][23]                      | [Apache-2.0][13]                            |
 | [Apache Maven Enforcer Plugin][24]                      | [Apache-2.0][13]                            |
-| [Maven Flatten Plugin][25]                              | [Apache Software Licenese][13]              |
+| [Maven Flatten Plugin][25]                              | [Apache Software License][13]               |
 | [Apache Maven JAR Plugin][26]                           | [Apache-2.0][13]                            |
 | [Project Keeper Maven plugin][27]                       | [The MIT License][28]                       |
 | [org.sonatype.ossindex.maven:ossindex-maven-plugin][29] | [ASL2][9]                                   |
@@ -44,12 +44,12 @@
 | [Apache Maven GPG Plugin][36]                           | [Apache-2.0][13]                            |
 | [Apache Maven Source Plugin][37]                        | [Apache License, Version 2.0][13]           |
 | [Apache Maven Javadoc Plugin][38]                       | [Apache-2.0][13]                            |
-| [Nexus Staging Maven Plugin][39]                        | [Eclipse Public License][40]                |
-| [Maven Failsafe Plugin][41]                             | [Apache-2.0][13]                            |
-| [JaCoCo :: Maven Plugin][42]                            | [EPL-2.0][43]                               |
-| [Quality Summarizer Maven Plugin][44]                   | [MIT License][45]                           |
-| [error-code-crawler-maven-plugin][46]                   | [MIT License][47]                           |
-| [Git Commit Id Maven Plugin][48]                        | [GNU Lesser General Public License 3.0][49] |
+| [Central Publishing Maven Plugin][39]                   | [The Apache License, Version 2.0][13]       |
+| [Maven Failsafe Plugin][40]                             | [Apache-2.0][13]                            |
+| [JaCoCo :: Maven Plugin][41]                            | [EPL-2.0][42]                               |
+| [Quality Summarizer Maven Plugin][43]                   | [MIT License][44]                           |
+| [error-code-crawler-maven-plugin][45]                   | [MIT License][46]                           |
+| [Git Commit Id Maven Plugin][47]                        | [GNU Lesser General Public License 3.0][48] |
 
 [0]: https://github.com/exasol/virtual-schema-common-java/
 [1]: https://github.com/exasol/virtual-schema-common-java/blob/main/LICENSE
@@ -90,14 +90,13 @@
 [36]: https://maven.apache.org/plugins/maven-gpg-plugin/
 [37]: https://maven.apache.org/plugins/maven-source-plugin/
 [38]: https://maven.apache.org/plugins/maven-javadoc-plugin/
-[39]: http://www.sonatype.com/public-parent/nexus-maven-plugins/nexus-staging/nexus-staging-maven-plugin/
-[40]: http://www.eclipse.org/legal/epl-v10.html
-[41]: https://maven.apache.org/surefire/maven-failsafe-plugin/
-[42]: https://www.jacoco.org/jacoco/trunk/doc/maven.html
-[43]: https://www.eclipse.org/legal/epl-2.0/
-[44]: https://github.com/exasol/quality-summarizer-maven-plugin/
-[45]: https://github.com/exasol/quality-summarizer-maven-plugin/blob/main/LICENSE
-[46]: https://github.com/exasol/error-code-crawler-maven-plugin/
-[47]: https://github.com/exasol/error-code-crawler-maven-plugin/blob/main/LICENSE
-[48]: https://github.com/git-commit-id/git-commit-id-maven-plugin
-[49]: http://www.gnu.org/licenses/lgpl-3.0.txt
+[39]: https://central.sonatype.org
+[40]: https://maven.apache.org/surefire/maven-failsafe-plugin/
+[41]: https://www.jacoco.org/jacoco/trunk/doc/maven.html
+[42]: https://www.eclipse.org/legal/epl-2.0/
+[43]: https://github.com/exasol/quality-summarizer-maven-plugin/
+[44]: https://github.com/exasol/quality-summarizer-maven-plugin/blob/main/LICENSE
+[45]: https://github.com/exasol/error-code-crawler-maven-plugin/
+[46]: https://github.com/exasol/error-code-crawler-maven-plugin/blob/main/LICENSE
+[47]: https://github.com/git-commit-id/git-commit-id-maven-plugin
+[48]: http://www.gnu.org/licenses/lgpl-3.0.txt
