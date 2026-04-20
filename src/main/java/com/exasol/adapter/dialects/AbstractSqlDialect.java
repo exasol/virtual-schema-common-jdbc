@@ -201,79 +201,11 @@ public abstract class AbstractSqlDialect implements SqlDialect {
     }
 
     /**
-     * Validate that all given properties are supported by the dialect.
-     *
-     * @throws PropertyValidationException if validation fails
-     *
-     * @deprecated Please do not use this method.
-     */
-    @Deprecated(since = "10.2.0")
-    protected void validateSupportedPropertiesList() throws PropertyValidationException {
-        this.supportedProperties.validate(this.properties);
-    }
-
-    /**
      * Get a set of adapter properties that the dialect supports.
      *
      * @return set of supported properties
      */
     public Set<String> getSupportedProperties() {
         return this.supportedProperties.getSupportedProperties();
-    }
-
-    /**
-     * Create an exception for an unsupported property.
-     *
-     * @param unsupportedElement unsupported property name.
-     * @param property           unsupported property name
-     * @return exception
-     *
-     * @deprecated Please do not use this method.
-     */
-    @Deprecated(since = "10.2.0")
-    protected String createUnsupportedElementMessage(final String unsupportedElement, final String property) {
-        return SupportedPropertiesValidator.createUnsupportedElementMessage(property);
-    }
-
-    /**
-     * Validate the input of a boolean property.
-     *
-     * @param propertyName property name
-     * @throws PropertyValidationException if validation fails
-     *
-     * @deprecated Please use {@link BooleanProperty#validator(String)} instead.
-     */
-    @Deprecated(since = "10.2.0")
-    protected void validateBooleanProperty(final String propertyName) throws PropertyValidationException {
-        BooleanProperty.validator(propertyName).validate(this.properties);
-    }
-
-    /**
-     * Check if the import properties make sense.
-     *
-     * @param importFromProperty import from property
-     * @param connectionProperty connection property
-     * @throws PropertyValidationException if check fails
-     *
-     * @deprecated Use {@link ImportProperty#validator(String, String)} instead
-     */
-    @Deprecated(since = "10.4.0")
-    protected void checkImportPropertyConsistency(final String importFromProperty, final String connectionProperty)
-            throws PropertyValidationException {
-        ImportProperty.validator(importFromProperty, connectionProperty).validate(this.properties);
-    }
-
-    /**
-     * Validate the value of the castNumberToDecimalProperty.
-     *
-     * @param castNumberToDecimalProperty property name
-     * @throws PropertyValidationException if validation fails
-     *
-     * @deprecated Please use {@link CastNumberToDecimalProperty#validator(String)} instead.
-     */
-    @Deprecated(since = "10.2.0")
-    protected void validateCastNumberToDecimalProperty(final String castNumberToDecimalProperty)
-            throws PropertyValidationException {
-        CastNumberToDecimalProperty.validator(castNumberToDecimalProperty).validate(this.properties);
     }
 }

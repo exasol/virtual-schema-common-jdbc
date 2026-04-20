@@ -72,6 +72,7 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
 
     /**
      * Build {@link AdapterProperties} from {@link AdapterRequest} instance.
+     * 
      * @param request request to use
      * @return adapter properties
      */
@@ -122,24 +123,6 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
         }
     }
 
-    /**
-     * Read the schema metadata.
-     *
-     * @param properties           adapter properties
-     * @param remoteTableAllowList allow list for remote tables
-     * @param exasolMetadata       ExaMetadata
-     * @return schema metadata
-     * @throws PropertyValidationException if properties are invalid
-     *
-     * @deprecated Please do not use this method.
-     */
-    @Deprecated(since = "10.2.0")
-    protected SchemaMetadata readMetadata(final AdapterProperties properties, final List<String> remoteTableAllowList,
-            final ExaMetadata exasolMetadata) throws PropertyValidationException {
-        final SqlDialect dialect = createDialectAndValidateProperties(exasolMetadata, properties);
-        return dialect.readSchemaMetadata(remoteTableAllowList);
-    }
-
     @Override
     public SetPropertiesResponse setProperties(final ExaMetadata metadata, final SetPropertiesRequest request)
             throws AdapterException {
@@ -167,14 +150,14 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
     /**
      * Create or get existing {@link RemoteConnectionFactory} instance.
      *
-     * @param metadata metadata to use
+     * @param metadata   metadata to use
      * @param properties adapter properties
      * @return connection factory
      */
     protected RemoteConnectionFactory getOrCreateConnectionFactory(final ExaMetadata metadata,
-              final AdapterProperties properties) {
+            final AdapterProperties properties) {
         // Open question: can metadata and properties be changed during connection lifetime?
-        //  If yes, our connection factory is implemented wrongly.
+        // If yes, our connection factory is implemented wrongly.
         if (this.connectionFactory == null) {
             this.connectionFactory = new RemoteConnectionFactory(metadata, properties);
         }
