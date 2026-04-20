@@ -26,7 +26,7 @@ public interface SqlDialectFactory {
     SqlDialect createSqlDialect(ConnectionFactory connectionFactory, AdapterProperties properties, ExaMetadata metadata);
 
     /**
-     * Get the name of the SQL dialect this factory creates.
+     * Get the name of the SQL dialect this factory creates, e.g. {@code MYSQL}, {@code POSTGRESQL} or {@code EXASOL}.
      *
      * @return SQL dialect name
      */
