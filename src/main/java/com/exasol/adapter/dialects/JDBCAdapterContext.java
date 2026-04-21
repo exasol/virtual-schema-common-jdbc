@@ -127,42 +127,6 @@ public class JDBCAdapterContext {
         }
 
         /**
-         * Get the connection factory.
-         * 
-         * @return connection factory
-         */
-        public ConnectionFactory getConnectionFactory() {
-            return this.connectionFactory;
-        }
-
-        /**
-         * Get the adapter properties.
-         * 
-         * @return adapter properties
-         */
-        public AdapterProperties getProperties() {
-            return this.properties;
-        }
-
-        /**
-         * Get the Exasol metadata.
-         * 
-         * @return Exasol metadata
-         */
-        public ExaMetadata getMetadata() {
-            return this.metadata;
-        }
-
-        /**
-         * Get the telemetry client.
-         * 
-         * @return telemetry client
-         */
-        public TelemetryClient getTelemetryClient() {
-            return this.telemetryClient;
-        }
-
-        /**
          * Build a {@link JDBCAdapterContext} from the configured values.
          * 
          * @return new adapter context
