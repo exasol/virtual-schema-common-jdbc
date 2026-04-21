@@ -29,7 +29,7 @@ public interface SqlDialectFactory {
     /**
      * Get a short tag for the adapter project. This will be used for telemetry to identify products.
      * <p>
-     * The short tag is defined in file {@code error_code_config.yml} of each adapter project.
+     * Please make sure that this is the same short tag as in file {@code error_code_config.yml} of each adapter project.
      * <p>
      * Example values: {@code VSMYSQL}, {@code VSPG} (Postgres VS), {@code VSEXA}, {@code VSDY} (DynamoDB VS), {@code VSS3}, {@code VSADLG2}
      * 

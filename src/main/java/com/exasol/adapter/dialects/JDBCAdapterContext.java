@@ -8,7 +8,7 @@ import com.exasol.telemetry.TelemetryClient;
 /**
  * Context object that bundles services and metadata required by a JDBC adapter.
  */
-public class JDBCAdapterContext {
+public final class JDBCAdapterContext {
     private final ConnectionFactory connectionFactory;
     private final AdapterProperties properties;
     private final ExaMetadata metadata;
