@@ -6,7 +6,6 @@ Code name: Anonymous feature tracking
 
 This release adds anonymous feature tracking using the [telemetry-java](https://github.com/exasol/telemetry-java) library. When you integrate this new version into another product, please observe the [required user documentation](https://github.com/exasol/telemetry-java/blob/main/doc/integration-guide.md#required-documentation).
 
-
 ## Breaking Changes
 
 * The release removes methods that were deprecated in [10.2.0](changes_10.2.0.md) and [10.4.0](changes_10.4.0.md).
