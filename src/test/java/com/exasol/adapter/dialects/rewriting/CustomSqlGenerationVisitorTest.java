@@ -8,7 +8,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import com.exasol.adapter.AdapterException;
-import com.exasol.adapter.AdapterProperties;
+import com.exasol.adapter.dialects.JDBCAdapterContext;
 import com.exasol.adapter.dialects.SqlDialect;
 import com.exasol.adapter.dialects.derby.DerbySqlDialect;
 import com.exasol.adapter.metadata.*;
@@ -29,7 +29,7 @@ class CustomSqlGenerationVisitorTest {
         final String expectedSql = "SELECT NOT_CUSTOM (NOT_CUSTOM (\"C1\")) FROM \"" + schemaName + "\".\"TEST\"";
         final SqlGenerationContext context = new SqlGenerationContext("", schemaName, false);
         final SqlNodeVisitor<String> generator = new TestSqlGenerationVisitor(
-                new DerbySqlDialect(null, AdapterProperties.emptyProperties(), null), context);
+                new DerbySqlDialect(JDBCAdapterContext.builder().build()), context);
         final String actualSql = node.accept(generator);
         assertEquals(SqlNormalizer.normalizeSql(expectedSql), SqlNormalizer.normalizeSql(actualSql));
     }

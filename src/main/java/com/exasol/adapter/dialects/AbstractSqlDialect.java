@@ -41,35 +41,28 @@ public abstract class AbstractSqlDialect implements SqlDialect {
     /**
      * Create a new instance of an {@link AbstractSqlDialect}.
      *
-     * @param connectionFactory         factory for JDBC connection to remote data source
-     * @param properties                user properties
-     * @param exaMetadata               metadata of the Exasol database
+     * @param context                   the context for the SQL dialect
      * @param dialectSpecificProperties a set of properties that dialect supports additionally to the common set
      *                                  {@link com.exasol.adapter.dialects.AbstractSqlDialect#COMMON_SUPPORTED_PROPERTIES}
      */
-    protected AbstractSqlDialect(final ConnectionFactory connectionFactory, final AdapterProperties properties,
-            final ExaMetadata exaMetadata,
-            final Set<String> dialectSpecificProperties) {
-        this(connectionFactory, properties, exaMetadata, dialectSpecificProperties, List.of());
+    protected AbstractSqlDialect(final JDBCAdapterContext context, final Set<String> dialectSpecificProperties) {
+        this(context, dialectSpecificProperties, List.of());
     }
 
     /**
      * Create a new instance of an {@link AbstractSqlDialect}.
      *
-     * @param connectionFactory                 factory for JDBC connection to remote data source
-     * @param properties                        user properties
-     * @param exaMetadata                       metadata of the Exasol database
+     * @param context                           the context for the SQL dialect
      * @param dialectSpecificProperties         a set of properties that dialect supports additionally to the common set
      *                                          {@link com.exasol.adapter.dialects.AbstractSqlDialect#COMMON_SUPPORTED_PROPERTIES}
      * @param dialectSpecificPropertyValidators a collection of property validators the dialect wants to apply
      *                                          additionally to the common validators
      */
-    protected AbstractSqlDialect(final ConnectionFactory connectionFactory, final AdapterProperties properties,
-            final ExaMetadata exaMetadata, final Set<String> dialectSpecificProperties,
+    protected AbstractSqlDialect(final JDBCAdapterContext context, final Set<String> dialectSpecificProperties,
             final Collection<PropertyValidator> dialectSpecificPropertyValidators) {
-        this.connectionFactory = connectionFactory;
-        this.properties = properties;
-        this.exaMetadata = exaMetadata;
+        this.connectionFactory = context.getConnectionFactory();
+        this.properties = context.getProperties();
+        this.exaMetadata = context.getExaMetadata();
         this.supportedProperties = new SupportedPropertiesValidator() //
                 .add(COMMON_SUPPORTED_PROPERTIES) //
                 .add(dialectSpecificProperties);
@@ -201,79 +194,11 @@ public abstract class AbstractSqlDialect implements SqlDialect {
     }
 
     /**
-     * Validate that all given properties are supported by the dialect.
-     *
-     * @throws PropertyValidationException if validation fails
-     *
-     * @deprecated Please do not use this method.
-     */
-    @Deprecated(since = "10.2.0")
-    protected void validateSupportedPropertiesList() throws PropertyValidationException {
-        this.supportedProperties.validate(this.properties);
-    }
-
-    /**
      * Get a set of adapter properties that the dialect supports.
      *
      * @return set of supported properties
      */
     public Set<String> getSupportedProperties() {
         return this.supportedProperties.getSupportedProperties();
-    }
-
-    /**
-     * Create an exception for an unsupported property.
-     *
-     * @param unsupportedElement unsupported property name.
-     * @param property           unsupported property name
-     * @return exception
-     *
-     * @deprecated Please do not use this method.
-     */
-    @Deprecated(since = "10.2.0")
-    protected String createUnsupportedElementMessage(final String unsupportedElement, final String property) {
-        return SupportedPropertiesValidator.createUnsupportedElementMessage(property);
-    }
-
-    /**
-     * Validate the input of a boolean property.
-     *
-     * @param propertyName property name
-     * @throws PropertyValidationException if validation fails
-     *
-     * @deprecated Please use {@link BooleanProperty#validator(String)} instead.
-     */
-    @Deprecated(since = "10.2.0")
-    protected void validateBooleanProperty(final String propertyName) throws PropertyValidationException {
-        BooleanProperty.validator(propertyName).validate(this.properties);
-    }
-
-    /**
-     * Check if the import properties make sense.
-     *
-     * @param importFromProperty import from property
-     * @param connectionProperty connection property
-     * @throws PropertyValidationException if check fails
-     *
-     * @deprecated Use {@link ImportProperty#validator(String, String)} instead
-     */
-    @Deprecated(since = "10.4.0")
-    protected void checkImportPropertyConsistency(final String importFromProperty, final String connectionProperty)
-            throws PropertyValidationException {
-        ImportProperty.validator(importFromProperty, connectionProperty).validate(this.properties);
-    }
-
-    /**
-     * Validate the value of the castNumberToDecimalProperty.
-     *
-     * @param castNumberToDecimalProperty property name
-     * @throws PropertyValidationException if validation fails
-     *
-     * @deprecated Please use {@link CastNumberToDecimalProperty#validator(String)} instead.
-     */
-    @Deprecated(since = "10.2.0")
-    protected void validateCastNumberToDecimalProperty(final String castNumberToDecimalProperty)
-            throws PropertyValidationException {
-        CastNumberToDecimalProperty.validator(castNumberToDecimalProperty).validate(this.properties);
     }
 }

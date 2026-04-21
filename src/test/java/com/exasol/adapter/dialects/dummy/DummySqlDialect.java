@@ -9,8 +9,7 @@ import java.util.Set;
 import com.exasol.ExaMetadata;
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.capabilities.Capabilities;
-import com.exasol.adapter.dialects.AbstractSqlDialect;
-import com.exasol.adapter.dialects.QueryRewriter;
+import com.exasol.adapter.dialects.*;
 import com.exasol.adapter.dialects.rewriting.ImportIntoTemporaryTableQueryRewriter;
 import com.exasol.adapter.dialects.rewriting.SqlGenerationContext;
 import com.exasol.adapter.jdbc.*;
@@ -18,9 +17,16 @@ import com.exasol.adapter.jdbc.*;
 public class DummySqlDialect extends AbstractSqlDialect {
     static final String NAME = "DUMMYDIALECT";
 
-    public DummySqlDialect(final ConnectionFactory connectionFactory, final AdapterProperties properties,
-                           final ExaMetadata exaMetadata) {
-        super(connectionFactory, properties, exaMetadata, Set.of(SCHEMA_NAME_PROPERTY, CATALOG_NAME_PROPERTY));
+    public DummySqlDialect(final JDBCAdapterContext context) {
+        super(context, Set.of(SCHEMA_NAME_PROPERTY, CATALOG_NAME_PROPERTY));
+    }
+
+    public DummySqlDialect(final ConnectionFactory connectionFactoryMock, final AdapterProperties properties, final ExaMetadata exaMetadataMock) {
+        this(JDBCAdapterContext.builder()
+                .connectionFactory(connectionFactoryMock)
+                .properties(properties)
+                .metadata(exaMetadataMock)
+                .build());
     }
 
     @Override
