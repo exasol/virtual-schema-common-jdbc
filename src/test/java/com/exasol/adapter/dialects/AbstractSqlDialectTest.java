@@ -171,7 +171,7 @@ class AbstractSqlDialectTest {
         final Map<String, String> raw = new HashMap<>(Map.of(CONNECTION_NAME_PROPERTY, ""));
         raw.put(DataTypeDetection.STRATEGY_PROPERTY, "FROM_RESULT_SET");
         final SqlDialect sqlDialect = buildDummySqlDialect(new AdapterProperties(raw));
-        assertThrows(PropertyValidationException.class,sqlDialect::validateProperties);
+        assertThrows(PropertyValidationException.class, sqlDialect::validateProperties);
     }
 
     private void verifyValidationException(final String property, final String value, final String errorcode) {
@@ -208,7 +208,10 @@ class AbstractSqlDialectTest {
     }
 
     private static DummySqlDialect buildDummySqlDialect(final AdapterProperties adapterProperties) {
-        return new DummySqlDialect(null, adapterProperties, null);
+        final JDBCAdapterContext context = JDBCAdapterContext.builder()
+                .properties(adapterProperties)
+                .build();
+        return new DummySqlDialect(context);
     }
 
     private AdapterProperties minimumPlus(final String key, final String value) {

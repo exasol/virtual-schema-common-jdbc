@@ -3,8 +3,7 @@ package com.exasol.adapter.jdbc;
 import java.util.NoSuchElementException;
 import java.util.ServiceLoader;
 
-import com.exasol.adapter.AdapterFactory;
-import com.exasol.adapter.VirtualSchemaAdapter;
+import com.exasol.adapter.*;
 import com.exasol.adapter.dialects.SqlDialectFactory;
 import com.exasol.logging.VersionCollector;
 
@@ -43,8 +42,14 @@ public class JDBCAdapterFactory implements AdapterFactory {
      *
      * @return new instance
      */
+
     @Override
-    public VirtualSchemaAdapter createAdapter() {
-        return new JDBCAdapter(this.sqlDialectFactory);
+    public VirtualSchemaAdapter createAdapter(final AdapterContext adapterContext) {
+        return new JDBCAdapter(this.sqlDialectFactory, adapterContext);
+    }
+
+    @Override
+    public String getAdapterProjectShortTag() {
+        return sqlDialectFactory.getAdapterProjectShortTag();
     }
 }

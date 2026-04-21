@@ -10,6 +10,9 @@ This release adds anonymous feature tracking using the [telemetry-java](https://
 ## Breaking Changes
 
 * The release removes methods that were deprecated in [10.2.0](changes_10.2.0.md) and [10.4.0](changes_10.4.0.md).
+* Interface `SqlDialectFactory` was modified and implementors need to adapt the following:
+  * Method `createSqlDialect()` now receives a single argument of type `JDBCAdapterContext`. The existing three arguments of type `ConnectionFactory`, `AdapterProperties` and `ExaMetadata` are now available via getters from `JDBCAdapterContext`. This class also gives you access to the `TelemetryClient`. You can use it to send adapter specific feature tracking.
+  * New method `getAdapterProjectShortTag()` must return the adapter's project short tag as defined in `error_code_config.yml`, e.g. `VSMYSQL` or `VSS3`.
 
 ## Features
 

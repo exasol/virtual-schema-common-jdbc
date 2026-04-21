@@ -5,14 +5,10 @@ import static com.exasol.adapter.AdapterProperties.SCHEMA_NAME_PROPERTY;
 
 import java.util.Set;
 
-import com.exasol.ExaMetadata;
-import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.capabilities.Capabilities;
-import com.exasol.adapter.dialects.AbstractSqlDialect;
-import com.exasol.adapter.dialects.QueryRewriter;
+import com.exasol.adapter.dialects.*;
 import com.exasol.adapter.dialects.rewriting.ImportIntoTemporaryTableQueryRewriter;
 import com.exasol.adapter.dialects.rewriting.SqlGenerationContext;
-import com.exasol.adapter.jdbc.ConnectionFactory;
 import com.exasol.adapter.jdbc.RemoteMetadataReader;
 
 /**
@@ -21,9 +17,8 @@ import com.exasol.adapter.jdbc.RemoteMetadataReader;
 public class StubSqlDialect extends AbstractSqlDialect {
     static final String NAME = "STUB";
 
-    public StubSqlDialect(final ConnectionFactory connectionFactory, final AdapterProperties properties,
-                final ExaMetadata exaMetadata) {
-        super(connectionFactory, properties, exaMetadata, Set.of(CATALOG_NAME_PROPERTY, SCHEMA_NAME_PROPERTY));
+    public StubSqlDialect(final JDBCAdapterContext context) {
+        super(context, Set.of(CATALOG_NAME_PROPERTY, SCHEMA_NAME_PROPERTY));
     }
 
     @Override

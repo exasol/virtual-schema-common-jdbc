@@ -12,7 +12,6 @@ import java.util.*;
 import org.junit.jupiter.api.Test;
 
 import com.exasol.adapter.AdapterException;
-import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.capabilities.*;
 import com.exasol.adapter.dialects.rewriting.*;
 import com.exasol.adapter.jdbc.*;
@@ -124,7 +123,7 @@ class SqlDialectTest {
         public AliasesSqlDialect(final Map<AggregateFunction, String> aggregationAliases,
                 final Map<ScalarFunction, String> scalarAliases, final Map<ScalarFunction, String> infixAliases,
                 final Map<ScalarFunction, String> prefixAliases) {
-            super(null, AdapterProperties.emptyProperties(), null, Collections.emptySet());
+            super(JDBCAdapterContext.builder().build(), Collections.emptySet());
 
             this.aggregationAliases = aggregationAliases;
             this.scalarAliases = scalarAliases;

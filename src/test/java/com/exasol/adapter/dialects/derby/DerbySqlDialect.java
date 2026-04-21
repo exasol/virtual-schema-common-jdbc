@@ -6,11 +6,8 @@ import static com.exasol.adapter.AdapterProperties.SCHEMA_NAME_PROPERTY;
 import java.sql.SQLException;
 import java.util.Set;
 
-import com.exasol.ExaMetadata;
-import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.capabilities.*;
-import com.exasol.adapter.dialects.AbstractSqlDialect;
-import com.exasol.adapter.dialects.QueryRewriter;
+import com.exasol.adapter.dialects.*;
 import com.exasol.adapter.dialects.rewriting.ImportIntoTemporaryTableQueryRewriter;
 import com.exasol.adapter.dialects.rewriting.SqlGenerationContext;
 import com.exasol.adapter.jdbc.*;
@@ -34,12 +31,10 @@ public class DerbySqlDialect extends AbstractSqlDialect {
     /**
      * Create a new instance of a {@link DerbySqlDialect}.
      *
-     * @param connectionFactory factory for JDBC connection to the Apache Derby database
-     * @param properties        user-defined adapter properties
+     * @param context the context for the SQL dialect
      */
-    public DerbySqlDialect(final ConnectionFactory connectionFactory, final AdapterProperties properties,
-                final ExaMetadata exaMetadata) {
-        super(connectionFactory, properties, exaMetadata, Set.of(CATALOG_NAME_PROPERTY, SCHEMA_NAME_PROPERTY));
+    public DerbySqlDialect(final JDBCAdapterContext context) {
+        super(context, Set.of(CATALOG_NAME_PROPERTY, SCHEMA_NAME_PROPERTY));
     }
 
     @Override

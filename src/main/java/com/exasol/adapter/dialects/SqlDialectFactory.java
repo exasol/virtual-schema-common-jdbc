@@ -2,10 +2,6 @@ package com.exasol.adapter.dialects;
 
 import java.util.ServiceLoader;
 
-import com.exasol.ExaMetadata;
-import com.exasol.adapter.AdapterProperties;
-import com.exasol.adapter.jdbc.ConnectionFactory;
-
 /**
  * This is the common interface for all factories that produce SQL dialects. *
  * <p>
@@ -18,12 +14,10 @@ public interface SqlDialectFactory {
     /**
      * Create a new {@link SqlDialect}.
      *
-     * @param connectionFactory factory that allows creating a connection to the remote data source
-     * @param properties        adapter properties
-     * @param metadata          metadata of the Exasol database
+     * @param context the context for the SQL dialect
      * @return new {@link SqlDialect} instance
      */
-    SqlDialect createSqlDialect(ConnectionFactory connectionFactory, AdapterProperties properties, ExaMetadata metadata);
+    SqlDialect createSqlDialect(JDBCAdapterContext context);
 
     /**
      * Get the name of the SQL dialect this factory creates, e.g. {@code MYSQL}, {@code POSTGRESQL} or {@code EXASOL}.
@@ -33,9 +27,26 @@ public interface SqlDialectFactory {
     String getSqlDialectName();
 
     /**
-     * Get the version of the SQL dialect this factory creates.
+     * Get a short tag for the adapter project. This will be used for telemetry to identify products.
+     * <p>
+     * The short tag is defined in file {@code error_code_config.yml} of each adapter project.
+     * <p>
+     * Example values: {@code VSMYSQL}, {@code VSPG} (Postgres VS), {@code VSEXA}, {@code VSDY} (DynamoDB VS), {@code VSS3}, {@code VSADLG2}
+     * 
+     * @return short tag for the adapter project
+     */
+    String getAdapterProjectShortTag();
+
+    /**
+     * Get the version of the {@link SqlDialect}. This version will be used for logging and telemetry.
+     * <p>
+     * Adapters can use {@link com.exasol.logging.VersionCollector} to fetch the version from the metadata in the jar file. For example:
+     * 
+     * <pre>
+     * new VersionCollector("META-INF/maven/com.exasol/mysql-virtual-schema/pom.properties").getVersionNumber()
+     * </pre>
      *
-     * @return SQL dialect version
+     * @return Virtual Schema Adapter version
      */
     String getSqlDialectVersion();
 }

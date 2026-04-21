@@ -1,5 +1,7 @@
 package com.exasol.adapter.jdbc;
 
+import static java.util.Objects.requireNonNull;
+
 import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Logger;
@@ -7,8 +9,7 @@ import java.util.logging.Logger;
 import com.exasol.ExaMetadata;
 import com.exasol.adapter.*;
 import com.exasol.adapter.capabilities.*;
-import com.exasol.adapter.dialects.SqlDialect;
-import com.exasol.adapter.dialects.SqlDialectFactory;
+import com.exasol.adapter.dialects.*;
 import com.exasol.adapter.metadata.SchemaMetadata;
 import com.exasol.adapter.metadata.SchemaMetadataInfo;
 import com.exasol.adapter.properties.PropertyValidationException;
@@ -21,13 +22,14 @@ import com.exasol.errorreporting.ExaError;
  * This class implements main logic for different types of requests a virtual schema JDBC adapter can receive.
  */
 public class JDBCAdapter implements VirtualSchemaAdapter {
+    private static final Logger LOGGER = Logger.getLogger(JDBCAdapter.class.getName());
     private static final String SCALAR_FUNCTION_PREFIX = "FN_";
     private static final String PREDICATE_PREFIX = "FN_PRED_";
     private static final String AGGREGATE_FUNCTION_PREFIX = "FN_AGG_";
     private static final String LITERAL_PREFIX = "LITERAL_";
     private static final String TABLES_PROPERTY = "TABLE_FILTER";
-    private static final Logger LOGGER = Logger.getLogger(JDBCAdapter.class.getName());
     private final SqlDialectFactory sqlDialectFactory;
+    private final AdapterContext adapterContext;
 
     /**
      * Connection factory used to get and cache jdbc connection.
@@ -38,9 +40,11 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
      * Construct a new instance of {@link JDBCAdapter}
      *
      * @param sqlDialectFactory {@link SqlDialectFactory} for creating {@link SqlDialect}
+     * @param adapterContext
      */
-    public JDBCAdapter(final SqlDialectFactory sqlDialectFactory) {
-        this.sqlDialectFactory = sqlDialectFactory;
+    public JDBCAdapter(final SqlDialectFactory sqlDialectFactory, final AdapterContext adapterContext) {
+        this.sqlDialectFactory = requireNonNull(sqlDialectFactory, "sqlDialectFactory");
+        this.adapterContext = requireNonNull(adapterContext, "adapterContext");
     }
 
     @Override
@@ -173,7 +177,12 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
 
     private SqlDialect createDialect(final ExaMetadata metadata, final AdapterProperties properties) {
         final ConnectionFactory factory = this.getOrCreateConnectionFactory(metadata, properties);
-        return this.sqlDialectFactory.createSqlDialect(factory, properties, metadata);
+        return this.sqlDialectFactory.createSqlDialect(JDBCAdapterContext.builder()
+                .connectionFactory(factory)
+                .properties(properties)
+                .metadata(metadata)
+                .telemetryClient(this.adapterContext.getTelemetryClient())
+                .build());
     }
 
     private Map<String, String> mergeProperties(final Map<String, String> previousRawProperties,
