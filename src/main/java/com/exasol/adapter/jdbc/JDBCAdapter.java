@@ -40,7 +40,7 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
      * Construct a new instance of {@link JDBCAdapter}
      *
      * @param sqlDialectFactory {@link SqlDialectFactory} for creating {@link SqlDialect}
-     * @param adapterContext
+     * @param adapterContext    context for the adapter
      */
     public JDBCAdapter(final SqlDialectFactory sqlDialectFactory, final AdapterContext adapterContext) {
         this.sqlDialectFactory = requireNonNull(sqlDialectFactory, "sqlDialectFactory");
