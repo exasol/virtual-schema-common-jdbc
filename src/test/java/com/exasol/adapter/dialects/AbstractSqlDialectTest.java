@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import com.exasol.adapter.AdapterProperties;
@@ -183,6 +184,16 @@ class AbstractSqlDialectTest {
                 sqlDialect::validateProperties);
         assertAll(() -> assertThat(exception.getMessage(), containsString(errorcode)),
                 () -> assertThat(exception.getMessage(), containsString(property)));
+    }
+
+    @ParameterizedTest
+    @CsvSource({ "TELEMETRY, true", "TELEMETRY, false", "TELEMETRY, FALSE", "TELEMETRY, off", "TELEMETRY, ''" })
+    void testPropertySupported(final String property, final String value) {
+        final AdapterProperties properties = adapterProperties(
+                CONNECTION_NAME_PROPERTY, "",
+                property, value);
+        final SqlDialect sqlDialect = buildDummySqlDialect(properties);
+        assertDoesNotThrow(sqlDialect::validateProperties);
     }
 
     @Test

@@ -16,6 +16,7 @@ import com.exasol.adapter.jdbc.RemoteMetadataReader;
 import com.exasol.adapter.metadata.DataType;
 import com.exasol.adapter.metadata.SchemaMetadata;
 import com.exasol.adapter.properties.*;
+import com.exasol.adapter.request.AdapterTelemetryConfiguration;
 import com.exasol.adapter.sql.*;
 
 /**
@@ -24,7 +25,7 @@ import com.exasol.adapter.sql.*;
 public abstract class AbstractSqlDialect implements SqlDialect {
     private static final Set<String> COMMON_SUPPORTED_PROPERTIES = Set.of(CONNECTION_NAME_PROPERTY,
             TABLE_FILTER_PROPERTY, EXCLUDED_CAPABILITIES_PROPERTY, DEBUG_ADDRESS_PROPERTY, LOG_LEVEL_PROPERTY,
-            DataTypeDetection.STRATEGY_PROPERTY, TableCountLimit.MAXTABLES_PROPERTY);
+            DataTypeDetection.STRATEGY_PROPERTY, TableCountLimit.MAXTABLES_PROPERTY, AdapterTelemetryConfiguration.TELEMETRY_PROPERTY);
     /** Factory that creates JDBC connection to the data source */
     protected final ConnectionFactory connectionFactory;
     private final SupportedPropertiesValidator supportedProperties;
