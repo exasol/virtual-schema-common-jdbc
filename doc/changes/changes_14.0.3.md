@@ -4,9 +4,11 @@ Code name:
 
 ## Summary
 
-## Features
+This release improves the error message in case of invalid capability names. The user now gets a helpful message with available capability names.
 
-* ISSUE_NUMBER: description
+## Bugfixes
+
+* #182: Fixed dependency on mutating `subtractCapabilities()` method
 
 ## Dependency Updates
 
