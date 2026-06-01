@@ -64,23 +64,14 @@ class CapabilitiesParserTest {
             "FN_AGG_INVALID|E-VSCJDBC-48: Unsupported capability 'FN_AGG_INVALID' for aggregate function capability. Use one of the available capabilities: [FN_AGG_APPROXIMATE_COUNT_DISTINCT,",
             "FN_PRED_INVALID|E-VSCJDBC-48: Unsupported capability 'FN_PRED_INVALID' for predicate capability. Use one of the available capabilities: [FN_PRED_AND",
             "FN_INVALID|E-VSCJDBC-48: Unsupported capability 'FN_INVALID' for scalar function capability. Use one of the available capabilities: [FN_ABS",
-    })
-    void throwsExceptionForInvalidCapabilityNames(final String capability, final String expectedMessagePrefix) {
-        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> CapabilitiesParser.parseExcludedCapabilities(capability));
-
-        assertThat(exception.getMessage(), startsWith(expectedMessagePrefix));
-    }
-
-    @ParameterizedTest
-    @CsvSource(delimiterString = "|", value = {
+            // Lower case capability names should also be rejected
             "order_by_expression|E-VSCJDBC-48: Unsupported capability 'order_by_expression' for main capability. Use one of the available capabilities: [AGGREGATE_GROUP_BY_COLUMN",
             "literal_null|E-VSCJDBC-48: Unsupported capability 'literal_null' for main capability. Use one of the available capabilities: [AGGREGATE_GROUP_BY_COLUMN",
             "fn_agg_count|E-VSCJDBC-48: Unsupported capability 'fn_agg_count' for main capability. Use one of the available capabilities: [AGGREGATE_GROUP_BY_COLUMN",
             "fn_pred_and|E-VSCJDBC-48: Unsupported capability 'fn_pred_and' for main capability. Use one of the available capabilities: [AGGREGATE_GROUP_BY_COLUMN",
             "fn_add|E-VSCJDBC-48: Unsupported capability 'fn_add' for main capability. Use one of the available capabilities: [AGGREGATE_GROUP_BY_COLUMN",
     })
-    void throwsExceptionForLowerCaseCapabilityNames(final String capability, final String expectedMessagePrefix) {
+    void throwsExceptionForInvalidCapabilityNames(final String capability, final String expectedMessagePrefix) {
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> CapabilitiesParser.parseExcludedCapabilities(capability));
 
