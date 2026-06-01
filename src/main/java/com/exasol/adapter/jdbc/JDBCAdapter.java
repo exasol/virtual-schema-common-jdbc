@@ -8,7 +8,7 @@ import java.util.logging.Logger;
 
 import com.exasol.ExaMetadata;
 import com.exasol.adapter.*;
-import com.exasol.adapter.capabilities.*;
+import com.exasol.adapter.capabilities.Capabilities;
 import com.exasol.adapter.dialects.*;
 import com.exasol.adapter.metadata.SchemaMetadata;
 import com.exasol.adapter.metadata.SchemaMetadataInfo;
@@ -23,10 +23,6 @@ import com.exasol.errorreporting.ExaError;
  */
 public class JDBCAdapter implements VirtualSchemaAdapter {
     private static final Logger LOGGER = Logger.getLogger(JDBCAdapter.class.getName());
-    private static final String SCALAR_FUNCTION_PREFIX = "FN_";
-    private static final String PREDICATE_PREFIX = "FN_PRED_";
-    private static final String AGGREGATE_FUNCTION_PREFIX = "FN_AGG_";
-    private static final String LITERAL_PREFIX = "LITERAL_";
     private static final String TABLES_PROPERTY = "TABLE_FILTER";
     private final SqlDialectFactory sqlDialectFactory;
     private final AdapterContext adapterContext;
@@ -219,50 +215,26 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
         final SqlDialect dialect = createDialect(exaMetadata, properties);
         final Capabilities capabilities = dialect.getCapabilities();
         final Capabilities excludedCapabilities = getExcludedCapabilities(properties);
-        capabilities.subtractCapabilities(excludedCapabilities);
-        return GetCapabilitiesResponse //
-                .builder()//
-                .capabilities(capabilities)//
+        return GetCapabilitiesResponse
+                .builder()
+                .capabilities(capabilities.subtractCapabilities(excludedCapabilities))
                 .build();
     }
 
     private Capabilities getExcludedCapabilities(final AdapterProperties properties) {
         if (properties.containsKey(AdapterProperties.EXCLUDED_CAPABILITIES_PROPERTY)) {
             final String excludedCapabilitiesStr = properties.getExcludedCapabilities();
-            final Capabilities.Builder builder = parseExcludedCapabilities(excludedCapabilitiesStr);
-            return builder.build();
+            return parseExcludedCapabilities(excludedCapabilitiesStr);
         } else {
             LOGGER.config(() -> "Excluded Capabilities: none");
             return Capabilities.builder().build();
         }
     }
 
-    private Capabilities.Builder parseExcludedCapabilities(final String excludedCapabilitiesString) {
-        final Capabilities.Builder builder = Capabilities.builder();
+    private Capabilities parseExcludedCapabilities(final String excludedCapabilitiesString) {
         LOGGER.config(() -> "Excluded Capabilities: "
                 + (excludedCapabilitiesString.isEmpty() ? "none" : excludedCapabilitiesString));
-        for (String capability : excludedCapabilitiesString.split(",")) {
-            capability = capability.trim();
-            if (capability.isEmpty()) {
-                continue;
-            }
-            if (capability.startsWith(LITERAL_PREFIX)) {
-                final String literalCapabilities = capability.replaceFirst(LITERAL_PREFIX, "");
-                builder.addLiteral(LiteralCapability.valueOf(literalCapabilities));
-            } else if (capability.startsWith(AGGREGATE_FUNCTION_PREFIX)) {
-                final String aggregateFunctionCap = capability.replaceFirst(AGGREGATE_FUNCTION_PREFIX, "");
-                builder.addAggregateFunction(AggregateFunctionCapability.valueOf(aggregateFunctionCap));
-            } else if (capability.startsWith(PREDICATE_PREFIX)) {
-                final String predicateCapabilities = capability.replaceFirst(PREDICATE_PREFIX, "");
-                builder.addPredicate(PredicateCapability.valueOf(predicateCapabilities));
-            } else if (capability.startsWith(SCALAR_FUNCTION_PREFIX)) {
-                final String scalarFunctionCapabilities = capability.replaceFirst(SCALAR_FUNCTION_PREFIX, "");
-                builder.addScalarFunction(ScalarFunctionCapability.valueOf(scalarFunctionCapabilities));
-            } else {
-                builder.addMain(MainCapability.valueOf(capability));
-            }
-        }
-        return builder;
+        return CapabilitiesParser.parseExcludedCapabilities(excludedCapabilitiesString);
     }
 
     @Override

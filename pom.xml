@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>virtual-schema-common-jdbc</artifactId>
-    <version>14.0.2</version>
+    <version>14.0.3</version>
     <name>Virtual Schema Common JDBC</name>
     <description>Common module for JDBC-based data access from Virtual Schemas.</description>
     <url>https://github.com/exasol/virtual-schema-common-jdbc/</url>
@@ -39,7 +39,7 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-params</artifactId>
             <!-- Version 6 requires Java 17 -->
-            <version>5.14.3</version>
+            <version>5.14.4</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -53,6 +53,12 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
             <version>5.23.0</version>
+            <scope>test</scope>
+        </dependency>
+         <dependency>
+            <groupId>org.itsallcode</groupId>
+            <artifactId>hamcrest-auto-matcher</artifactId>
+            <version>0.8.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -98,7 +104,7 @@
             <plugin>
                 <groupId>com.exasol</groupId>
                 <artifactId>project-keeper-maven-plugin</artifactId>
-                <version>5.5.2</version>
+                <version>5.6.2</version>
                 <executions>
                     <execution>
                         <goals>
@@ -122,7 +128,7 @@
     <parent>
         <artifactId>virtual-schema-common-jdbc-generated-parent</artifactId>
         <groupId>com.exasol</groupId>
-        <version>14.0.2</version>
+        <version>14.0.3</version>
         <relativePath>pk_generated_parent.pom</relativePath>
     </parent>
 </project>
