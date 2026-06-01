@@ -12,6 +12,7 @@ Code name:
 
 ### Test Dependency Updates
 
+* Added `org.itsallcode:hamcrest-auto-matcher:0.8.3`
 * Updated `org.junit.jupiter:junit-jupiter-params:5.14.3` to `5.14.4`
 
 ### Plugin Dependency Updates

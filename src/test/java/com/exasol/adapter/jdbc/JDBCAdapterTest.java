@@ -9,6 +9,7 @@ import static org.mockito.Mockito.*;
 
 import java.util.*;
 
+import org.itsallcode.matcher.auto.AutoMatcher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -112,6 +113,15 @@ class JDBCAdapterTest {
         this.rawProperties.put(SCHEMA_NAME_PROPERTY, "SYSIBM");
         final GetCapabilitiesRequest request = new GetCapabilitiesRequest(createSchemaMetadataInfo());
         final GetCapabilitiesResponse response = this.adapter.getCapabilities(exaMetadataMock, request);
+
+        final Capabilities expectedCapabilities = Capabilities.builder()
+                .addMain(MainCapability.ORDER_BY_EXPRESSION)
+                .addLiteral(LiteralCapability.NULL)
+                .addAggregateFunction(AggregateFunctionCapability.COUNT_STAR)
+                .addPredicate(PredicateCapability.AND)
+                .addScalarFunction(ScalarFunctionCapability.ADD)
+                .build();
+
         assertAll(() -> assertThat(response.getCapabilities().getMainCapabilities(),
                 contains(MainCapability.ORDER_BY_EXPRESSION)),
                 () -> assertThat(response.getCapabilities().getLiteralCapabilities(),
@@ -121,7 +131,9 @@ class JDBCAdapterTest {
                 () -> assertThat(response.getCapabilities().getPredicateCapabilities(),
                         contains(PredicateCapability.AND)),
                 () -> assertThat(response.getCapabilities().getScalarFunctionCapabilities(),
-                        contains(ScalarFunctionCapability.ADD)));
+                        contains(ScalarFunctionCapability.ADD)),
+                () -> assertThat(response.getCapabilities(),
+                        AutoMatcher.equalTo(expectedCapabilities)));
     }
 
     @Test
@@ -132,10 +144,19 @@ class JDBCAdapterTest {
                 "ORDER_BY_EXPRESSION, LITERAL_NULL, FN_AGG_COUNT_STAR, FN_PRED_AND, FN_ADD");
         final GetCapabilitiesRequest request = new GetCapabilitiesRequest(createSchemaMetadataInfo());
         final GetCapabilitiesResponse response = this.adapter.getCapabilities(exaMetadataMock, request);
-        assertThat(response.getCapabilities().getMainCapabilities(),
-                not(contains(MainCapability.ORDER_BY_EXPRESSION, LiteralCapability.NULL,
-                        AggregateFunctionCapability.COUNT_STAR, PredicateCapability.AND,
-                        ScalarFunctionCapability.ADD)));
+
+        assertAll(() -> assertThat(response.getCapabilities().getMainCapabilities(),
+                not(contains(MainCapability.ORDER_BY_EXPRESSION))),
+                () -> assertThat(response.getCapabilities().getLiteralCapabilities(),
+                        not(contains(LiteralCapability.NULL))),
+                () -> assertThat(response.getCapabilities().getAggregateFunctionCapabilities(),
+                        not(contains(AggregateFunctionCapability.COUNT_STAR))),
+                () -> assertThat(response.getCapabilities().getPredicateCapabilities(),
+                        not(contains(PredicateCapability.AND))),
+                () -> assertThat(response.getCapabilities().getScalarFunctionCapabilities(),
+                        not(contains(ScalarFunctionCapability.ADD))),
+                () -> assertThat(response.getCapabilities(),
+                        AutoMatcher.equalTo(Capabilities.builder().build())));
     }
 
     @Test
