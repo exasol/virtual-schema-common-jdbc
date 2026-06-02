@@ -12,6 +12,7 @@ import jakarta.json.*;
  * Converts column adapter Notes into JSON format and back.
  */
 public final class ColumnAdapterNotesJsonConverter {
+    private static final String MITIGATION_REFRESH = "Please refresh the virtual schema.";
     /** Key for the jdbc type in the adapter notes */
     protected static final String JDBC_DATA_TYPE = "jdbcDataType";
     /** Key for the type namein the adapter notes */
@@ -61,19 +62,32 @@ public final class ColumnAdapterNotesJsonConverter {
         if ((adapterNotes == null) || adapterNotes.isEmpty()) {
             throw new AdapterException(ExaError.messageBuilder("E-VSCJDBC-3")
                     .message("Adapter notes for column \"{{columnName|uq}}\" are empty or NULL.", columnName)
-                    .mitigation("Please refresh the virtual schema.").toString());
+                    .mitigation(MITIGATION_REFRESH).toString());
         }
         final JsonObject root;
         try (final JsonReader jr = Json.createReader(new StringReader(adapterNotes))) {
             root = jr.readObject();
-        } catch (final RuntimeException exception) {
+        } catch (final JsonException exception) {
             throw new AdapterException(ExaError.messageBuilder("E-VSCJDBC-4")
-                    .message("Could not parse the column adapter notes of column \"{{columnName|uq}}\".", columnName)
-                    .mitigation("Please refresh the virtual schema.").toString(), exception);
+                    .message("Could not parse the column adapter notes of column {{columnName}}. Error: {{errorMessage}}", columnName, exception.getMessage())
+                    .mitigation(MITIGATION_REFRESH).toString());
         }
-        return ColumnAdapterNotes.builder() //
-                .jdbcDataType(root.getInt(JDBC_DATA_TYPE)) //
-                .typeName(root.getString(TYPE_NAME)) //
-                .build();
+        if (!root.containsKey(JDBC_DATA_TYPE) || root.get(JDBC_DATA_TYPE).getValueType() != JsonValue.ValueType.NUMBER) {
+            throw new AdapterException(ExaError.messageBuilder("E-VSCJDBC-48")
+                    .message("The column adapter notes of column {{columnName}} are missing mandatory field 'jdbcDataType' or it is not a number.", columnName)
+                    .mitigation(MITIGATION_REFRESH).toString());
+        }
+        final int jdbcDataType = root.getInt(JDBC_DATA_TYPE);
+        final ColumnAdapterNotes.Builder builder = ColumnAdapterNotes.builder()
+                .jdbcDataType(jdbcDataType);
+        if (root.containsKey(TYPE_NAME) && !root.isNull(TYPE_NAME)) {
+            if (root.get(TYPE_NAME).getValueType() != JsonValue.ValueType.STRING) {
+                throw new AdapterException(ExaError.messageBuilder("E-VSCJDBC-50")
+                        .message("Optional field 'typeName' in column adapter notes of column {{columnName}} must be a string.", columnName)
+                        .mitigation(MITIGATION_REFRESH).toString());
+            }
+            builder.typeName(root.getString(TYPE_NAME));
+        }
+        return builder.build();
     }
 }
