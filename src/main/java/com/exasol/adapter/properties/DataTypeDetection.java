@@ -4,7 +4,6 @@ import java.util.EnumSet;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
-import com.exasol.adapter.AdapterProperties;
 import com.exasol.errorreporting.ExaError;
 
 /**
@@ -41,10 +40,9 @@ public class DataTypeDetection {
     }
 
     /**
-     * @param properties Adapter Properties passed to {@code CREATE VIRTUAL SCHEMA}
-     * @return new instance of {@link DataTypeDetection} based on the properties
+     * @return new instance of {@link DataTypeDetection}
      */
-    public static DataTypeDetection from(final AdapterProperties properties) {
+    public static DataTypeDetection from() {
         return new DataTypeDetection(DEFAULT_STRATEGY);
     }
 

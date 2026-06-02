@@ -52,7 +52,7 @@ public abstract class AbstractQueryRewriter implements QueryRewriter {
                 final String connectionDefinition = this.connectionDefinitionBuilder
                                 .buildConnectionDefinition(properties, exaConnectionInformation);
 
-                if (DataTypeDetection.from(properties).getStrategy() == Strategy.EXASOL_CALCULATED) {
+                if (DataTypeDetection.from().getStrategy() == Strategy.EXASOL_CALCULATED) {
                         String importStatement;
                         if (!selectListDataTypes.isEmpty()) {
                                 importStatement = generateImportStatement(connectionDefinition, selectListDataTypes,

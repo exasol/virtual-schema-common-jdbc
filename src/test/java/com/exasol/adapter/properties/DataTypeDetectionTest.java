@@ -17,14 +17,14 @@ class DataTypeDetectionTest {
     void testFromProperties() {
         final DataTypeDetection.Strategy strategy = Strategy.EXASOL_CALCULATED;
         final AdapterProperties properties = adapterProperties(strategy.name());
-        final DataTypeDetection testee = DataTypeDetection.from(properties);
+        final DataTypeDetection testee = DataTypeDetection.from();
         assertThat(testee.getStrategy(), equalTo(strategy));
         verifySuccess(properties);
     }
 
     @Test
     void testFromPropertiesFromResultSet() {
-        final DataTypeDetection testee = DataTypeDetection.from(adapterProperties("FROM_RESULT_SET"));
+        final DataTypeDetection testee = DataTypeDetection.from();
         assertThat(testee.getStrategy(), equalTo(DataTypeDetection.DEFAULT_STRATEGY));
     }
 
@@ -40,7 +40,7 @@ class DataTypeDetectionTest {
     @Test
     void testUnsetProperty() {
         final AdapterProperties properties = new AdapterProperties(Map.of());
-        final DataTypeDetection testee = DataTypeDetection.from(properties);
+        final DataTypeDetection testee = DataTypeDetection.from();
         assertThat(testee.getStrategy(), equalTo(DataTypeDetection.DEFAULT_STRATEGY));
         verifySuccess(properties);
     }
