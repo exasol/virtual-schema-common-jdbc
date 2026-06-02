@@ -4,9 +4,11 @@ Code name:
 
 ## Summary
 
-## Features
+Fix cleanup and lazy initialization of cached JDBC connections in `JDBCAdapter`.
 
-* ISSUE_NUMBER: description
+## Bugfixes
+
+* #174: Fix JDBCAdapter connection cleanup and lazy connection factory race
 
 ## Dependency Updates
 
