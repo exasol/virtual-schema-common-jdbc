@@ -39,7 +39,7 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-params</artifactId>
             <!-- Version 6 requires Java 17 -->
-            <version>5.14.3</version>
+            <version>5.14.4</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -53,6 +53,12 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
             <version>5.23.0</version>
+            <scope>test</scope>
+        </dependency>
+         <dependency>
+            <groupId>org.itsallcode</groupId>
+            <artifactId>hamcrest-auto-matcher</artifactId>
+            <version>0.8.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>
