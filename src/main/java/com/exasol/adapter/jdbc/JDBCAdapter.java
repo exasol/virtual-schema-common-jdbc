@@ -282,4 +282,9 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
             this.connectionFactory.clean();
         }
     }
+
+    @Override
+    public void close() {
+        // TODO Auto-generated method stub
+    }
 }
