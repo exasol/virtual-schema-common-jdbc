@@ -8,6 +8,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import java.util.*;
+import java.util.concurrent.*;
 
 import org.itsallcode.matcher.auto.AutoMatcher;
 import org.junit.jupiter.api.BeforeEach;
@@ -269,21 +270,82 @@ class JDBCAdapterTest {
     }
 
     @Test
-    void testCleanCalledOnExitFromPushdown() throws ExaConnectionAccessException, AdapterException {
+    void testCleanupDoesNotMaskExceptionBeforeConnectionFactoryCreation() {
         setDerbyConnectionNameProperty();
         this.rawProperties.put(SCHEMA_NAME_PROPERTY, "SYSIBM");
         final PushDownRequest request = new PushDownRequest(createSchemaMetadataInfo(),
-                TestSqlStatementFactory.createSelectOneFromSysDummy(), null,
-                EMPTY_SELECT_LIST_DATA_TYPES);
-        when(exaMetadataMock.getConnection("DERBY_CONNECTION")).thenReturn(EXA_CONNECTION_INFORMATION);
-        when(exaMetadataMock.getDatabaseVersion()).thenReturn("8.34.0");
+                TestSqlStatementFactory.createSelectOneFromSysDummy(), null, EMPTY_SELECT_LIST_DATA_TYPES);
+        final JDBCAdapter jdbcAdapter = new JDBCAdapter(mock(SqlDialectFactory.class),
+                new AdapterContext(mock(TelemetryClient.class))) {
+            @Override
+            protected synchronized RemoteConnectionFactory getOrCreateConnectionFactory(final ExaMetadata metadata,
+                    final AdapterProperties properties) {
+                throw new RuntimeException("boom");
+            }
+        };
 
+        final RuntimeException exception = assertThrows(RuntimeException.class,
+                () -> jdbcAdapter.pushdown(exaMetadataMock, request));
+
+        assertThat(exception.getMessage(), equalTo("boom"));
+    }
+
+    @Test
+    void testGetOrCreateConnectionFactoryIsThreadSafe() throws Exception {
+        final JDBCAdapter jdbcAdapter = new JDBCAdapter(mock(SqlDialectFactory.class),
+                new AdapterContext(mock(TelemetryClient.class)));
+        final AdapterProperties properties = new AdapterProperties(Map.of(CONNECTION_NAME_PROPERTY,
+                "DERBY_CONNECTION"));
+        final int threadCount = 8;
+        final ExecutorService executor = Executors.newFixedThreadPool(threadCount);
+        final CountDownLatch startGate = new CountDownLatch(1);
+        try {
+            final List<Future<RemoteConnectionFactory>> futures = new ArrayList<>();
+            for (int i = 0; i < threadCount; ++i) {
+                futures.add(executor.submit(() -> {
+                    startGate.await();
+                    return jdbcAdapter.getOrCreateConnectionFactory(exaMetadataMock, properties);
+                }));
+            }
+            startGate.countDown();
+
+            final List<RemoteConnectionFactory> factories = new ArrayList<>(threadCount);
+            for (final Future<RemoteConnectionFactory> future : futures) {
+                factories.add(future.get(5, TimeUnit.SECONDS));
+            }
+
+            assertAll(
+                    () -> assertThat(factories, hasSize(threadCount)),
+                    () -> assertThat(factories, everyItem(sameInstance(factories.get(0)))),
+                    () -> assertThat(jdbcAdapter.connectionFactory, sameInstance(factories.get(0))));
+        } finally {
+            executor.shutdownNow();
+        }
+    }
+
+    @Test
+    void testCloseWithoutConnectionFactory() {
+        final JDBCAdapter jdbcAdapter = new JDBCAdapter(mock(SqlDialectFactory.class),
+                new AdapterContext(mock(TelemetryClient.class)));
+
+        jdbcAdapter.close();
+
+        assertThat(jdbcAdapter.connectionFactory, nullValue());
+    }
+
+    @Test
+    void testCloseWithConnectionFactory() {
+        final JDBCAdapter jdbcAdapter = new JDBCAdapter(mock(SqlDialectFactory.class),
+                new AdapterContext(mock(TelemetryClient.class)));
         final RemoteConnectionFactory realFactory = new RemoteConnectionFactory(exaMetadataMock,
-                JDBCAdapter.getPropertiesFromRequest(request));
+                new AdapterProperties(Map.of(CONNECTION_NAME_PROPERTY, "DERBY_CONNECTION")));
         final RemoteConnectionFactory spiedFactory = spy(realFactory);
+        jdbcAdapter.connectionFactory = spiedFactory;
 
-        ((JDBCAdapter) this.adapter).connectionFactory = spiedFactory;
-        this.adapter.pushdown(exaMetadataMock, request);
-        verify(spiedFactory).clean();
+        jdbcAdapter.close();
+
+        assertAll(
+                () -> assertThat(jdbcAdapter.connectionFactory, sameInstance(spiedFactory)),
+                () -> verify(spiedFactory).clean());
     }
 }

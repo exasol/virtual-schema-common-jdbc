@@ -30,7 +30,7 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
     /**
      * Connection factory used to get and cache jdbc connection.
      */
-    protected RemoteConnectionFactory connectionFactory = null;
+    protected volatile RemoteConnectionFactory connectionFactory = null;
 
     /**
      * Construct a new instance of {@link JDBCAdapter}
@@ -53,7 +53,6 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
             final SchemaMetadata remoteMeta = getRemoteMetadata(dialect, properties.getFilteredTables());
             return CreateVirtualSchemaResponse.builder().schemaMetadata(remoteMeta).build();
         } catch (final SQLException exception) {
-            this.connectionFactory.clean();
             throw new AdapterException(ExaError.messageBuilder("E-VSCJDBC-25")
                     .message("Unable create Virtual Schema \"{{virtualSchemaName|uq}}\". Cause: {{cause|uq}}",
                             request.getVirtualSchemaName(), exception.getMessage())
@@ -109,8 +108,6 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
             throw new AdapterException(ExaError.messageBuilder("E-VSCJDBC-26").message(
                     "Unable refresh metadata of Virtual Schema \"{{virtualSchemaName|uq}}\". Cause: {{cause|uq}}",
                     request.getSchemaMetadataInfo().getSchemaName(), exception.getMessage()).toString(), exception);
-        } finally {
-            this.connectionFactory.clean();
         }
     }
 
@@ -154,7 +151,7 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
      * @param properties adapter properties
      * @return connection factory
      */
-    protected RemoteConnectionFactory getOrCreateConnectionFactory(final ExaMetadata metadata,
+    protected synchronized RemoteConnectionFactory getOrCreateConnectionFactory(final ExaMetadata metadata,
             final AdapterProperties properties) {
         // Open question: can metadata and properties be changed during connection lifetime?
         // If yes, our connection factory is implemented wrongly.
@@ -250,13 +247,13 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
             throw new AdapterException(ExaError.messageBuilder("E-VSCJDBC-27")
                     .message("Unable to execute push-down request. Cause: {{cause|uq}}", exception.getMessage())
                     .toString(), exception);
-        } finally {
-            this.connectionFactory.clean();
         }
     }
 
     @Override
     public void close() {
-        // TODO Auto-generated method stub
+        if (this.connectionFactory != null) {
+            this.connectionFactory.clean();
+        }
     }
 }
