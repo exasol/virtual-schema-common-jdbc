@@ -6,6 +6,7 @@ Code name:
 
 ## Bugfixes
 
+* #163: Fixed `JDBCAdapter.pushdown()` clearing the connection cache after successful requests.
 * #173: Fixed deserialization of column adapter notes when `typeName` is absent.
 
 ## Dependency Updates
