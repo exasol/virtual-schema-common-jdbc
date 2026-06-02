@@ -45,7 +45,7 @@ public class DataTypeDetection {
      * @return new instance of {@link DataTypeDetection} based on the properties
      */
     public static DataTypeDetection from(final AdapterProperties properties) {
-        return new DataTypeDetection(getStrategy(properties));
+        return new DataTypeDetection(DEFAULT_STRATEGY);
     }
 
     /**
@@ -55,18 +55,6 @@ public class DataTypeDetection {
      */
     public static <T> T strategies(final Collector<CharSequence, ?, T> collector) {
         return EnumSet.allOf(Strategy.class).stream().map(Enum::toString).collect(collector);
-    }
-
-    private static Strategy getStrategy(final AdapterProperties properties) {
-        if (properties.containsKey(STRATEGY_PROPERTY)) {
-            if (Strategy.FROM_RESULT_SET.name().equals(properties.get(STRATEGY_PROPERTY))) {
-                return Strategy.FROM_RESULT_SET;
-            } else {
-                return DEFAULT_STRATEGY;
-            }
-        } else {
-            return DEFAULT_STRATEGY;
-        }
     }
 
     /**

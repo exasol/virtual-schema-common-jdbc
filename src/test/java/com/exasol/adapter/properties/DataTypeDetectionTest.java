@@ -2,6 +2,7 @@ package com.exasol.adapter.properties;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -24,12 +25,18 @@ class DataTypeDetectionTest {
     }
 
     @Test
-    void testFromPropertiesFromResultSet() throws PropertyValidationException {
+    void testFromPropertiesFromResultSet() {
+        final DataTypeDetection testee = DataTypeDetection.from(adapterProperties("FROM_RESULT_SET"));
+        assertThat(testee.getStrategy(), equalTo(DataTypeDetection.DEFAULT_STRATEGY));
+    }
+
+    @Test
+    void testValidateFromResultSetRejected() throws PropertyValidationException {
         final PropertyValidator validator = DataTypeDetection.getValidator();
         final Exception exception = assertThrows(PropertyValidationException.class,
                 () -> validator.validate(adapterProperties("FROM_RESULT_SET")));
-        assertThat(exception.getMessage(), equalTo(
-                "E-VSCJDBC-47: Property `IMPORT_DATA_TYPES` value 'FROM_RESULT_SET' is no longer supported. Please remove the `IMPORT_DATA_TYPES` property from the virtual schema so the default value 'EXASOL_CALCULATED' is used."));
+        assertAll(() -> assertThat(exception.getMessage(), equalTo(
+                "E-VSCJDBC-47: Property `IMPORT_DATA_TYPES` value 'FROM_RESULT_SET' is no longer supported. Please remove the `IMPORT_DATA_TYPES` property from the virtual schema so the default value 'EXASOL_CALCULATED' is used.")));
     }
 
     @Test

@@ -8,6 +8,7 @@ Code name:
 
 * #163: Fixed `JDBCAdapter.pushdown()` clearing the connection cache after successful requests.
 * #173: Fixed deserialization of column adapter notes when `typeName` is absent.
+* #175: Fixed `IMPORT_DATA_TYPES` strategy resolution for deprecated `FROM_RESULT_SET` values.
 
 ## Dependency Updates
 

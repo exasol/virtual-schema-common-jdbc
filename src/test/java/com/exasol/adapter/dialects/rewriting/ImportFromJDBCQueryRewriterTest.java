@@ -56,7 +56,7 @@ class ImportFromJDBCQueryRewriterTest extends AbstractQueryRewriterTestBase {
         }
 
         @Test
-        void rewriteWithFromResultSetDatatypeDetection() throws SQLException {
+        void rewriteWithFromResultSetDatatypeDetection() throws SQLException, AdapterException {
                 final SqlDialect dialect = new DummySqlDialect(null, AdapterProperties.emptyProperties(), null);
                 final ExaMetadata exaMetadataMock = Mockito.mock(ExaMetadata.class);
                 when(exaMetadataMock.getDatabaseVersion()).thenReturn("8.34.0");
@@ -64,12 +64,10 @@ class ImportFromJDBCQueryRewriterTest extends AbstractQueryRewriterTestBase {
                                 AdapterProperties.emptyProperties(), exaMetadataMock);
                 final QueryRewriter queryRewriter = new ImportFromJDBCQueryRewriter(dialect, metadataReader,
                                 new DummyConnectionDefinitionBuilder());
-                final Exception exception = assertThrows(AdapterException.class, () -> queryRewriter.rewrite(
+                assertThat(queryRewriter.rewrite(
                                 TestSqlStatementFactory.createSelectOneFromDual(), EMPTY_SELECT_LIST_DATA_TYPES,
                                 EXA_METADATA,
-                                new AdapterProperties(Map.of(DataTypeDetection.STRATEGY_PROPERTY, "FROM_RESULT_SET"))));
-
-                assertThat(exception.getMessage(), equalTo(
-                                "E-VSCJDBC-46: Property `IMPORT_DATA_TYPES` value 'FROM_RESULT_SET' is no longer supported. Please remove the `IMPORT_DATA_TYPES` property from the virtual schema so the default value 'EXASOL_CALCULATED' is used."));
+                                new AdapterProperties(Map.of(DataTypeDetection.STRATEGY_PROPERTY, "FROM_RESULT_SET"))),
+                                equalTo("IMPORT FROM JDBC MY DUMMY DEFINITION BUILDER STATEMENT 'SELECT 1 FROM \"DUAL\"'"));
         }
 }
