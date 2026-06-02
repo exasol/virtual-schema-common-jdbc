@@ -2,15 +2,15 @@ package com.exasol.adapter.dialects.rewriting;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 import java.sql.SQLException;
 import java.util.*;
 
-import com.exasol.ExaMetadata;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
+import com.exasol.ExaMetadata;
 import com.exasol.adapter.AdapterException;
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.dialects.QueryRewriter;
@@ -21,7 +21,6 @@ import com.exasol.adapter.jdbc.BaseRemoteMetadataReader;
 import com.exasol.adapter.metadata.DataType;
 import com.exasol.adapter.properties.DataTypeDetection;
 import com.exasol.adapter.sql.TestSqlStatementFactory;
-import org.mockito.Mockito;
 
 class ImportFromJDBCQueryRewriterTest extends AbstractQueryRewriterTestBase {
         private static final List<DataType> EMPTY_SELECT_LIST_DATA_TYPES = Collections.emptyList();

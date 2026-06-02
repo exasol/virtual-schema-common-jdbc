@@ -2,9 +2,7 @@ package com.exasol.adapter.properties;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Map;
 
@@ -31,7 +29,7 @@ class DataTypeDetectionTest {
     }
 
     @Test
-    void testValidateFromResultSetRejected() throws PropertyValidationException {
+    void testValidateFromResultSetRejected() {
         final PropertyValidator validator = DataTypeDetection.getValidator();
         final Exception exception = assertThrows(PropertyValidationException.class,
                 () -> validator.validate(adapterProperties("FROM_RESULT_SET")));
