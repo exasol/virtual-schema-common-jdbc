@@ -12,6 +12,10 @@ This release improves the error message in case of invalid capability names. The
 
 ## Dependency Updates
 
+### Compile Dependency Updates
+
+* Updated `com.exasol:virtual-schema-common-java:18.0.1` to `18.0.2`
+
 ### Test Dependency Updates
 
 * Added `org.itsallcode:hamcrest-auto-matcher:0.8.3`

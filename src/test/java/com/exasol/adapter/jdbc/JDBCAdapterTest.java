@@ -241,8 +241,8 @@ class JDBCAdapterTest {
     @ValueSource(strings = { "hello", "0", "-1", "", "1,700" })
     void testValidateMaxTablesAtCreate(final String paramValue) {
         setDerbyConnectionNameProperty();
+        this.rawProperties.put(TableCountLimit.MAXTABLES_PROPERTY, paramValue);
         final SchemaMetadataInfo schemaMetadataInfo = createSchemaMetadataInfo();
-        schemaMetadataInfo.getProperties().put(TableCountLimit.MAXTABLES_PROPERTY, paramValue);
         final CreateVirtualSchemaRequest request = new CreateVirtualSchemaRequest(schemaMetadataInfo);
         final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
                 () -> this.adapter.createVirtualSchema(null, request));

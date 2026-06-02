@@ -217,7 +217,7 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
         final Capabilities excludedCapabilities = getExcludedCapabilities(properties);
         return GetCapabilitiesResponse
                 .builder()
-                .capabilities(capabilities.subtractCapabilities(excludedCapabilities))
+                .capabilities(capabilities.subtract(excludedCapabilities))
                 .build();
     }
 
