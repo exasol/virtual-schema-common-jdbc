@@ -4,9 +4,9 @@ Code name:
 
 ## Summary
 
-## Features
+## Bugfixes
 
-* ISSUE_NUMBER: description
+* #173: Fixed deserialization of column adapter notes when `typeName` is absent.
 
 ## Dependency Updates
 
