@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -105,7 +106,10 @@ class JDBCAdapterTest {
         final RemoteMetadataReaderException exception = assertThrows(RemoteMetadataReaderException.class,
                 () -> pushStatementDown(TestSqlStatementFactory.createSelectOneFromDual(),
                         EMPTY_SELECT_LIST_DATA_TYPES));
-        assertThat(exception.getMessage(), containsString("E-VSCJDBC-30"));
+        assertAll(() -> assertThat(exception.getMessage(), equalTo("E-VSCJDBC-30: Unable to read remote metadata"
+                + " for push-down query trying to generate result column description. Please, make sure that you"
+                + " provided valid CATALOG_NAME and SCHEMA_NAME properties if required. Caused by: 'Table/View"
+                + " 'SYSIBM.DUAL' does not exist.'")));
     }
 
     @Test
@@ -347,5 +351,55 @@ class JDBCAdapterTest {
         assertAll(
                 () -> assertThat(jdbcAdapter.connectionFactory, sameInstance(spiedFactory)),
                 () -> verify(spiedFactory).clean());
+    }
+
+    @Test
+    void pushdownKeepsConnectionCacheAfterSuccessfulRequest() throws AdapterException, SQLException {
+        setDerbyConnectionNameProperty();
+        this.rawProperties.put(SCHEMA_NAME_PROPERTY, "SYSIBM");
+        final PushDownRequest request = new PushDownRequest(createSchemaMetadataInfo(),
+                TestSqlStatementFactory.createSelectOneFromSysDummy(), null,
+                EMPTY_SELECT_LIST_DATA_TYPES);
+        final ExaMetadata exaMetadata = mock(ExaMetadata.class);
+        final SqlDialect dialect = mock(SqlDialect.class);
+        when(dialect.rewriteQuery(request.getSelect(), EMPTY_SELECT_LIST_DATA_TYPES, exaMetadata))
+                .thenReturn("IMPORT FROM JDBC");
+        final JDBCAdapter jdbcAdapter = createAdapterWithDialect(dialect);
+        final RemoteConnectionFactory connectionFactory = mock(RemoteConnectionFactory.class);
+        jdbcAdapter.connectionFactory = connectionFactory;
+
+        final PushDownResponse response = jdbcAdapter.pushdown(exaMetadata, request);
+
+        assertAll(() -> assertThat(response.getPushDownSql(), equalTo("IMPORT FROM JDBC")),
+                () -> verify(connectionFactory, never()).clean());
+    }
+
+    @Test
+    void pushdownCleansConnectionCacheOnError() throws AdapterException, SQLException {
+        setDerbyConnectionNameProperty();
+        this.rawProperties.put(SCHEMA_NAME_PROPERTY, "SYSIBM");
+        final PushDownRequest request = new PushDownRequest(createSchemaMetadataInfo(),
+                TestSqlStatementFactory.createSelectOneFromSysDummy(), null,
+                EMPTY_SELECT_LIST_DATA_TYPES);
+        final ExaMetadata exaMetadata = mock(ExaMetadata.class);
+        final SqlDialect dialect = mock(SqlDialect.class);
+        when(dialect.rewriteQuery(request.getSelect(), EMPTY_SELECT_LIST_DATA_TYPES, exaMetadata))
+                .thenThrow(new SQLException("simulated database failure"));
+        final JDBCAdapter jdbcAdapter = createAdapterWithDialect(dialect);
+        final RemoteConnectionFactory connectionFactory = mock(RemoteConnectionFactory.class);
+        jdbcAdapter.connectionFactory = connectionFactory;
+
+        final AdapterException exception = assertThrows(AdapterException.class,
+                () -> jdbcAdapter.pushdown(exaMetadata, request));
+
+        assertAll(() -> assertThat(exception.getMessage(), equalTo(
+                "E-VSCJDBC-27: Unable to execute push-down request. Cause: simulated database failure")),
+                () -> verify(connectionFactory).clean());
+    }
+
+    private JDBCAdapter createAdapterWithDialect(final SqlDialect dialect) {
+        final SqlDialectFactory factory = mock(SqlDialectFactory.class);
+        when(factory.createSqlDialect(any())).thenReturn(dialect);
+        return new JDBCAdapter(factory, new AdapterContext(mock(TelemetryClient.class)));
     }
 }

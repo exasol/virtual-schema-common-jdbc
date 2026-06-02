@@ -144,6 +144,8 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
                 || AdapterProperties.isRefreshingVirtualSchemaRequired(properties);
     }
 
+    <<<<<<<HEAD
+
     /**
      * Create or get existing {@link RemoteConnectionFactory} instance.
      *
@@ -161,6 +163,8 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
         return this.connectionFactory;
     }
 
+    =======>>>>>>>origin/main
+
     private SqlDialect createDialectAndValidateProperties(final ExaMetadata metadata,
             final AdapterProperties properties) throws PropertyValidationException {
         final SqlDialect dialect = createDialect(metadata, properties);
@@ -169,7 +173,10 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
     }
 
     private SqlDialect createDialect(final ExaMetadata metadata, final AdapterProperties properties) {
-        final ConnectionFactory factory = this.getOrCreateConnectionFactory(metadata, properties);
+        if (this.connectionFactory == null) {
+            this.connectionFactory = new RemoteConnectionFactory(metadata, properties);
+        }
+        final ConnectionFactory factory = this.connectionFactory;
         return this.sqlDialectFactory.createSqlDialect(JDBCAdapterContext.builder()
                 .connectionFactory(factory)
                 .properties(properties)
@@ -244,6 +251,7 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
                     request.getSelectListDataTypes(), exaMetadata);
             return PushDownResponse.builder().pushDownSql(importFromPushdownQuery).build();
         } catch (final SQLException exception) {
+            this.connectionFactory.clean();
             throw new AdapterException(ExaError.messageBuilder("E-VSCJDBC-27")
                     .message("Unable to execute push-down request. Cause: {{cause|uq}}", exception.getMessage())
                     .toString(), exception);
