@@ -9,6 +9,7 @@ This release improves the error message in case of invalid capability names. The
 ## Bugfixes
 
 * #182: Fixed dependency on mutating `subtractCapabilities()` method
+* #163: Fixed `JDBCAdapter.pushdown()` clearing the connection cache after successful requests.
 * #173: Fixed deserialization of column adapter notes when `typeName` is absent.
 
 ## Dependency Updates
