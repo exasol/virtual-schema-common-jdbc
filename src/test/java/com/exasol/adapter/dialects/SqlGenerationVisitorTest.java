@@ -12,12 +12,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.math.BigDecimal;
 import java.util.*;
 
-import com.exasol.ExaMetadata;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
+import com.exasol.ExaMetadata;
 import com.exasol.adapter.AdapterException;
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.dialects.dummy.DummySqlDialect;
@@ -85,8 +85,7 @@ class SqlGenerationVisitorTest {
         final SqlColumn argument = new SqlColumn(1,
                 ColumnMetadata.builder().name("a").type(DataType.createBool()).build());
         final SqlFunctionAggregateListagg.Behavior overflowBehavior = new SqlFunctionAggregateListagg.Behavior(
-                SqlFunctionAggregateListagg.BehaviorType.TRUNCATE);
-        overflowBehavior.setTruncationType(WITH_COUNT);
+                SqlFunctionAggregateListagg.BehaviorType.TRUNCATE, WITH_COUNT, null);
         final SqlFunctionAggregateListagg listagg = SqlFunctionAggregateListagg.builder(argument, overflowBehavior)
                 .build();
         assertThat(sqlGenerationVisitor.visit(listagg), equalTo("LISTAGG(\"a\" ON OVERFLOW TRUNCATE WITH COUNT)"));
@@ -97,9 +96,7 @@ class SqlGenerationVisitorTest {
         final SqlColumn argument = new SqlColumn(1,
                 ColumnMetadata.builder().name("a").type(DataType.createBool()).build());
         final SqlFunctionAggregateListagg.Behavior overflowBehavior = new SqlFunctionAggregateListagg.Behavior(
-                SqlFunctionAggregateListagg.BehaviorType.TRUNCATE);
-        overflowBehavior.setTruncationType(WITHOUT_COUNT);
-        overflowBehavior.setTruncationFiller(new SqlLiteralString("filler"));
+                SqlFunctionAggregateListagg.BehaviorType.TRUNCATE, WITHOUT_COUNT, new SqlLiteralString("filler"));
         final SqlFunctionAggregateListagg listagg = SqlFunctionAggregateListagg.builder(argument, overflowBehavior)
                 .build();
         assertThat(sqlGenerationVisitor.visit(listagg),
@@ -126,9 +123,7 @@ class SqlGenerationVisitorTest {
         final SqlColumn argument = new SqlColumn(1,
                 ColumnMetadata.builder().name("a").type(DataType.createBool()).build());
         final SqlFunctionAggregateListagg.Behavior overflowBehavior = new SqlFunctionAggregateListagg.Behavior(
-                SqlFunctionAggregateListagg.BehaviorType.TRUNCATE);
-        overflowBehavior.setTruncationType(WITH_COUNT);
-        overflowBehavior.setTruncationFiller(new SqlLiteralString("filler"));
+                SqlFunctionAggregateListagg.BehaviorType.TRUNCATE, WITH_COUNT, new SqlLiteralString("filler"));
         final List<SqlNode> expressions = new ArrayList<>();
         expressions.add(new SqlColumn(1, ColumnMetadata.builder().name("b").type(DataType.createBool()).build()));
         final SqlOrderBy orderBy = new SqlOrderBy(expressions, List.of(false), List.of(true));
@@ -317,9 +312,7 @@ class SqlGenerationVisitorTest {
         final SqlColumn argument = new SqlColumn(1,
                 ColumnMetadata.builder().name("a \"'").type(DataType.createBool()).build());
         final SqlFunctionAggregateListagg.Behavior overflowBehavior = new SqlFunctionAggregateListagg.Behavior(
-                SqlFunctionAggregateListagg.BehaviorType.TRUNCATE);
-        overflowBehavior.setTruncationType(WITH_COUNT);
-        overflowBehavior.setTruncationFiller(new SqlLiteralString("\" filler '"));
+                SqlFunctionAggregateListagg.BehaviorType.TRUNCATE, WITH_COUNT, new SqlLiteralString("\" filler '"));
         final List<SqlNode> expressions = new ArrayList<>();
         expressions.add(new SqlColumn(1, ColumnMetadata.builder().name("b \"'").type(DataType.createBool()).build()));
         final SqlOrderBy orderBy = new SqlOrderBy(expressions, List.of(false), List.of(true));
@@ -412,10 +405,10 @@ class SqlGenerationVisitorTest {
     void testVisitSqlTableCatalogAndSchemaQualifiedQuoting() {
         final SqlDialect sqlDialect = new TestDialect(null, adapterProperties, null);
         final SqlGenerationContext context = new SqlGenerationContext("catalog \" '", "schema \" '", false);
-        final SqlGenerationVisitor sqlGenerationVisitor = new SqlGenerationVisitor(sqlDialect, context);
+        final SqlGenerationVisitor sqlVisitor = new SqlGenerationVisitor(sqlDialect, context);
         final SqlTable sqlTable = new SqlTable("t \" '", "alias \" '",
                 new TableMetadata("t", "", Collections.emptyList(), ""));
-        assertThat(sqlGenerationVisitor.visit(sqlTable),
+        assertThat(sqlVisitor.visit(sqlTable),
                 equalTo("\"catalog \"\" '\".\"schema \"\" '\".\"t \"\" '\" \"alias \"\" '\""));
     }
 
@@ -664,7 +657,7 @@ class SqlGenerationVisitorTest {
 
     private static class TestDialect extends DummySqlDialect {
         public TestDialect(final ConnectionFactory connectionFactory, final AdapterProperties properties,
-                    final ExaMetadata exaMetadata) {
+                final ExaMetadata exaMetadata) {
             super(connectionFactory, properties, exaMetadata);
         }
 

@@ -1,8 +1,8 @@
 package com.exasol.adapter.dialects.rewriting;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.sql.*;
 
@@ -26,12 +26,12 @@ public abstract class AbstractQueryRewriterTestBase {
 
     protected Connection mockConnection() throws SQLException {
         final ResultSetMetaData metadataMock = mock(ResultSetMetaData.class);
-        when(metadataMock.getColumnCount()).thenReturn(1);
-        when(metadataMock.getColumnType(1)).thenReturn(Types.INTEGER);
+        lenient().when(metadataMock.getColumnCount()).thenReturn(1);
+        lenient().when(metadataMock.getColumnType(1)).thenReturn(Types.INTEGER);
         final PreparedStatement statementMock = mock(PreparedStatement.class);
-        when(statementMock.getMetaData()).thenReturn(metadataMock);
+        lenient().when(statementMock.getMetaData()).thenReturn(metadataMock);
         final Connection connectionMock = mock(Connection.class);
-        when(connectionMock.prepareStatement(any())).thenReturn(statementMock);
+        lenient().when(connectionMock.prepareStatement(any())).thenReturn(statementMock);
         return connectionMock;
     }
 }

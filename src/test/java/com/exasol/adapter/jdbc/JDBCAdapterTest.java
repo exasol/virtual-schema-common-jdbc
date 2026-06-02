@@ -10,10 +10,14 @@ import static org.mockito.Mockito.*;
 import java.sql.SQLException;
 import java.util.*;
 
+import org.itsallcode.matcher.auto.AutoMatcher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.exasol.*;
 import com.exasol.adapter.*;
@@ -29,6 +33,7 @@ import com.exasol.adapter.sql.SqlStatement;
 import com.exasol.adapter.sql.TestSqlStatementFactory;
 import com.exasol.telemetry.TelemetryClient;
 
+@ExtendWith(MockitoExtension.class)
 class JDBCAdapterTest {
 
     private static final List<DataType> EMPTY_SELECT_LIST_DATA_TYPES = Collections.emptyList();
@@ -42,6 +47,9 @@ class JDBCAdapterTest {
 
     private final VirtualSchemaAdapter adapter = new JDBCAdapterFactory().createAdapter(new AdapterContext(mock(TelemetryClient.class)));
     private Map<String, String> rawProperties;
+
+    @Mock
+    ExaMetadata exaMetadataMock;
 
     @BeforeEach
     void beforeEach() {
@@ -79,7 +87,6 @@ class JDBCAdapterTest {
         final List<TableMetadata> involvedTablesMetadata = null;
         final PushDownRequest request = new PushDownRequest(createSchemaMetadataInfo(), statement,
                 involvedTablesMetadata, selectListDataTypes);
-        final ExaMetadata exaMetadataMock = mock(ExaMetadata.class);
         when(exaMetadataMock.getConnection("DERBY_CONNECTION")).thenReturn(EXA_CONNECTION_INFORMATION);
         when(exaMetadataMock.getDatabaseVersion()).thenReturn("8.34.0");
         return this.adapter.pushdown(exaMetadataMock, request);
@@ -109,8 +116,16 @@ class JDBCAdapterTest {
         setDerbyConnectionNameProperty();
         this.rawProperties.put(SCHEMA_NAME_PROPERTY, "SYSIBM");
         final GetCapabilitiesRequest request = new GetCapabilitiesRequest(createSchemaMetadataInfo());
-        final ExaMetadata exaMetadataMock = mock(ExaMetadata.class);
         final GetCapabilitiesResponse response = this.adapter.getCapabilities(exaMetadataMock, request);
+
+        final Capabilities expectedCapabilities = Capabilities.builder()
+                .addMain(MainCapability.ORDER_BY_EXPRESSION)
+                .addLiteral(LiteralCapability.NULL)
+                .addAggregateFunction(AggregateFunctionCapability.COUNT_STAR)
+                .addPredicate(PredicateCapability.AND)
+                .addScalarFunction(ScalarFunctionCapability.ADD)
+                .build();
+
         assertAll(() -> assertThat(response.getCapabilities().getMainCapabilities(),
                 contains(MainCapability.ORDER_BY_EXPRESSION)),
                 () -> assertThat(response.getCapabilities().getLiteralCapabilities(),
@@ -120,7 +135,9 @@ class JDBCAdapterTest {
                 () -> assertThat(response.getCapabilities().getPredicateCapabilities(),
                         contains(PredicateCapability.AND)),
                 () -> assertThat(response.getCapabilities().getScalarFunctionCapabilities(),
-                        contains(ScalarFunctionCapability.ADD)));
+                        contains(ScalarFunctionCapability.ADD)),
+                () -> assertThat(response.getCapabilities(),
+                        AutoMatcher.equalTo(expectedCapabilities)));
     }
 
     @Test
@@ -130,18 +147,25 @@ class JDBCAdapterTest {
         this.rawProperties.put(EXCLUDED_CAPABILITIES_PROPERTY,
                 "ORDER_BY_EXPRESSION, LITERAL_NULL, FN_AGG_COUNT_STAR, FN_PRED_AND, FN_ADD");
         final GetCapabilitiesRequest request = new GetCapabilitiesRequest(createSchemaMetadataInfo());
-        final ExaMetadata exaMetadataMock = mock(ExaMetadata.class);
         final GetCapabilitiesResponse response = this.adapter.getCapabilities(exaMetadataMock, request);
-        assertThat(response.getCapabilities().getMainCapabilities(),
-                not(contains(MainCapability.ORDER_BY_EXPRESSION, LiteralCapability.NULL,
-                        AggregateFunctionCapability.COUNT_STAR, PredicateCapability.AND,
-                        ScalarFunctionCapability.ADD)));
+
+        assertAll(() -> assertThat(response.getCapabilities().getMainCapabilities(),
+                not(contains(MainCapability.ORDER_BY_EXPRESSION))),
+                () -> assertThat(response.getCapabilities().getLiteralCapabilities(),
+                        not(contains(LiteralCapability.NULL))),
+                () -> assertThat(response.getCapabilities().getAggregateFunctionCapabilities(),
+                        not(contains(AggregateFunctionCapability.COUNT_STAR))),
+                () -> assertThat(response.getCapabilities().getPredicateCapabilities(),
+                        not(contains(PredicateCapability.AND))),
+                () -> assertThat(response.getCapabilities().getScalarFunctionCapabilities(),
+                        not(contains(ScalarFunctionCapability.ADD))),
+                () -> assertThat(response.getCapabilities(),
+                        AutoMatcher.equalTo(Capabilities.builder().build())));
     }
 
     @Test
     void testDropVirtualSchemaMustSucceedEvenIfDebugAddressIsInvalid() throws AdapterException {
         setDerbyConnectionNameProperty();
-        final ExaMetadata exaMetadataMock = mock(ExaMetadata.class);
         this.rawProperties.put(AdapterProperties.DEBUG_ADDRESS_PROPERTY, "this_is_an:invalid_debug_address");
         final DropVirtualSchemaRequest dropRequest = new DropVirtualSchemaRequest(createSchemaMetadataInfo());
         final DropVirtualSchemaResponse response = this.adapter.dropVirtualSchema(exaMetadataMock, dropRequest);
@@ -155,7 +179,6 @@ class JDBCAdapterTest {
         newRawProperties.put(SCHEMA_NAME_PROPERTY, "NEW SCHEMA");
         final SetPropertiesRequest request = new SetPropertiesRequest(createSchemaMetadataInfo(),
                 newRawProperties);
-        final ExaMetadata exaMetadataMock = mock(ExaMetadata.class);
         when(exaMetadataMock.getConnection("DERBY_CONNECTION")).thenReturn(EXA_CONNECTION_INFORMATION);
         when(exaMetadataMock.getDatabaseVersion()).thenReturn("8.34.0");
         final SetPropertiesResponse response = this.adapter.setProperties(exaMetadataMock, request);
@@ -176,8 +199,6 @@ class JDBCAdapterTest {
         newRawProperties.put(TABLE_FILTER_PROPERTY, "T1, T2");
         final SetPropertiesRequest request = new SetPropertiesRequest(createSchemaMetadataInfo(),
                 newRawProperties);
-        final ExaMetadata exaMetadataMock = mock(ExaMetadata.class);
-        when(exaMetadataMock.getDatabaseVersion()).thenReturn("8.34.0");
         final SetPropertiesResponse response = jdbcAdapter.setProperties(exaMetadataMock, request);
         final List<TableMetadata> tables = response.getSchemaMetadata().getTables();
         assertAll(() -> assertThat(tables, hasSize(2)), //
@@ -189,7 +210,6 @@ class JDBCAdapterTest {
     void testCreateVirtualSchema() throws AdapterException, ExaConnectionAccessException {
         setDerbyConnectionNameProperty();
         final CreateVirtualSchemaRequest request = new CreateVirtualSchemaRequest(createSchemaMetadataInfo());
-        final ExaMetadata exaMetadataMock = mock(ExaMetadata.class);
         when(exaMetadataMock.getConnection("DERBY_CONNECTION")).thenReturn(EXA_CONNECTION_INFORMATION);
         when(exaMetadataMock.getDatabaseVersion()).thenReturn("8.34.0");
         final CreateVirtualSchemaResponse response = this.adapter.createVirtualSchema(exaMetadataMock, request);
@@ -212,7 +232,6 @@ class JDBCAdapterTest {
         final List<String> tablesList = new ArrayList<>();
         tablesList.add("SYSDUMMY1");
         final RefreshRequest request = new RefreshRequest(createSchemaMetadataInfo(), tablesList);
-        final ExaMetadata exaMetadataMock = mock(ExaMetadata.class);
         when(exaMetadataMock.getConnection("DERBY_CONNECTION")).thenReturn(EXA_CONNECTION_INFORMATION);
         when(exaMetadataMock.getDatabaseVersion()).thenReturn("8.34.0");
         final RefreshResponse response = this.adapter.refresh(exaMetadataMock, request);
@@ -226,8 +245,8 @@ class JDBCAdapterTest {
     @ValueSource(strings = { "hello", "0", "-1", "", "1,700" })
     void testValidateMaxTablesAtCreate(final String paramValue) {
         setDerbyConnectionNameProperty();
+        this.rawProperties.put(TableCountLimit.MAXTABLES_PROPERTY, paramValue);
         final SchemaMetadataInfo schemaMetadataInfo = createSchemaMetadataInfo();
-        schemaMetadataInfo.getProperties().put(TableCountLimit.MAXTABLES_PROPERTY, paramValue);
         final CreateVirtualSchemaRequest request = new CreateVirtualSchemaRequest(schemaMetadataInfo);
         final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
                 () -> this.adapter.createVirtualSchema(null, request));
@@ -239,7 +258,6 @@ class JDBCAdapterTest {
     void testValidateMaxTablesAtUpdate(final String paramValue) throws ExaConnectionAccessException {
         setDerbyConnectionNameProperty();
         final CreateVirtualSchemaRequest request = new CreateVirtualSchemaRequest(createSchemaMetadataInfo());
-        final ExaMetadata exaMetadataMock = mock(ExaMetadata.class);
         when(exaMetadataMock.getConnection("DERBY_CONNECTION")).thenReturn(EXA_CONNECTION_INFORMATION);
         when(exaMetadataMock.getDatabaseVersion()).thenReturn("8.34.0");
         assertDoesNotThrow(() -> this.adapter.createVirtualSchema(exaMetadataMock, request));
@@ -261,15 +279,14 @@ class JDBCAdapterTest {
         final PushDownRequest request = new PushDownRequest(createSchemaMetadataInfo(),
                 TestSqlStatementFactory.createSelectOneFromSysDummy(), null,
                 EMPTY_SELECT_LIST_DATA_TYPES);
-        final ExaMetadata exaMetadata = mock(ExaMetadata.class);
         final SqlDialect dialect = mock(SqlDialect.class);
-        when(dialect.rewriteQuery(request.getSelect(), EMPTY_SELECT_LIST_DATA_TYPES, exaMetadata))
+        when(dialect.rewriteQuery(request.getSelect(), EMPTY_SELECT_LIST_DATA_TYPES, exaMetadataMock))
                 .thenReturn("IMPORT FROM JDBC");
         final JDBCAdapter jdbcAdapter = createAdapterWithDialect(dialect);
         final RemoteConnectionFactory connectionFactory = mock(RemoteConnectionFactory.class);
         jdbcAdapter.connectionFactory = connectionFactory;
 
-        final PushDownResponse response = jdbcAdapter.pushdown(exaMetadata, request);
+        final PushDownResponse response = jdbcAdapter.pushdown(exaMetadataMock, request);
 
         assertAll(() -> assertThat(response.getPushDownSql(), equalTo("IMPORT FROM JDBC")),
                 () -> verify(connectionFactory, never()).clean());
