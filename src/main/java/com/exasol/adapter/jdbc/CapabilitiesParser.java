@@ -70,7 +70,7 @@ class CapabilitiesParser {
         try {
             return Enum.valueOf(capabilityClass, enumValue);
         } catch (final IllegalArgumentException exception) {
-            throw new IllegalArgumentException(ExaError.messageBuilder("E-VSCJDBC-48")
+            throw new IllegalArgumentException(ExaError.messageBuilder("E-VSCJDBC-51")
                     .message("Unsupported capability {{capability}} for {{capability type|uq}}.")
                     .mitigation("Use one of the available capabilities: {{available capabilities|uq}}")
                     .parameter("capability", originalCapability)
