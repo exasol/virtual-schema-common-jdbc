@@ -42,7 +42,7 @@ public class DataTypeDetection {
     /**
      * @return new instance of {@link DataTypeDetection}
      */
-    public static DataTypeDetection from() {
+    public static DataTypeDetection create() {
         return new DataTypeDetection(DEFAULT_STRATEGY);
     }
 

@@ -69,7 +69,7 @@ class AbstractQueryRewriterTest {
         when(dataTypeDetectionMock.getStrategy()).thenReturn(Strategy.FROM_RESULT_SET);
 
         try (final MockedStatic<DataTypeDetection> dataTypeDetection = Mockito.mockStatic(DataTypeDetection.class)) {
-            dataTypeDetection.when(DataTypeDetection::from).thenReturn(dataTypeDetectionMock);
+            dataTypeDetection.when(DataTypeDetection::create).thenReturn(dataTypeDetectionMock);
             final AdapterException exception = assertThrows(AdapterException.class,
                     () -> testee.rewrite(TestSqlStatementFactory.createSelectOneFromDual(),
                             EMPTY_SELECT_LIST_DATA_TYPES, null, AdapterProperties.emptyProperties()));

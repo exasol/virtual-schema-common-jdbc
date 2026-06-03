@@ -2,7 +2,8 @@ package com.exasol.adapter.properties;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Map;
 
@@ -17,14 +18,14 @@ class DataTypeDetectionTest {
     void testFromProperties() {
         final DataTypeDetection.Strategy strategy = Strategy.EXASOL_CALCULATED;
         final AdapterProperties properties = adapterProperties(strategy.name());
-        final DataTypeDetection testee = DataTypeDetection.from();
+        final DataTypeDetection testee = DataTypeDetection.create();
         assertThat(testee.getStrategy(), equalTo(strategy));
         verifySuccess(properties);
     }
 
     @Test
     void testFromPropertiesFromResultSet() {
-        final DataTypeDetection testee = DataTypeDetection.from();
+        final DataTypeDetection testee = DataTypeDetection.create();
         assertThat(testee.getStrategy(), equalTo(DataTypeDetection.DEFAULT_STRATEGY));
     }
 
@@ -40,7 +41,7 @@ class DataTypeDetectionTest {
     @Test
     void testUnsetProperty() {
         final AdapterProperties properties = new AdapterProperties(Map.of());
-        final DataTypeDetection testee = DataTypeDetection.from();
+        final DataTypeDetection testee = DataTypeDetection.create();
         assertThat(testee.getStrategy(), equalTo(DataTypeDetection.DEFAULT_STRATEGY));
         verifySuccess(properties);
     }
