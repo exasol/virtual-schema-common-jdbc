@@ -34,6 +34,8 @@ import com.exasol.errorreporting.ExaError;
  */
 public class SqlGenerationVisitor implements SqlNodeVisitor<String>, SqlGenerator {
     private static final Logger LOGGER = Logger.getLogger(SqlGenerationVisitor.class.getName());
+    /** We use DecimalFormat, which is not thread-safe, but we ensure thread safety by using ThreadLocal. */
+    @SuppressWarnings("java:S5164") // We don't remove the ThreadLocal intentionally
     private static final ThreadLocal<NumberFormat> DOUBLE_LITERAL_FORMAT = ThreadLocal.withInitial(() -> {
         final NumberFormat format = NumberFormat.getNumberInstance(Locale.US);
         if (format instanceof DecimalFormat) {
