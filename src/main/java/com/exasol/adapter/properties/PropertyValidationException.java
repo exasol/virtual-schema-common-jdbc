@@ -7,7 +7,7 @@ import com.exasol.adapter.AdapterException;
  */
 public class PropertyValidationException extends AdapterException {
     /** Serialization ID */
-    public static final long serialVersionUID = 1659958371335354081L;
+    private static final long serialVersionUID = 1659958371335354081L;
 
     /**
      * Create a new {@link PropertyValidationException}.

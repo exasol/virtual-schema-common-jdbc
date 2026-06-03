@@ -6,6 +6,7 @@ import static com.exasol.adapter.metadata.DataType.ExaCharset.UTF8;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -25,7 +26,7 @@ import com.exasol.errorreporting.ExaError;
  */
 public class BaseColumnMetadataReader extends AbstractMetadataReader implements ColumnMetadataReader {
     /** Logger */
-    public static final Logger LOGGER = Logger.getLogger(BaseColumnMetadataReader.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(BaseColumnMetadataReader.class.getName());
     /** Key for column name */
     public static final String NAME_COLUMN = "COLUMN_NAME";
     /** Key for data type */
@@ -103,7 +104,7 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
         } catch (final SQLException exception) {
             throw new RemoteMetadataReaderException(ExaError.messageBuilder("E-VSCJDBC-1").message(
                     "Unable to read column metadata from remote for catalog \"{{catalogName|uq}}\" and schema \"{{schemaName|uq}}\"",
-                    schemaName, catalogName).toString(), exception);
+                    catalogName, schemaName).toString(), exception);
         }
     }
 
@@ -190,7 +191,7 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
                 .type(exasolType) //
                 .nullable(isRemoteColumnNullable(remoteColumn, columnName)) //
                 .identity(isAutoIncrementColumn(remoteColumn, columnName)) //
-                .defaultValue(readDefaultValue(remoteColumn)) //
+                .defaultValue(readDefaultValue(remoteColumn, columnName)) //
                 .comment(readComment(remoteColumn)) //
                 .originalTypeName(originalTypeName) //
                 .build();
@@ -272,14 +273,17 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
         }
     }
 
-    private String readDefaultValue(final ResultSet remoteColumn) {
+    private String readDefaultValue(final ResultSet remoteColumn, final String columnName) {
         try {
-            if (remoteColumn.getString(DEFAULT_VALUE_COLUMN) != null) {
-                return remoteColumn.getString(DEFAULT_VALUE_COLUMN);
+            final String defaultValue = remoteColumn.getString(DEFAULT_VALUE_COLUMN);
+            if (defaultValue != null) {
+                return defaultValue;
             } else {
                 return "";
             }
         } catch (final SQLException exception) {
+            LOGGER.log(Level.WARNING, exception, () -> "Unable to read default value of column '" + columnName + "': "
+                    + exception.getMessage());
             return "";
         }
     }
@@ -477,11 +481,17 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
     /**
      * Parse a number type property.
      *
-     * @param property formatted string: {@code <precision>.<scale>}
+     * @param property formatted string: {@code <precision>,<scale>}
      * @return data type
      */
     protected DataType getNumberTypeFromProperty(final String property) {
         final String precisionAndScale = this.properties.get(property);
+        if (precisionAndScale == null) {
+            throw new IllegalArgumentException(ExaError.messageBuilder("E-VSCJDBC-2").message(
+                    "Adapter property {{property|uq}} is missing.", property)
+                    .mitigation("The required format is '<precision>,<scale>', where both are integer numbers.")
+                    .toString());
+        }
         final Matcher matcher = NUMBER_TYPE_PATTERN.matcher(precisionAndScale);
         if (matcher.matches()) {
             final int precision = Integer.parseInt(matcher.group(1));
@@ -489,9 +499,10 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
             return DataType.createDecimal(precision, scale);
         } else {
             throw new IllegalArgumentException(ExaError.messageBuilder("E-VSCJDBC-2").message(
-                    "Unable to parse adapter property {{property|uq}} value {{precisionAndScale}} into a number precision "
-                            + "and scale. The required format is '<precision>.<scale>', where both are integer numbers.",
-                    property, precisionAndScale).toString());
+                    "Unable to parse adapter property {{property|uq}} value {{precisionAndScale}} into a number precision and scale.", property,
+                    precisionAndScale)
+                    .mitigation("The required format is '<precision>,<scale>', where both are integer numbers.")
+                    .toString());
         }
     }
 }

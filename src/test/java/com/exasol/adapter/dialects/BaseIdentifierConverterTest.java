@@ -4,6 +4,8 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
+import java.util.Locale;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -24,9 +26,22 @@ class BaseIdentifierConverterTest {
     @ParameterizedTest
     void testConvert(final IdentifierCaseHandling unquotedIdentifierHandling,
             final IdentifierCaseHandling quotedIdentifierHandling, final boolean resultShouldBeUpperCase) {
-        final IdentifierConverter identifierConverter = new BaseIdentifierConverter(unquotedIdentifierHandling,
+        final IdentifierConverter converter = new BaseIdentifierConverter(unquotedIdentifierHandling,
                 quotedIdentifierHandling);
-        assertThat(identifierConverter.convert("text"), equalTo(resultShouldBeUpperCase ? "TEXT" : "text"));
+        assertThat(converter.convert("text"), equalTo(resultShouldBeUpperCase ? "TEXT" : "text"));
+    }
+
+    @Test
+    void testConvertUsesLocaleIndependentUpperCase() {
+        final Locale originalLocale = Locale.getDefault();
+        try {
+            Locale.setDefault(new Locale("tr", "TR"));
+            final IdentifierConverter converter = new BaseIdentifierConverter(
+                    IdentifierCaseHandling.INTERPRET_AS_UPPER, IdentifierCaseHandling.INTERPRET_AS_UPPER);
+            assertThat(converter.convert("i"), equalTo("I"));
+        } finally {
+            Locale.setDefault(originalLocale);
+        }
     }
 
     @Test

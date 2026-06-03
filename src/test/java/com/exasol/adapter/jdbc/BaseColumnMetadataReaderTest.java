@@ -1,12 +1,12 @@
 package com.exasol.adapter.jdbc;
 
 import static com.exasol.adapter.metadata.DataType.ExaCharset.UTF8;
+import static java.util.Collections.emptyMap;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.sql.*;
@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -39,6 +38,8 @@ class BaseColumnMetadataReaderTest {
 
     @Mock
     private ExaMetadata exaMetadataMock;
+    @Mock
+    private Connection connectionMock;
 
     private final CapturingLogHandler capturingLogHandler = new CapturingLogHandler();
     private BaseColumnMetadataReader reader;
@@ -48,7 +49,11 @@ class BaseColumnMetadataReaderTest {
         when(this.exaMetadataMock.getDatabaseVersion()).thenReturn("8.34.0");
         Logger.getLogger("com.exasol").addHandler(this.capturingLogHandler);
         this.capturingLogHandler.reset();
-        this.reader = new BaseColumnMetadataReader(null, AdapterProperties.emptyProperties(), exaMetadataMock,
+        this.reader = testee(emptyMap());
+    }
+
+    private BaseColumnMetadataReader testee(final Map<String, String> properties) {
+        return new BaseColumnMetadataReader(connectionMock, new AdapterProperties(properties), exaMetadataMock,
                 new BaseIdentifierConverter(IdentifierCaseHandling.INTERPRET_AS_UPPER,
                         IdentifierCaseHandling.INTERPRET_CASE_SENSITIVE));
     }
@@ -178,13 +183,40 @@ class BaseColumnMetadataReaderTest {
     }
 
     @Test
-    void testGetNumberTypeFromProperty() {
-        final BaseColumnMetadataReader metadataReader = new BaseColumnMetadataReader(null,
-                new AdapterProperties(Map.of("SOME_PROPERTY", "abc")), exaMetadataMock, new BaseIdentifierConverter(
-                        IdentifierCaseHandling.INTERPRET_AS_UPPER, IdentifierCaseHandling.INTERPRET_CASE_SENSITIVE));
+    void testMapColumnsWrapsSqlException() throws SQLException {
+        when(this.connectionMock.getMetaData()).thenThrow(new SQLException("Fake exception"));
+        final BaseColumnMetadataReader metadataReader = testee(Map.of(AdapterProperties.CATALOG_NAME_PROPERTY, "CATALOG",
+                AdapterProperties.SCHEMA_NAME_PROPERTY, "SCHEMA"));
+        final RemoteMetadataReaderException exception = assertThrows(RemoteMetadataReaderException.class,
+                () -> metadataReader.mapColumns(""));
+        assertThat(exception.getMessage(), equalTo(
+                "E-VSCJDBC-1: Unable to read column metadata from remote for catalog \"CATALOG\" and schema \"SCHEMA\""));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "abc", "1,abc", "abc,10", "1.5,0", "0,1.5", "-1,0", "0,-1", "1,0,0" })
+    void testGetNumberTypeFromPropertyWithInvalidValue(final String invalidValue) {
+        final BaseColumnMetadataReader metadataReader = testee(Map.of("SOME_PROPERTY", invalidValue));
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> metadataReader.getNumberTypeFromProperty("SOME_PROPERTY"));
-        assertThat(exception.getMessage(), Matchers.startsWith(
-                "E-VSCJDBC-2: Unable to parse adapter property SOME_PROPERTY value 'abc' into a number precision and scale."));
+        assertThat(exception.getMessage(), equalTo(
+                "E-VSCJDBC-2: Unable to parse adapter property SOME_PROPERTY value '" + invalidValue + "' into a number precision and scale."
+                        + " The required format is '<precision>,<scale>', where both are integer numbers."));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "0,0", "1,1", "1,0", "11111,999999" })
+    void testGetNumberTypeFromPropertyWithValidValue(final String validValue) {
+        final BaseColumnMetadataReader metadataReader = testee(Map.of("SOME_PROPERTY", validValue));
+        assertDoesNotThrow(() -> metadataReader.getNumberTypeFromProperty("SOME_PROPERTY"));
+    }
+
+    @Test
+    void testGetNumberTypeFromMissingProperty() {
+        final BaseColumnMetadataReader metadataReader = testee(Map.of());
+        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> metadataReader.getNumberTypeFromProperty("SOME_PROPERTY"));
+        assertThat(exception.getMessage(), equalTo(
+                "E-VSCJDBC-2: Adapter property SOME_PROPERTY is missing. The required format is '<precision>,<scale>', where both are integer numbers."));
     }
 }

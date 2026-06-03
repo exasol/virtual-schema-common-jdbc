@@ -15,7 +15,7 @@ public final class ColumnAdapterNotesJsonConverter {
     private static final String MITIGATION_REFRESH = "Please refresh the virtual schema.";
     /** Key for the jdbc type in the adapter notes */
     protected static final String JDBC_DATA_TYPE = "jdbcDataType";
-    /** Key for the type namein the adapter notes */
+    /** Key for the type name in the adapter notes */
     protected static final String TYPE_NAME = "typeName";
     private static final ColumnAdapterNotesJsonConverter COLUMN_ADAPTER_NOTES_JSON_CONVERTER = new ColumnAdapterNotesJsonConverter();
     private final JsonBuilderFactory factory = Json.createBuilderFactory(Collections.emptyMap());

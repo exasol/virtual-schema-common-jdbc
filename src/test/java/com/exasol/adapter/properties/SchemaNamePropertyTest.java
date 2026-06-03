@@ -28,6 +28,12 @@ class SchemaNamePropertyTest {
         assertDoesNotThrow(() -> testee.validate(adapterProperties("SCHEMA_NAME", "abc")));
     }
 
+    @Test
+    void testEmptyString() {
+        final PropertyValidator testee = SchemaNameProperty.validator("Spanish");
+        assertDoesNotThrow(() -> testee.validate(adapterProperties("SCHEMA_NAME", "")));
+    }
+
     private AdapterProperties adapterProperties(final String key, final String value) {
         return new AdapterProperties(Map.of(key, value));
     }

@@ -194,7 +194,7 @@ public final class SchemaAdapterNotes {
         builder.append("catalogSeparator='").append(this.catalogSeparator).append("\',\n");
         builder.append("identifierQuoteString='").append(this.identifierQuoteString).append("\',\n");
         builder.append("storesLowerCaseIdentifiers=").append(this.storesLowerCaseIdentifiers).append(",\n");
-        builder.append("storesUpperCaseIdentifiers=").append(this.storesLowerCaseIdentifiers).append(",\n");
+        builder.append("storesUpperCaseIdentifiers=").append(this.storesUpperCaseIdentifiers).append(",\n");
         builder.append("storesMixedCaseIdentifiers=").append(this.storesMixedCaseIdentifiers).append(",\n");
         builder.append("supportsMixedCaseIdentifiers=").append(this.supportsMixedCaseIdentifiers).append(",\n");
         builder.append("storesUpperCaseQuotedIdentifiers=").append(this.storesUpperCaseQuotedIdentifiers).append(",\n");

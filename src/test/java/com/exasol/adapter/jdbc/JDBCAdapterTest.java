@@ -10,6 +10,7 @@ import static org.mockito.Mockito.*;
 import java.sql.SQLException;
 import java.util.*;
 
+import org.hamcrest.Matchers;
 import org.itsallcode.matcher.auto.AutoMatcher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -173,6 +174,21 @@ class JDBCAdapterTest {
     }
 
     @Test
+    void testGetCapabilitiesWithInvalidExcludedCapabilityMessage() {
+        setDerbyConnectionNameProperty();
+        this.rawProperties.put(SCHEMA_NAME_PROPERTY, "SYSIBM");
+        this.rawProperties.put(EXCLUDED_CAPABILITIES_PROPERTY, "INVALID_MAIN_CAPABILITY");
+        final GetCapabilitiesRequest request = new GetCapabilitiesRequest(createSchemaMetadataInfo());
+        final JDBCAdapter jdbcAdapter = createAdapterWithMockDialect();
+
+        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> jdbcAdapter.getCapabilities(exaMetadataMock, request));
+
+        assertThat(exception.getMessage(), Matchers.startsWith("E-VSCJDBC-51: Unsupported capability 'INVALID_MAIN_CAPABILITY' for main capability."
+                + " Use one of the available capabilities: "));
+    }
+
+    @Test
     void testDropVirtualSchemaMustSucceedEvenIfDebugAddressIsInvalid() throws AdapterException {
         setDerbyConnectionNameProperty();
         this.rawProperties.put(AdapterProperties.DEBUG_ADDRESS_PROPERTY, "this_is_an:invalid_debug_address");
@@ -322,6 +338,7 @@ class JDBCAdapterTest {
 
     private JDBCAdapter createAdapterWithMockDialect() {
         lenient().when(dialectFactoryMock.createSqlDialect(any())).thenReturn(dialectMock);
+        lenient().when(dialectMock.getCapabilities()).thenReturn(Capabilities.builder().build());
         return new JDBCAdapter(dialectFactoryMock, new AdapterContext(telemetryClientMock));
     }
 }

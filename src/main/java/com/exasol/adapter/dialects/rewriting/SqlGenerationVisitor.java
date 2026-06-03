@@ -34,6 +34,13 @@ import com.exasol.errorreporting.ExaError;
  */
 public class SqlGenerationVisitor implements SqlNodeVisitor<String>, SqlGenerator {
     private static final Logger LOGGER = Logger.getLogger(SqlGenerationVisitor.class.getName());
+    private static final ThreadLocal<NumberFormat> DOUBLE_LITERAL_FORMAT = ThreadLocal.withInitial(() -> {
+        final NumberFormat format = NumberFormat.getNumberInstance(Locale.US);
+        if (format instanceof DecimalFormat) {
+            ((DecimalFormat) format).applyPattern("0.################E0");
+        }
+        return format;
+    });
     private final SqlDialect dialect;
     private final SqlGenerationContext context;
 
@@ -484,11 +491,7 @@ public class SqlGenerationVisitor implements SqlNodeVisitor<String>, SqlGenerato
      */
     @Override
     public String visit(final SqlLiteralDouble literal) {
-        final NumberFormat numFormat = NumberFormat.getNumberInstance(Locale.US);
-        if (numFormat instanceof DecimalFormat) {
-            ((DecimalFormat) numFormat).applyPattern("0.################E0");
-        }
-        return numFormat.format(literal.getValue());
+        return DOUBLE_LITERAL_FORMAT.get().format(literal.getValue());
     }
 
     /**

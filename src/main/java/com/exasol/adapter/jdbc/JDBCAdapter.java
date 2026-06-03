@@ -1,6 +1,7 @@
 package com.exasol.adapter.jdbc;
 
 import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.toList;
 
 import java.sql.SQLException;
 import java.util.*;
@@ -177,11 +178,9 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
     private List<String> getTableFilter(final Map<String, String> properties) {
         final String tableNames = properties.get(TABLES_PROPERTY);
         if ((tableNames != null) && !tableNames.isEmpty()) {
-            final List<String> tables = Arrays.asList(tableNames.split(","));
-            for (int i = 0; i < tables.size(); ++i) {
-                tables.set(i, tables.get(i).trim());
-            }
-            return tables;
+            return Arrays.stream(tableNames.split(","))
+                    .map(String::trim)
+                    .collect(toList());
         } else {
             return new ArrayList<>();
         }
@@ -190,7 +189,7 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
     @Override
     public GetCapabilitiesResponse getCapabilities(final ExaMetadata exaMetadata, final GetCapabilitiesRequest request)
             throws AdapterException {
-        LOGGER.fine(() -> "Received request to list the adapter's capabilites.");
+        LOGGER.fine(() -> "Received request to list the adapter's capabilities.");
         final AdapterProperties properties = getPropertiesFromRequest(request);
         try (final SqlDialect dialect = createDialect(exaMetadata, properties)) {
             final Capabilities capabilities = dialect.getCapabilities();
