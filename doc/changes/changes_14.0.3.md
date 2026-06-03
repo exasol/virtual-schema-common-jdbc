@@ -8,7 +8,7 @@ Fix cleanup and lazy initialization of cached JDBC connections in `JDBCAdapter`.
 
 The release also improves the error message in case of invalid capability names. The user now gets a helpful message with available capability names.
 
-The release also makes interface `SqlDialectFactory` and `SqlDialect` extend `AutoClosable`. This allows adapters to cleanup resources. Both interfaces provide a `default` implementation of the `close()` method, so implementors don't need to change.
+The release also makes interfaces `SqlDialectFactory`, `SqlDialect` and `ConnectionFactory` extend `AutoClosable`. This allows adapters to cleanup resources. Both interfaces provide a `default` implementation of the `close()` method, so implementors don't need to change.
 
 ## Bugfixes
 
