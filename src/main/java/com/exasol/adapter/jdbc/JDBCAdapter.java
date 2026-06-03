@@ -30,7 +30,7 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
     /**
      * Connection factory used to get and cache jdbc connection.
      */
-    protected volatile RemoteConnectionFactory connectionFactory = null;
+    protected RemoteConnectionFactory connectionFactory = null;
 
     /**
      * Construct a new instance of {@link JDBCAdapter}
@@ -48,8 +48,7 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
             final CreateVirtualSchemaRequest request) throws AdapterException {
         logCreateVirtualSchemaRequestReceived(request);
         final AdapterProperties properties = getPropertiesFromRequest(request);
-        try {
-            final SqlDialect dialect = createDialectAndValidateProperties(exasolMetadata, properties);
+        try (final SqlDialect dialect = createDialectAndValidateProperties(exasolMetadata, properties)) {
             final SchemaMetadata remoteMeta = getRemoteMetadata(dialect, properties.getFilteredTables());
             return CreateVirtualSchemaResponse.builder().schemaMetadata(remoteMeta).build();
         } catch (final SQLException exception) {
@@ -97,9 +96,8 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
 
     @Override
     public RefreshResponse refresh(final ExaMetadata metadata, final RefreshRequest request) throws AdapterException {
-        try {
-            final AdapterProperties properties = getPropertiesFromRequest(request);
-            final SqlDialect dialect = createDialectAndValidateProperties(metadata, properties);
+        final AdapterProperties properties = getPropertiesFromRequest(request);
+        try (final SqlDialect dialect = createDialectAndValidateProperties(metadata, properties)) {
             final SchemaMetadata remoteMetadata = request.refreshesOnlySelectedTables() //
                     ? dialect.readSchemaMetadata(request.getTables())
                     : getRemoteMetadata(dialect, properties.getFilteredTables());
@@ -128,12 +126,12 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
         final Map<String, String> mergedRawProperties = mergeProperties(schemaMetadataInfo.getProperties(),
                 requestRawProperties);
         final AdapterProperties mergedProperties = new AdapterProperties(mergedRawProperties);
-        final SqlDialect dialect = createDialectAndValidateProperties(metadata, mergedProperties);
-
         if (requiresRefreshOfVirtualSchema(requestRawProperties)) {
-            final List<String> tableFilter = getTableFilter(mergedRawProperties);
-            final SchemaMetadata remoteMeta = dialect.readSchemaMetadata(tableFilter);
-            return SetPropertiesResponse.builder().schemaMetadata(remoteMeta).build();
+            try (final SqlDialect dialect = createDialectAndValidateProperties(metadata, mergedProperties)) {
+                final List<String> tableFilter = getTableFilter(mergedRawProperties);
+                final SchemaMetadata remoteMeta = dialect.readSchemaMetadata(tableFilter);
+                return SetPropertiesResponse.builder().schemaMetadata(remoteMeta).build();
+            }
         } else {
             return SetPropertiesResponse.builder().schemaMetadata(null).build();
         }
@@ -142,23 +140,6 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
     private boolean requiresRefreshOfVirtualSchema(final Map<String, String> properties) {
         return properties.containsKey(TableCountLimit.MAXTABLES_PROPERTY)
                 || AdapterProperties.isRefreshingVirtualSchemaRequired(properties);
-    }
-
-    /**
-     * Create or get existing {@link RemoteConnectionFactory} instance.
-     *
-     * @param metadata   metadata to use
-     * @param properties adapter properties
-     * @return connection factory
-     */
-    protected synchronized RemoteConnectionFactory getOrCreateConnectionFactory(final ExaMetadata metadata,
-            final AdapterProperties properties) {
-        // Open question: can metadata and properties be changed during connection lifetime?
-        // If yes, our connection factory is implemented wrongly.
-        if (this.connectionFactory == null) {
-            this.connectionFactory = new RemoteConnectionFactory(metadata, properties);
-        }
-        return this.connectionFactory;
     }
 
     private SqlDialect createDialectAndValidateProperties(final ExaMetadata metadata,
@@ -172,9 +153,8 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
         if (this.connectionFactory == null) {
             this.connectionFactory = new RemoteConnectionFactory(metadata, properties);
         }
-        final ConnectionFactory factory = this.connectionFactory;
         return this.sqlDialectFactory.createSqlDialect(JDBCAdapterContext.builder()
-                .connectionFactory(factory)
+                .connectionFactory(this.connectionFactory)
                 .properties(properties)
                 .metadata(metadata)
                 .telemetryClient(this.adapterContext.getTelemetryClient())
@@ -212,13 +192,14 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
             throws AdapterException {
         LOGGER.fine(() -> "Received request to list the adapter's capabilites.");
         final AdapterProperties properties = getPropertiesFromRequest(request);
-        final SqlDialect dialect = createDialect(exaMetadata, properties);
-        final Capabilities capabilities = dialect.getCapabilities();
-        final Capabilities excludedCapabilities = getExcludedCapabilities(properties);
-        return GetCapabilitiesResponse
-                .builder()
-                .capabilities(capabilities.subtract(excludedCapabilities))
-                .build();
+        try (final SqlDialect dialect = createDialect(exaMetadata, properties)) {
+            final Capabilities capabilities = dialect.getCapabilities();
+            final Capabilities excludedCapabilities = getExcludedCapabilities(properties);
+            return GetCapabilitiesResponse
+                    .builder()
+                    .capabilities(capabilities.subtract(excludedCapabilities))
+                    .build();
+        }
     }
 
     private Capabilities getExcludedCapabilities(final AdapterProperties properties) {
@@ -240,14 +221,12 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
     @Override
     public PushDownResponse pushdown(final ExaMetadata exaMetadata, final PushDownRequest request)
             throws AdapterException {
-        try {
-            final AdapterProperties properties = getPropertiesFromRequest(request);
-            final SqlDialect dialect = createDialect(exaMetadata, properties);
+        final AdapterProperties properties = getPropertiesFromRequest(request);
+        try (final SqlDialect dialect = createDialect(exaMetadata, properties)) {
             final String importFromPushdownQuery = dialect.rewriteQuery(request.getSelect(),
                     request.getSelectListDataTypes(), exaMetadata);
             return PushDownResponse.builder().pushDownSql(importFromPushdownQuery).build();
         } catch (final SQLException exception) {
-            this.connectionFactory.clean();
             throw new AdapterException(ExaError.messageBuilder("E-VSCJDBC-27")
                     .message("Unable to execute push-down request. Cause: {{cause|uq}}", exception.getMessage())
                     .toString(), exception);
@@ -257,7 +236,8 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
     @Override
     public void close() {
         if (this.connectionFactory != null) {
-            this.connectionFactory.clean();
+            this.connectionFactory.close();
         }
+        this.connectionFactory = null;
     }
 }

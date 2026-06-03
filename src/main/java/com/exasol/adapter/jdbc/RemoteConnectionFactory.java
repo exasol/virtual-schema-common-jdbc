@@ -129,6 +129,7 @@ public final class RemoteConnectionFactory implements ConnectionFactory {
 
     /**
      * Checks presence of cached connection.
+     * 
      * @return true if cached connection is present.
      */
     public boolean hasCachedConnection() {
@@ -138,7 +139,8 @@ public final class RemoteConnectionFactory implements ConnectionFactory {
     /**
      * Closes cached connection if any.
      */
-    public synchronized void clean() {
+    @Override
+    public void close() {
         if (this.cachedConnection != null) {
             LOGGER.fine("Closing cached connection...");
             try {
