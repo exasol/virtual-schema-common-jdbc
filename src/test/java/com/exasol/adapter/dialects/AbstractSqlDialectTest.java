@@ -174,8 +174,8 @@ class AbstractSqlDialectTest {
         final SqlDialect sqlDialect = buildDummySqlDialect(new AdapterProperties(raw));
         final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
                 sqlDialect::validateProperties);
-        assertAll(() -> assertThat(exception.getMessage(), equalTo(
-                "E-VSCJDBC-47: Property `IMPORT_DATA_TYPES` value 'FROM_RESULT_SET' is no longer supported. Please remove the `IMPORT_DATA_TYPES` property from the virtual schema so the default value 'EXASOL_CALCULATED' is used.")));
+        assertThat(exception.getMessage(), equalTo(
+                "E-VSCJDBC-47: Property `IMPORT_DATA_TYPES` value 'FROM_RESULT_SET' is no longer supported. Please remove the `IMPORT_DATA_TYPES` property from the virtual schema so the default value 'EXASOL_CALCULATED' is used."));
     }
 
     private void verifyValidationException(final String property, final String value, final String errorcode) {
