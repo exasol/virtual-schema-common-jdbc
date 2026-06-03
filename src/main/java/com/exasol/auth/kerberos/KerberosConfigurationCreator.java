@@ -1,6 +1,7 @@
 package com.exasol.auth.kerberos;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Base64;
@@ -59,11 +60,12 @@ public class KerberosConfigurationCreator {
     private void createKerberosConfiguration(final String user, final String base64EncodedKerberosConfig,
             final String base64EncodedKeyTab) {
         try {
+            final String escapedUser = escapePrincipal(user);
             final Path temporaryDirectory = createCommonDirectoryForKerberosConfigurationFiles();
             final Path kerberosConfigPath = createTemporaryKerberosConfigFile(base64EncodedKerberosConfig,
                     temporaryDirectory);
             final Path keyTabPath = createTemporaryKeyTabFile(base64EncodedKeyTab, temporaryDirectory);
-            final Path jaasConfigPath = createTemporaryJaasConfig(temporaryDirectory, user, keyTabPath);
+            final Path jaasConfigPath = createTemporaryJaasConfig(temporaryDirectory, escapedUser, keyTabPath);
             setKerberosSystemProperties(kerberosConfigPath, jaasConfigPath);
         } catch (final IOException exception) {
             throw new KerberosConfigurationCreatorException(ExaError.messageBuilder("E-VSCJDBC-33")
@@ -71,7 +73,16 @@ public class KerberosConfigurationCreator {
         }
     }
 
+    private String escapePrincipal(final String user) {
+        if ((user.indexOf('\n') >= 0) || (user.indexOf('\r') >= 0)) {
+            throw new KerberosConfigurationCreatorException(ExaError.messageBuilder("E-VSCJDBC-52")
+                    .message("Kerberos principal must not contain line breaks.").toString());
+        }
+        return user.replace("\\", "\\\\").replace("\"", "\\\"");
+    }
+
     private Path createCommonDirectoryForKerberosConfigurationFiles() throws IOException {
+        @SuppressWarnings("java:S5443") // Keep original file permissions to avoid issues with Kerberos authentication
         final Path temporaryDirectory = Files.createTempDirectory("kerberos_");
         temporaryDirectory.toFile().deleteOnExit();
         LOGGER.finer(() -> "Created temporary directory \"" + temporaryDirectory
@@ -82,13 +93,13 @@ public class KerberosConfigurationCreator {
     private Path createTemporaryKerberosConfigFile(final String base64EncodedKerberosConfig,
             final Path temporaryDirectory) throws IOException {
         return createTemporaryFile(temporaryDirectory, "krb_", ".conf",
-                Base64.getDecoder().decode(base64EncodedKerberosConfig.getBytes()));
+                Base64.getDecoder().decode(base64EncodedKerberosConfig));
     }
 
     private Path createTemporaryKeyTabFile(final String base64EncodedKeyTab, final Path temporaryDirectory)
             throws IOException {
         return createTemporaryFile(temporaryDirectory, "kt_", ".keytab",
-                Base64.getDecoder().decode(base64EncodedKeyTab.getBytes()));
+                Base64.getDecoder().decode(base64EncodedKeyTab));
     }
 
     private Path createTemporaryFile(final Path temporaryDirectory, final String prefix, final String suffix,
@@ -118,10 +129,14 @@ public class KerberosConfigurationCreator {
                 + "keyTab=\"" + keyTabPath + "\"\n" //
                 + "doNotPrompt=true\n" //
                 + "useTicketCache=false;\n" //
-                + "};\n").getBytes();
+                + "};\n").getBytes(StandardCharsets.UTF_8);
         return createTemporaryFile(temporaryDirectory, "jaas_", ".conf", content);
     }
 
+    /**
+     * Kerberos configuration is configured via JVM-wide system properties. The adapter therefore updates the process
+     * global settings until the surrounding JVM isolates this state per adapter instance.
+     */
     private void setKerberosSystemProperties(final Path kerberosConfigPath, final Path jaasConfigPath) {
         System.setProperty(KERBEROS_CONFIG_PROPERTY, kerberosConfigPath.toString());
         System.setProperty(LOGIN_CONFIG_PROPERTY, jaasConfigPath.toString());

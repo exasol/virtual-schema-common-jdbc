@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Base64;
@@ -20,11 +21,13 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 class KerberosConfigurationCreatorTest {
-    private static final String KEY_TAB_NAME = "ktbname";
-    private static final String KERBEROS_CONFIG_NAME = "kbcname";
+    private static final String KEY_TAB_CONTENT = "ktbname";
+    private static final String KERBEROS_CONFIG_CONTENT = "kbcname";
 
     private static final String USER = "kerberos_user";
-    private static final String PW = "ExaAuthType=Kerberos;" + KEY_TAB_NAME + ";" + KERBEROS_CONFIG_NAME;
+    private static final String KERBEROS_PASSWORD = "ExaAuthType=Kerberos;"
+            + Base64.getEncoder().encodeToString(KERBEROS_CONFIG_CONTENT.getBytes(StandardCharsets.UTF_8)) + ";"
+            + Base64.getEncoder().encodeToString(KEY_TAB_CONTENT.getBytes(StandardCharsets.UTF_8));
     private KerberosConfigurationCreator creator;
 
     @BeforeEach
@@ -34,7 +37,7 @@ class KerberosConfigurationCreatorTest {
 
     @Test
     void testIsKerberosAuthenticationTrue() {
-        assertThat(KerberosConfigurationCreator.isKerberosAuthentication(PW), equalTo(true));
+        assertThat(KerberosConfigurationCreator.isKerberosAuthentication(KERBEROS_PASSWORD), equalTo(true));
     }
 
     @Test
@@ -44,22 +47,45 @@ class KerberosConfigurationCreatorTest {
 
     @Test
     void testWriteKerberosConfigurationFiles() {
-        this.creator.writeKerberosConfigurationFiles(USER, PW);
-        assertAll( //
-                () -> assertJaasConfigurationPathProperty(), //
-                () -> assertKerberosConfigurationPathProperty(), //
-                () -> assertUseSubjectCredentialsProperty(), //
-                () -> assertJaasConfigurationFileContent(getJaasConfigPathFromProperty()), //
-                () -> assertKerberosFileContent(), //
+        this.creator.writeKerberosConfigurationFiles(USER, KERBEROS_PASSWORD);
+        assertAll(
+                this::assertJaasConfigurationPathProperty,
+                this::assertKerberosConfigurationPathProperty,
+                this::assertUseSubjectCredentialsProperty,
+                () -> assertJaasConfigurationFileContent(getJaasConfigPathFromProperty()),
+                () -> assertKerberosFileContent(KERBEROS_CONFIG_CONTENT),
                 () -> assertKeyTableFileContent(getJaasConfigPathFromProperty()));
     }
 
     @Test
     void base64() {
-        final byte[] raw = "some string".getBytes();
+        final byte[] raw = "some string äöüß".getBytes(StandardCharsets.UTF_8);
         final byte[] encoded = Base64.getEncoder().encode(raw);
         final byte[] decoded = Base64.getDecoder().decode(encoded);
         assertThat(decoded, equalTo(raw));
+    }
+
+    @Test
+    void testWriteKerberosConfigurationFilesEscapesPrincipal() throws IOException {
+        final String principal = "user\\name\"quoted";
+        this.creator.writeKerberosConfigurationFiles(principal, KERBEROS_PASSWORD);
+
+        final String content = getJaasConfigContent(getJaasConfigPathFromProperty());
+
+        assertAll(
+                () -> assertThat(content, containsString("principal=\"user\\\\name\\\"quoted\"")),
+                () -> assertThat(content, not(containsString("principal=\"user\\name\"quoted\""))));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "user\nname", "user\rname" })
+    void testWriteKerberosConfigurationFilesRejectsPrincipalsWithLineBreaks(final String principal) {
+        final KerberosConfigurationCreatorException exception = assertThrows(
+                KerberosConfigurationCreatorException.class,
+                () -> this.creator.writeKerberosConfigurationFiles(principal, KERBEROS_PASSWORD));
+
+        assertAll(() -> assertThat(exception.getMessage(),
+                equalTo("E-VSCJDBC-52: Kerberos principal must not contain line breaks.")));
     }
 
     private String getJaasConfigPathFromProperty() {
@@ -92,18 +118,30 @@ class KerberosConfigurationCreatorTest {
     }
 
     private String getJaasConfigContent(final String jaasConfigurationPath) throws IOException {
-        return new String(Files.readAllBytes(Paths.get(jaasConfigurationPath)));
+        return Files.readString(Paths.get(jaasConfigurationPath), StandardCharsets.UTF_8);
     }
 
-    private void assertKerberosFileContent() {
-        assertThat(new File(getKerberosConfigFromProperty()), anExistingFile());
+    private void assertKerberosFileContent(final String expectedContent) {
+        final File kerberosFile = new File(getKerberosConfigFromProperty());
+        assertAll(
+                () -> assertThat(kerberosFile, anExistingFile()),
+                () -> assertThat(Files.readString(kerberosFile.toPath(), StandardCharsets.UTF_8),
+                        equalTo(expectedContent)));
     }
 
     private void assertKeyTableFileContent(final String jaasConfigurationPath) throws IOException {
         final String jaasConfigContent = getJaasConfigContent(jaasConfigurationPath);
-        String keyTabPath = jaasConfigContent.substring(jaasConfigContent.indexOf("keyTab=\"") + 8);
-        keyTabPath = keyTabPath.substring(0, keyTabPath.indexOf("\""));
-        assertThat("Key tab file: " + keyTabPath, new File(keyTabPath), anExistingFile());
+        final String keyTabPath = extractKeyTabPath(jaasConfigContent);
+        final File keyTabFile = new File(keyTabPath);
+        assertAll(
+                () -> assertThat("Key tab file: " + keyTabPath, keyTabFile, anExistingFile()),
+                () -> assertThat(Files.readString(keyTabFile.toPath(), StandardCharsets.UTF_8),
+                        equalTo(KEY_TAB_CONTENT)));
+    }
+
+    private String extractKeyTabPath(final String jaasConfigContent) {
+        final String keyTabPathAndSuffix = jaasConfigContent.substring(jaasConfigContent.indexOf("keyTab=\"") + 8);
+        return keyTabPathAndSuffix.substring(0, keyTabPathAndSuffix.indexOf("\""));
     }
 
     @ValueSource(strings = { "", "missing preamble;foo;bar", "ExaAuthType=Kerberos;missing next part",
@@ -113,6 +151,7 @@ class KerberosConfigurationCreatorTest {
         final KerberosConfigurationCreatorException exception = assertThrows(
                 KerberosConfigurationCreatorException.class,
                 () -> this.creator.writeKerberosConfigurationFiles("anyone", password));
-        assertThat(exception.getMessage(), containsString("E-VSCJDBC-32"));
+        assertThat(exception.getMessage(), equalTo("E-VSCJDBC-32: Syntax error in Kerberos password. Must conform to: "
+                + "'ExaAuthType=Kerberos;<base 64 kerberos config>;<base 64 key tab>'"));
     }
 }
