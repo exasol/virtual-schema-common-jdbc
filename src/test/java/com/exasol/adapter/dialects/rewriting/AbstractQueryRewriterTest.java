@@ -10,7 +10,6 @@ import java.sql.SQLException;
 import java.util.*;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 import com.exasol.*;
@@ -20,8 +19,6 @@ import com.exasol.adapter.dialects.SqlDialect;
 import com.exasol.adapter.dialects.dummy.DummySqlDialect;
 import com.exasol.adapter.jdbc.*;
 import com.exasol.adapter.metadata.DataType;
-import com.exasol.adapter.properties.DataTypeDetection;
-import com.exasol.adapter.properties.DataTypeDetection.Strategy;
 import com.exasol.adapter.sql.TestSqlStatementFactory;
 
 class AbstractQueryRewriterTest {
@@ -59,24 +56,6 @@ class AbstractQueryRewriterTest {
         assertThat(testee.rewrite(TestSqlStatementFactory.createSelectOneFromDual(), SELECT_LIST_DATA_TYPES, null,
                 AdapterProperties.emptyProperties()),
                 equalTo("old:CONNECTION DEFINITION:SELECT 1 FROM \"DUAL\""));
-    }
-
-    @Test
-    void rewriteThrowsForUnsupportedFromResultSetDataTypeDetection() {
-        final DummyQueryRewriter testee = new DummyQueryRewriter(dummyDialect(AdapterProperties.emptyProperties()),
-                new FixedConnectionDefinitionBuilder());
-        final DataTypeDetection dataTypeDetectionMock = Mockito.mock(DataTypeDetection.class);
-        when(dataTypeDetectionMock.getStrategy()).thenReturn(Strategy.FROM_RESULT_SET);
-
-        try (final MockedStatic<DataTypeDetection> dataTypeDetection = Mockito.mockStatic(DataTypeDetection.class)) {
-            dataTypeDetection.when(DataTypeDetection::create).thenReturn(dataTypeDetectionMock);
-            final AdapterException exception = assertThrows(AdapterException.class,
-                    () -> testee.rewrite(TestSqlStatementFactory.createSelectOneFromDual(),
-                            EMPTY_SELECT_LIST_DATA_TYPES, null, AdapterProperties.emptyProperties()));
-
-            assertThat(exception.getMessage(), equalTo(
-                    "E-VSCJDBC-46: Property `IMPORT_DATA_TYPES` value 'FROM_RESULT_SET' is no longer supported. Please remove the `IMPORT_DATA_TYPES` property from the virtual schema so the default value 'EXASOL_CALCULATED' is used."));
-        }
     }
 
     @Test
