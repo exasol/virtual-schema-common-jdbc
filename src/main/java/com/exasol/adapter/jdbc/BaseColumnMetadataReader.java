@@ -62,7 +62,7 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
      * @param identifierConverter converter between source and Exasol identifiers
      */
     public BaseColumnMetadataReader(final Connection connection, final AdapterProperties properties,
-                final ExaMetadata exaMetadata, final IdentifierConverter identifierConverter) {
+            final ExaMetadata exaMetadata, final IdentifierConverter identifierConverter) {
         super(connection, properties, exaMetadata);
         this.identifierConverter = identifierConverter;
         this.supportsTimestampsWithNanoPrecision = ExasolVersion.parse(exaMetadata).atLeast(8, 32);
@@ -70,6 +70,7 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
 
     /**
      * Whether the Exasol database supports timestamp with precision up to nanoseconds.
+     * 
      * @return true if Exasol database supports timestamps with nanoseconds precision false otherwise.
      */
     protected boolean supportsTimestampsWithNanoPrecision() {
@@ -315,42 +316,42 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
     @Override
     public DataType mapJdbcType(final JDBCTypeDescription jdbcTypeDescription) {
         switch (jdbcTypeDescription.getJdbcType()) {
-        case Types.TINYINT:
-        case Types.SMALLINT:
-            return convertSmallInteger(jdbcTypeDescription.getPrecisionOrSize());
-        case Types.INTEGER:
-            return convertInteger(jdbcTypeDescription.getPrecisionOrSize());
-        case Types.BIGINT:
-            return convertBigInteger(jdbcTypeDescription.getPrecisionOrSize());
-        case Types.DECIMAL:
-            return convertDecimal(jdbcTypeDescription.getPrecisionOrSize(), jdbcTypeDescription.getDecimalScale());
-        case Types.REAL:
-        case Types.FLOAT:
-        case Types.DOUBLE:
-            return DataType.createDouble();
-        case Types.VARCHAR:
-        case Types.NVARCHAR:
-        case Types.LONGVARCHAR:
-        case Types.LONGNVARCHAR:
-            return convertVarChar(jdbcTypeDescription.getPrecisionOrSize());
-        case Types.CHAR:
-        case Types.NCHAR:
-            return convertChar(jdbcTypeDescription.getPrecisionOrSize());
-        case Types.DATE:
-            return DataType.createDate();
-        case Types.TIMESTAMP:
-            return convertTimestamp(jdbcTypeDescription.getDecimalScale());
-        case Types.BIT:
-        case Types.BOOLEAN:
-            return DataType.createBool();
-        case Types.TIME:
-        case Types.TIMESTAMP_WITH_TIMEZONE:
-            return DataType.createVarChar(100, UTF8);
-        case Types.NUMERIC:
-            return fallBackToMaximumSizeVarChar();
-        default:
-            LOGGER.finer("Found unsupported type: " + jdbcTypeDescription.getJdbcType());
-            return DataType.createUnsupported();
+            case Types.TINYINT:
+            case Types.SMALLINT:
+                return convertSmallInteger(jdbcTypeDescription.getPrecisionOrSize());
+            case Types.INTEGER:
+                return convertInteger(jdbcTypeDescription.getPrecisionOrSize());
+            case Types.BIGINT:
+                return convertBigInteger(jdbcTypeDescription.getPrecisionOrSize());
+            case Types.DECIMAL:
+                return convertDecimal(jdbcTypeDescription.getPrecisionOrSize(), jdbcTypeDescription.getDecimalScale());
+            case Types.REAL:
+            case Types.FLOAT:
+            case Types.DOUBLE:
+                return DataType.createDouble();
+            case Types.VARCHAR:
+            case Types.NVARCHAR:
+            case Types.LONGVARCHAR:
+            case Types.LONGNVARCHAR:
+                return convertVarChar(jdbcTypeDescription.getPrecisionOrSize());
+            case Types.CHAR:
+            case Types.NCHAR:
+                return convertChar(jdbcTypeDescription.getPrecisionOrSize());
+            case Types.DATE:
+                return DataType.createDate();
+            case Types.TIMESTAMP:
+                return convertTimestamp(jdbcTypeDescription.getDecimalScale());
+            case Types.BIT:
+            case Types.BOOLEAN:
+                return DataType.createBool();
+            case Types.TIME:
+            case Types.TIMESTAMP_WITH_TIMEZONE:
+                return DataType.createVarChar(100, UTF8);
+            case Types.NUMERIC:
+                return fallBackToMaximumSizeVarChar();
+            default:
+                LOGGER.finer("Found unsupported type: " + jdbcTypeDescription.getJdbcType());
+                return DataType.createUnsupported();
         }
     }
 
@@ -398,24 +399,40 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
 
     private static DataType convertVarChar(final int size) {
         final DataType.ExaCharset charset = UTF8;
-        if (size <= DataType.MAX_EXASOL_VARCHAR_SIZE) {
-            final int precision = size == 0 ? DataType.MAX_EXASOL_VARCHAR_SIZE : size;
-            return DataType.createVarChar(precision, charset);
+        if (size <= 0) {
+            return DataType.createVarChar(DataType.MAX_EXASOL_VARCHAR_SIZE, charset);
+        } else if (size <= DataType.MAX_EXASOL_VARCHAR_SIZE) {
+            return DataType.createVarChar(size, charset);
         } else {
+            LOGGER.warning(() -> ExaError.messageBuilder("W-VSCJDBC-53")
+                    .message("VARCHAR size {{size}} exceeds the maximum Exasol VARCHAR size {{maxSize}}."
+                            + " Mapping to maximum-size VARCHAR instead.",
+                            size, DataType.MAX_EXASOL_VARCHAR_SIZE)
+                    .toString());
             return DataType.createVarChar(DataType.MAX_EXASOL_VARCHAR_SIZE, charset);
         }
     }
 
     private static DataType convertChar(final int size) {
         final DataType.ExaCharset charset = UTF8;
-        if (size <= DataType.MAX_EXASOL_CHAR_SIZE) {
+        if (size <= 0) {
+            return DataType.createVarChar(DataType.MAX_EXASOL_VARCHAR_SIZE, charset);
+        } else if (size <= DataType.MAX_EXASOL_CHAR_SIZE) {
             return DataType.createChar(size, charset);
+        } else if (size <= DataType.MAX_EXASOL_VARCHAR_SIZE) {
+            LOGGER.warning(() -> ExaError.messageBuilder("W-VSCJDBC-54")
+                    .message("CHAR size {{size}} exceeds the maximum Exasol CHAR size {{maxCharSize}}."
+                            + " Mapping to VARCHAR({{size}}) instead.",
+                            size, DataType.MAX_EXASOL_CHAR_SIZE)
+                    .toString());
+            return DataType.createVarChar(size, charset);
         } else {
-            if (size <= DataType.MAX_EXASOL_VARCHAR_SIZE) {
-                return DataType.createVarChar(size, charset);
-            } else {
-                return DataType.createVarChar(DataType.MAX_EXASOL_VARCHAR_SIZE, charset);
-            }
+            LOGGER.warning(() -> ExaError.messageBuilder("W-VSCJDBC-55")
+                    .message("CHAR size {{size}} exceeds the maximum Exasol VARCHAR size {{maxSize}}."
+                            + " Mapping to maximum-size VARCHAR instead.",
+                            size, DataType.MAX_EXASOL_VARCHAR_SIZE)
+                    .toString());
+            return DataType.createVarChar(DataType.MAX_EXASOL_VARCHAR_SIZE, charset);
         }
     }
 
