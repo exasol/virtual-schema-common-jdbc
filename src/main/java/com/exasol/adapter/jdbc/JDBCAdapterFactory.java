@@ -42,7 +42,6 @@ public class JDBCAdapterFactory implements AdapterFactory {
      *
      * @return new instance
      */
-
     @Override
     public VirtualSchemaAdapter createAdapter(final AdapterContext adapterContext) {
         return new JDBCAdapter(this.sqlDialectFactory, adapterContext);
@@ -51,5 +50,10 @@ public class JDBCAdapterFactory implements AdapterFactory {
     @Override
     public String getAdapterProjectShortTag() {
         return sqlDialectFactory.getAdapterProjectShortTag();
+    }
+
+    @Override
+    public void close() {
+        this.sqlDialectFactory.close();
     }
 }

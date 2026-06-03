@@ -112,7 +112,7 @@ class RemoteConnectionFactoryTest {
         final Connection connection = factory.getConnection();
         assertThat(connection, notNullValue());
         assertThat("No cached connection", factory.hasCachedConnection());
-        factory.clean();
+        factory.close();
         assertThat("Cached connection after clean()", !factory.hasCachedConnection());
     }
 }

@@ -4,10 +4,15 @@ Code name:
 
 ## Summary
 
-This release improves the error message in case of invalid capability names. The user now gets a helpful message with available capability names.
+Fix cleanup and lazy initialization of cached JDBC connections in `JDBCAdapter`.
+
+The release also improves the error message in case of invalid capability names. The user now gets a helpful message with available capability names.
+
+The release also makes interfaces `SqlDialectFactory`, `SqlDialect` and `ConnectionFactory` extend `AutoClosable`. This allows adapters to cleanup resources. Both interfaces provide a `default` implementation of the `close()` method, so implementors don't need to change.
 
 ## Bugfixes
 
+* #174: Fix JDBCAdapter connection cleanup and lazy connection factory race
 * #182: Fixed dependency on mutating `subtractCapabilities()` method
 * #163: Fixed `JDBCAdapter.pushdown()` clearing the connection cache after successful requests.
 * #173: Fixed deserialization of column adapter notes when `typeName` is absent.

@@ -29,7 +29,7 @@ class AbstractRemoteMetadataReaderTest {
         final Connection connectionMock = mockConnectionThrowingExceptionOnGetMetadata();
         final RemoteMetadataReader reader = new DummyRemoteMetadataReader(connectionMock,
                 AdapterProperties.emptyProperties(), exaMetadataMock);
-        assertThrows(RemoteMetadataReaderException.class, () -> reader.getSchemaAdapterNotes());
+        assertThrows(RemoteMetadataReaderException.class, reader::getSchemaAdapterNotes);
     }
 
     private Connection mockConnectionThrowingExceptionOnGetMetadata() throws SQLException {
@@ -43,7 +43,7 @@ class AbstractRemoteMetadataReaderTest {
         final Connection connectionMock = mockConnectionThrowingExceptionOnGetMetadata();
         final RemoteMetadataReader reader = new DummyRemoteMetadataReader(connectionMock,
                 AdapterProperties.emptyProperties(), exaMetadataMock);
-        assertThrows(RemoteMetadataReaderException.class, () -> reader.readRemoteSchemaMetadata());
+        assertThrows(RemoteMetadataReaderException.class, reader::readRemoteSchemaMetadata);
     }
 
     @Test
