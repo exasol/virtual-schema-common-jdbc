@@ -144,8 +144,6 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
                 || AdapterProperties.isRefreshingVirtualSchemaRequired(properties);
     }
 
-    <<<<<<<HEAD
-
     /**
      * Create or get existing {@link RemoteConnectionFactory} instance.
      *
@@ -162,8 +160,6 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
         }
         return this.connectionFactory;
     }
-
-    =======>>>>>>>origin/main
 
     private SqlDialect createDialectAndValidateProperties(final ExaMetadata metadata,
             final AdapterProperties properties) throws PropertyValidationException {
