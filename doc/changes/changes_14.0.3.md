@@ -13,6 +13,7 @@ The release also makes interfaces `SqlDialectFactory`, `SqlDialect` and `Connect
 ## Bugfixes
 
 * #174: Fix JDBCAdapter connection cleanup and lazy connection factory race
+* #176: Harden Kerberos configuration file generation by escaping JAAS principals, rejecting line breaks and using direct Base64 string decoding. The current JVM-wide Kerberos system property limitation is now documented explicitly.
 * #182: Fixed dependency on mutating `subtractCapabilities()` method
 * #163: Fixed `JDBCAdapter.pushdown()` clearing the connection cache after successful requests.
 * #173: Fixed deserialization of column adapter notes when `typeName` is absent.
