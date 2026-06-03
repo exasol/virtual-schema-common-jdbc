@@ -48,7 +48,6 @@ public final class SqlGenerationHelper {
      */
     public static boolean selectListRequiresCasts(final SqlSelectList selectList,
             final Predicate<SqlNode> nodeRequiresCast) {
-        boolean requiresCasts = false;
         final SqlStatementSelect select = (SqlStatementSelect) selectList.getParent();
         final int columnId = 0;
         final List<TableMetadata> tableMetadata = new ArrayList<>();
@@ -56,11 +55,11 @@ public final class SqlGenerationHelper {
         for (final TableMetadata tableMeta : tableMetadata) {
             for (final ColumnMetadata columnMeta : tableMeta.getColumns()) {
                 if (nodeRequiresCast.test(new SqlColumn(columnId, columnMeta))) {
-                    requiresCasts = true;
+                    return true;
                 }
             }
         }
-        return requiresCasts;
+        return false;
     }
 
     /**

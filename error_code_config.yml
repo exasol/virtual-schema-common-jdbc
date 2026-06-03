@@ -2,4 +2,4 @@ error-tags:
   VSCJDBC:
     packages:
       - com.exasol
-    highest-index: 52
+    highest-index: 55
