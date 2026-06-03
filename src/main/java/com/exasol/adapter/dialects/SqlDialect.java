@@ -25,7 +25,7 @@ import com.exasol.adapter.sql.*;
  * @see com.exasol.adapter.jdbc.TableMetadataReader
  * @see com.exasol.adapter.jdbc.ColumnMetadataReader
  */
-public interface SqlDialect {
+public interface SqlDialect extends AutoCloseable {
     /**
      * Get the dialect name.
      *
@@ -250,4 +250,9 @@ public interface SqlDialect {
      */
     public String rewriteQuery(SqlStatement statement, List<DataType> selectListDataTypes, ExaMetadata exaMetadata)
             throws AdapterException, SQLException;
+
+    @Override
+    public default void close() {
+        // Default implementation does nothing
+    }
 }

@@ -10,7 +10,7 @@ import java.util.ServiceLoader;
  * to find it.
  * </p>
  */
-public interface SqlDialectFactory {
+public interface SqlDialectFactory extends AutoCloseable {
     /**
      * Create a new {@link SqlDialect}.
      *
@@ -49,4 +49,12 @@ public interface SqlDialectFactory {
      * @return Virtual Schema Adapter version
      */
     String getSqlDialectVersion();
+
+    /**
+     * Close the factory and release any resources.
+     */
+    @Override
+    default void close() {
+        // Default implementation does nothing
+    }
 }

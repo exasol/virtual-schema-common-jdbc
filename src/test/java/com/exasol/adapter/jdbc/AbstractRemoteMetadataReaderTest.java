@@ -10,20 +10,26 @@ import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 
-import com.exasol.ExaMetadata;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.exasol.ExaMetadata;
 import com.exasol.adapter.AdapterProperties;
 
+@ExtendWith(MockitoExtension.class)
 class AbstractRemoteMetadataReaderTest {
+    @Mock
+    ExaMetadata exaMetadataMock;
+
     @Test
     void testGetSchemaAdapterNotesWithSqlException() throws SQLException {
         final Connection connectionMock = mockConnectionThrowingExceptionOnGetMetadata();
-        final ExaMetadata exaMetadataMock = Mockito.mock(ExaMetadata.class);
         final RemoteMetadataReader reader = new DummyRemoteMetadataReader(connectionMock,
                 AdapterProperties.emptyProperties(), exaMetadataMock);
-        assertThrows(RemoteMetadataReaderException.class, () -> reader.getSchemaAdapterNotes());
+        assertThrows(RemoteMetadataReaderException.class, reader::getSchemaAdapterNotes);
     }
 
     private Connection mockConnectionThrowingExceptionOnGetMetadata() throws SQLException {
@@ -35,16 +41,14 @@ class AbstractRemoteMetadataReaderTest {
     @Test
     void testReadRemoteSchemaMetadataWithSqlException() throws SQLException {
         final Connection connectionMock = mockConnectionThrowingExceptionOnGetMetadata();
-        final ExaMetadata exaMetadataMock = Mockito.mock(ExaMetadata.class);
         final RemoteMetadataReader reader = new DummyRemoteMetadataReader(connectionMock,
                 AdapterProperties.emptyProperties(), exaMetadataMock);
-        assertThrows(RemoteMetadataReaderException.class, () -> reader.readRemoteSchemaMetadata());
+        assertThrows(RemoteMetadataReaderException.class, reader::readRemoteSchemaMetadata);
     }
 
     @Test
     void testReadRemoteSchemaMetadataWithTableListAndSqlException() throws SQLException {
         final Connection connectionMock = mockConnectionThrowingExceptionOnGetMetadata();
-        final ExaMetadata exaMetadataMock = Mockito.mock(ExaMetadata.class);
         final RemoteMetadataReader reader = new DummyRemoteMetadataReader(connectionMock,
                 AdapterProperties.emptyProperties(), exaMetadataMock);
         final List<String> tables = Collections.emptyList();

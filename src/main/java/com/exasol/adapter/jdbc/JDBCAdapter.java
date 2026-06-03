@@ -8,7 +8,7 @@ import java.util.logging.Logger;
 
 import com.exasol.ExaMetadata;
 import com.exasol.adapter.*;
-import com.exasol.adapter.capabilities.*;
+import com.exasol.adapter.capabilities.Capabilities;
 import com.exasol.adapter.dialects.*;
 import com.exasol.adapter.metadata.SchemaMetadata;
 import com.exasol.adapter.metadata.SchemaMetadataInfo;
@@ -23,10 +23,6 @@ import com.exasol.errorreporting.ExaError;
  */
 public class JDBCAdapter implements VirtualSchemaAdapter {
     private static final Logger LOGGER = Logger.getLogger(JDBCAdapter.class.getName());
-    private static final String SCALAR_FUNCTION_PREFIX = "FN_";
-    private static final String PREDICATE_PREFIX = "FN_PRED_";
-    private static final String AGGREGATE_FUNCTION_PREFIX = "FN_AGG_";
-    private static final String LITERAL_PREFIX = "LITERAL_";
     private static final String TABLES_PROPERTY = "TABLE_FILTER";
     private final SqlDialectFactory sqlDialectFactory;
     private final AdapterContext adapterContext;
@@ -52,12 +48,10 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
             final CreateVirtualSchemaRequest request) throws AdapterException {
         logCreateVirtualSchemaRequestReceived(request);
         final AdapterProperties properties = getPropertiesFromRequest(request);
-        try {
-            final SqlDialect dialect = createDialectAndValidateProperties(exasolMetadata, properties);
+        try (final SqlDialect dialect = createDialectAndValidateProperties(exasolMetadata, properties)) {
             final SchemaMetadata remoteMeta = getRemoteMetadata(dialect, properties.getFilteredTables());
             return CreateVirtualSchemaResponse.builder().schemaMetadata(remoteMeta).build();
         } catch (final SQLException exception) {
-            this.connectionFactory.clean();
             throw new AdapterException(ExaError.messageBuilder("E-VSCJDBC-25")
                     .message("Unable create Virtual Schema \"{{virtualSchemaName|uq}}\". Cause: {{cause|uq}}",
                             request.getVirtualSchemaName(), exception.getMessage())
@@ -102,9 +96,8 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
 
     @Override
     public RefreshResponse refresh(final ExaMetadata metadata, final RefreshRequest request) throws AdapterException {
-        try {
-            final AdapterProperties properties = getPropertiesFromRequest(request);
-            final SqlDialect dialect = createDialectAndValidateProperties(metadata, properties);
+        final AdapterProperties properties = getPropertiesFromRequest(request);
+        try (final SqlDialect dialect = createDialectAndValidateProperties(metadata, properties)) {
             final SchemaMetadata remoteMetadata = request.refreshesOnlySelectedTables() //
                     ? dialect.readSchemaMetadata(request.getTables())
                     : getRemoteMetadata(dialect, properties.getFilteredTables());
@@ -113,8 +106,6 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
             throw new AdapterException(ExaError.messageBuilder("E-VSCJDBC-26").message(
                     "Unable refresh metadata of Virtual Schema \"{{virtualSchemaName|uq}}\". Cause: {{cause|uq}}",
                     request.getSchemaMetadataInfo().getSchemaName(), exception.getMessage()).toString(), exception);
-        } finally {
-            this.connectionFactory.clean();
         }
     }
 
@@ -135,12 +126,12 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
         final Map<String, String> mergedRawProperties = mergeProperties(schemaMetadataInfo.getProperties(),
                 requestRawProperties);
         final AdapterProperties mergedProperties = new AdapterProperties(mergedRawProperties);
-        final SqlDialect dialect = createDialectAndValidateProperties(metadata, mergedProperties);
-
         if (requiresRefreshOfVirtualSchema(requestRawProperties)) {
-            final List<String> tableFilter = getTableFilter(mergedRawProperties);
-            final SchemaMetadata remoteMeta = dialect.readSchemaMetadata(tableFilter);
-            return SetPropertiesResponse.builder().schemaMetadata(remoteMeta).build();
+            try (final SqlDialect dialect = createDialectAndValidateProperties(metadata, mergedProperties)) {
+                final List<String> tableFilter = getTableFilter(mergedRawProperties);
+                final SchemaMetadata remoteMeta = dialect.readSchemaMetadata(tableFilter);
+                return SetPropertiesResponse.builder().schemaMetadata(remoteMeta).build();
+            }
         } else {
             return SetPropertiesResponse.builder().schemaMetadata(null).build();
         }
@@ -162,9 +153,8 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
         if (this.connectionFactory == null) {
             this.connectionFactory = new RemoteConnectionFactory(metadata, properties);
         }
-        final ConnectionFactory factory = this.connectionFactory;
         return this.sqlDialectFactory.createSqlDialect(JDBCAdapterContext.builder()
-                .connectionFactory(factory)
+                .connectionFactory(this.connectionFactory)
                 .properties(properties)
                 .metadata(metadata)
                 .telemetryClient(this.adapterContext.getTelemetryClient())
@@ -202,72 +192,52 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
             throws AdapterException {
         LOGGER.fine(() -> "Received request to list the adapter's capabilites.");
         final AdapterProperties properties = getPropertiesFromRequest(request);
-        final SqlDialect dialect = createDialect(exaMetadata, properties);
-        final Capabilities capabilities = dialect.getCapabilities();
-        final Capabilities excludedCapabilities = getExcludedCapabilities(properties);
-        capabilities.subtractCapabilities(excludedCapabilities);
-        return GetCapabilitiesResponse //
-                .builder()//
-                .capabilities(capabilities)//
-                .build();
+        try (final SqlDialect dialect = createDialect(exaMetadata, properties)) {
+            final Capabilities capabilities = dialect.getCapabilities();
+            final Capabilities excludedCapabilities = getExcludedCapabilities(properties);
+            return GetCapabilitiesResponse
+                    .builder()
+                    .capabilities(capabilities.subtract(excludedCapabilities))
+                    .build();
+        }
     }
 
     private Capabilities getExcludedCapabilities(final AdapterProperties properties) {
         if (properties.containsKey(AdapterProperties.EXCLUDED_CAPABILITIES_PROPERTY)) {
             final String excludedCapabilitiesStr = properties.getExcludedCapabilities();
-            final Capabilities.Builder builder = parseExcludedCapabilities(excludedCapabilitiesStr);
-            return builder.build();
+            return parseExcludedCapabilities(excludedCapabilitiesStr);
         } else {
             LOGGER.config(() -> "Excluded Capabilities: none");
             return Capabilities.builder().build();
         }
     }
 
-    private Capabilities.Builder parseExcludedCapabilities(final String excludedCapabilitiesString) {
-        final Capabilities.Builder builder = Capabilities.builder();
+    private Capabilities parseExcludedCapabilities(final String excludedCapabilitiesString) {
         LOGGER.config(() -> "Excluded Capabilities: "
                 + (excludedCapabilitiesString.isEmpty() ? "none" : excludedCapabilitiesString));
-        for (String capability : excludedCapabilitiesString.split(",")) {
-            capability = capability.trim();
-            if (capability.isEmpty()) {
-                continue;
-            }
-            if (capability.startsWith(LITERAL_PREFIX)) {
-                final String literalCapabilities = capability.replaceFirst(LITERAL_PREFIX, "");
-                builder.addLiteral(LiteralCapability.valueOf(literalCapabilities));
-            } else if (capability.startsWith(AGGREGATE_FUNCTION_PREFIX)) {
-                final String aggregateFunctionCap = capability.replaceFirst(AGGREGATE_FUNCTION_PREFIX, "");
-                builder.addAggregateFunction(AggregateFunctionCapability.valueOf(aggregateFunctionCap));
-            } else if (capability.startsWith(PREDICATE_PREFIX)) {
-                final String predicateCapabilities = capability.replaceFirst(PREDICATE_PREFIX, "");
-                builder.addPredicate(PredicateCapability.valueOf(predicateCapabilities));
-            } else if (capability.startsWith(SCALAR_FUNCTION_PREFIX)) {
-                final String scalarFunctionCapabilities = capability.replaceFirst(SCALAR_FUNCTION_PREFIX, "");
-                builder.addScalarFunction(ScalarFunctionCapability.valueOf(scalarFunctionCapabilities));
-            } else {
-                builder.addMain(MainCapability.valueOf(capability));
-            }
-        }
-        return builder;
+        return CapabilitiesParser.parseExcludedCapabilities(excludedCapabilitiesString);
     }
 
     @Override
     public PushDownResponse pushdown(final ExaMetadata exaMetadata, final PushDownRequest request)
             throws AdapterException {
-        try {
-            final AdapterProperties properties = getPropertiesFromRequest(request);
-            final SqlDialect dialect = createDialect(exaMetadata, properties);
+        final AdapterProperties properties = getPropertiesFromRequest(request);
+        try (final SqlDialect dialect = createDialect(exaMetadata, properties)) {
             final String importFromPushdownQuery = dialect.rewriteQuery(request.getSelect(),
                     request.getSelectListDataTypes(), exaMetadata);
             return PushDownResponse.builder().pushDownSql(importFromPushdownQuery).build();
         } catch (final SQLException exception) {
-            this.connectionFactory.clean();
             throw new AdapterException(ExaError.messageBuilder("E-VSCJDBC-27")
                     .message("Unable to execute push-down request. Cause: {{cause|uq}}", exception.getMessage())
                     .toString(), exception);
-        } catch (final AdapterException | RuntimeException exception) {
-            this.connectionFactory.clean();
-            throw exception;
         }
+    }
+
+    @Override
+    public void close() {
+        if (this.connectionFactory != null) {
+            this.connectionFactory.close();
+        }
+        this.connectionFactory = null;
     }
 }
