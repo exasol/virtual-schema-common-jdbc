@@ -4,10 +4,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.attribute.PosixFilePermission;
-import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Base64;
-import java.util.Set;
 import java.util.logging.Logger;
 
 import com.exasol.errorreporting.ExaError;
@@ -85,21 +82,11 @@ public class KerberosConfigurationCreator {
     }
 
     private Path createCommonDirectoryForKerberosConfigurationFiles() throws IOException {
-        final Path temporaryDirectory = createTemporaryDirectory();
+        @SuppressWarnings("java:S5443") // Keep original file permissions to avoid issues with Kerberos authentication
+        final Path temporaryDirectory = Files.createTempDirectory("kerberos_");
         temporaryDirectory.toFile().deleteOnExit();
         LOGGER.finer(() -> "Created temporary directory \"" + temporaryDirectory
                 + "\" to contain Kerberos authentication files.");
-        return temporaryDirectory;
-    }
-
-    private Path createTemporaryDirectory() throws IOException {
-        @SuppressWarnings("java:S5443") // We will set secure permissions on the created directory
-        final Path temporaryDirectory = Files.createTempDirectory("kerberos_");
-        @SuppressWarnings("java:S2612") // Directory must be readable for the OS user running the adapter, so we cannot set permissions to 700
-        final Set<PosixFilePermission> permissions = PosixFilePermissions.fromString("rwxr-xr-x");
-        Files.setPosixFilePermissions(temporaryDirectory, permissions);
-        LOGGER.finer(() -> "Set permissions of temporary directory \"" + temporaryDirectory + "\" to "
-                + PosixFilePermissions.toString(permissions) + ".");
         return temporaryDirectory;
     }
 

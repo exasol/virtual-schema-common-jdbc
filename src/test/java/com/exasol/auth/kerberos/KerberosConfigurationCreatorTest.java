@@ -13,10 +13,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.nio.file.attribute.PosixFilePermission;
-import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Base64;
-import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -57,8 +54,7 @@ class KerberosConfigurationCreatorTest {
                 this::assertUseSubjectCredentialsProperty,
                 () -> assertJaasConfigurationFileContent(getJaasConfigPathFromProperty()),
                 () -> assertKerberosFileContent(KERBEROS_CONFIG_CONTENT),
-                () -> assertKeyTableFileContent(getJaasConfigPathFromProperty()),
-                this::assertTemporaryDirectoryPermissions);
+                () -> assertKeyTableFileContent(getJaasConfigPathFromProperty()));
     }
 
     @Test
@@ -141,14 +137,6 @@ class KerberosConfigurationCreatorTest {
                 () -> assertThat("Key tab file: " + keyTabPath, keyTabFile, anExistingFile()),
                 () -> assertThat(Files.readString(keyTabFile.toPath(), StandardCharsets.UTF_8),
                         equalTo(KEY_TAB_CONTENT)));
-    }
-
-    private void assertTemporaryDirectoryPermissions() throws IOException {
-        final Set<PosixFilePermission> expectedPermissions = PosixFilePermissions.fromString("rwxr-xr-x");
-        final Set<PosixFilePermission> actualPermissions = Files
-                .getPosixFilePermissions(Paths.get(getKerberosConfigFromProperty()).getParent());
-
-        assertThat("Temporary Kerberos directory permissions", actualPermissions, equalTo(expectedPermissions));
     }
 
     private String extractKeyTabPath(final String jaasConfigContent) {
