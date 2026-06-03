@@ -1,6 +1,6 @@
 # Virtual Schema Common JDBC 14.0.3, released 2026-06-03
 
-Code name:
+Code name: Cleanup and Close
 
 ## Summary
 
