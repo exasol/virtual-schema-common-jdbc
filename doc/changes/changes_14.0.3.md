@@ -19,6 +19,7 @@ The release also makes interfaces `SqlDialectFactory`, `SqlDialect` and `Connect
 * #163: Fixed `JDBCAdapter.pushdown()` clearing the connection cache after successful requests.
 * #173: Fixed deserialization of column adapter notes when `typeName` is absent.
 * #177: Fixed JDBC metadata mapping for invalid and oversized character types.
+* #175: Fixed `IMPORT_DATA_TYPES` strategy resolution for deprecated `FROM_RESULT_SET` values.
 
 ## Dependency Updates
 

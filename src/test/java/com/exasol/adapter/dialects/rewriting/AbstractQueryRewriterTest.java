@@ -2,32 +2,101 @@ package com.exasol.adapter.dialects.rewriting;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
-import java.util.Map;
+import java.sql.SQLException;
+import java.util.*;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import com.exasol.ExaConnectionAccessException;
-import com.exasol.ExaMetadata;
+import com.exasol.*;
 import com.exasol.adapter.AdapterException;
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.dialects.SqlDialect;
-import com.exasol.adapter.jdbc.BaseConnectionDefinitionBuilder;
-import com.exasol.adapter.jdbc.RemoteMetadataReader;
+import com.exasol.adapter.dialects.dummy.DummySqlDialect;
+import com.exasol.adapter.jdbc.*;
+import com.exasol.adapter.metadata.DataType;
+import com.exasol.adapter.sql.TestSqlStatementFactory;
 
 class AbstractQueryRewriterTest {
+    private static final List<DataType> EMPTY_SELECT_LIST_DATA_TYPES = Collections.emptyList();
+    private static final List<DataType> SELECT_LIST_DATA_TYPES = List.of(DataType.createDecimal(18, 0));
+
+    @Test
+    void rewriteWithoutConnectionNameUsesConnectionDefinitionBuilderAndOldImportStatementOverload()
+            throws AdapterException, SQLException {
+        final DummyQueryRewriter testee = new DummyQueryRewriter(dummyDialect(AdapterProperties.emptyProperties()),
+                new FixedConnectionDefinitionBuilder());
+
+        assertThat(testee.rewrite(TestSqlStatementFactory.createSelectOneFromDual(), EMPTY_SELECT_LIST_DATA_TYPES, null,
+                AdapterProperties.emptyProperties()),
+                equalTo("old:CONNECTION DEFINITION:SELECT 1 FROM \"DUAL\""));
+    }
+
+    @Test
+    void rewriteWithConnectionNamePassesConnectionInformationToConnectionDefinitionBuilder()
+            throws AdapterException, SQLException {
+        final AdapterProperties properties = new AdapterProperties(Map.of("CONNECTION_NAME", "my_connection"));
+        final DummyQueryRewriter testee = new DummyQueryRewriter(dummyDialect(properties),
+                new ConnectionUserDefinitionBuilder());
+
+        assertThat(testee.rewrite(TestSqlStatementFactory.createSelectOneFromDual(), EMPTY_SELECT_LIST_DATA_TYPES,
+                exaMetadata("connection_user"), properties),
+                equalTo("old:USER connection_user:SELECT 1 FROM \"DUAL\""));
+    }
+
+    @Test
+    void rewriteWithSelectListDataTypesUsesDefaultNewImportStatementOverload() throws AdapterException, SQLException {
+        final DummyQueryRewriter testee = new DummyQueryRewriter(dummyDialect(AdapterProperties.emptyProperties()),
+                new FixedConnectionDefinitionBuilder());
+
+        assertThat(testee.rewrite(TestSqlStatementFactory.createSelectOneFromDual(), SELECT_LIST_DATA_TYPES, null,
+                AdapterProperties.emptyProperties()),
+                equalTo("old:CONNECTION DEFINITION:SELECT 1 FROM \"DUAL\""));
+    }
+
+    @Test
+    void getConnectionInformationReturnsNamedConnectionInformation() throws AdapterException {
+        final DummyQueryRewriter testee = new DummyQueryRewriter(null, new FixedConnectionDefinitionBuilder());
+
+        assertThat(testee.getConnectionInformation(exaMetadata("connection_user"),
+                new AdapterProperties(Map.of("CONNECTION_NAME", "my_connection"))).getUser(),
+                equalTo("connection_user"));
+    }
+
+    @Test
+    void getConnectionInformationReturnsNullWithoutConnectionName() throws AdapterException {
+        final DummyQueryRewriter testee = new DummyQueryRewriter(null, new FixedConnectionDefinitionBuilder());
+
+        assertThat(testee.getConnectionInformation(null, AdapterProperties.emptyProperties()), equalTo(null));
+    }
+
     @Test
     void testGetConnectionInformationThrowsException() throws ExaConnectionAccessException {
-        final DummyQueryRewriter dummyQueryRewriter = new DummyQueryRewriter(null, null);
+        final DummyQueryRewriter dummyQueryRewriter = new DummyQueryRewriter(null, (RemoteMetadataReader) null);
         final ExaMetadata exaMetadataMock = Mockito.mock(ExaMetadata.class);
         when(exaMetadataMock.getConnection("my_connection")).thenThrow(ExaConnectionAccessException.class);
         final AdapterException exception = assertThrows(AdapterException.class,
                 () -> dummyQueryRewriter.getConnectionInformation(exaMetadataMock,
                         new AdapterProperties(Map.of("CONNECTION_NAME", "my_connection"))));
         assertThat(exception.getMessage(), containsString("E-VSCJDBC-8"));
+    }
+
+    private static SqlDialect dummyDialect(final AdapterProperties properties) {
+        return new DummySqlDialect(null, properties, null);
+    }
+
+    private static ExaMetadata exaMetadata(final String username) {
+        return ExaMetadataStub.builder()
+                .exaConnectionInformation(ExaConnectionInformationStub.builder()
+                        .user(username)
+                        .password("password")
+                        .address("address")
+                        .build())
+                .build();
     }
 
     static class DummyQueryRewriter extends AbstractQueryRewriter {
@@ -41,9 +110,30 @@ class AbstractQueryRewriterTest {
             super(dialect, remoteMetadataReader, new BaseConnectionDefinitionBuilder());
         }
 
+        protected DummyQueryRewriter(final SqlDialect dialect,
+                final ConnectionDefinitionBuilder connectionDefinitionBuilder) {
+            super(dialect, null, connectionDefinitionBuilder);
+        }
+
         @Override
         protected String generateImportStatement(final String connectionDefinition, final String pushdownQuery) {
-            return "";
+            return "old:" + connectionDefinition + ":" + pushdownQuery;
+        }
+    }
+
+    static class FixedConnectionDefinitionBuilder implements ConnectionDefinitionBuilder {
+        @Override
+        public String buildConnectionDefinition(final AdapterProperties properties,
+                final ExaConnectionInformation exaConnectionInformation) {
+            return "CONNECTION DEFINITION";
+        }
+    }
+
+    static class ConnectionUserDefinitionBuilder implements ConnectionDefinitionBuilder {
+        @Override
+        public String buildConnectionDefinition(final AdapterProperties properties,
+                final ExaConnectionInformation exaConnectionInformation) {
+            return "USER " + exaConnectionInformation.getUser();
         }
     }
 }

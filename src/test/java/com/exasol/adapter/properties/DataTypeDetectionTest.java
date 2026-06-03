@@ -18,13 +18,19 @@ class DataTypeDetectionTest {
     void testFromProperties() {
         final DataTypeDetection.Strategy strategy = Strategy.EXASOL_CALCULATED;
         final AdapterProperties properties = adapterProperties(strategy.name());
-        final DataTypeDetection testee = DataTypeDetection.from(properties);
+        final DataTypeDetection testee = DataTypeDetection.create();
         assertThat(testee.getStrategy(), equalTo(strategy));
         verifySuccess(properties);
     }
 
     @Test
-    void testFromPropertiesFromResultSet() throws PropertyValidationException {
+    void testFromPropertiesFromResultSet() {
+        final DataTypeDetection testee = DataTypeDetection.create();
+        assertThat(testee.getStrategy(), equalTo(DataTypeDetection.DEFAULT_STRATEGY));
+    }
+
+    @Test
+    void testValidateFromResultSetRejected() {
         final PropertyValidator validator = DataTypeDetection.getValidator();
         final Exception exception = assertThrows(PropertyValidationException.class,
                 () -> validator.validate(adapterProperties("FROM_RESULT_SET")));
@@ -35,7 +41,7 @@ class DataTypeDetectionTest {
     @Test
     void testUnsetProperty() {
         final AdapterProperties properties = new AdapterProperties(Map.of());
-        final DataTypeDetection testee = DataTypeDetection.from(properties);
+        final DataTypeDetection testee = DataTypeDetection.create();
         assertThat(testee.getStrategy(), equalTo(DataTypeDetection.DEFAULT_STRATEGY));
         verifySuccess(properties);
     }

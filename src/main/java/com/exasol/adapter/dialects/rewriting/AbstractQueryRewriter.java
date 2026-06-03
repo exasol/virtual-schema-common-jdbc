@@ -11,8 +11,6 @@ import com.exasol.adapter.dialects.*;
 import com.exasol.adapter.jdbc.ConnectionDefinitionBuilder;
 import com.exasol.adapter.jdbc.RemoteMetadataReader;
 import com.exasol.adapter.metadata.DataType;
-import com.exasol.adapter.properties.DataTypeDetection;
-import com.exasol.adapter.properties.DataTypeDetection.Strategy;
 import com.exasol.adapter.sql.SqlStatement;
 import com.exasol.errorreporting.ExaError;
 
@@ -52,7 +50,6 @@ public abstract class AbstractQueryRewriter implements QueryRewriter {
                 final String connectionDefinition = this.connectionDefinitionBuilder
                                 .buildConnectionDefinition(properties, exaConnectionInformation);
 
-                if (DataTypeDetection.from(properties).getStrategy() == Strategy.EXASOL_CALCULATED) {
                         String importStatement;
                         if (!selectListDataTypes.isEmpty()) {
                                 importStatement = generateImportStatement(connectionDefinition, selectListDataTypes,
@@ -62,12 +59,6 @@ public abstract class AbstractQueryRewriter implements QueryRewriter {
                         }
                         LOGGER.finer(() -> "Import push-down statement:\n" + importStatement);
                         return importStatement;
-                } else {
-                        throw new AdapterException(ExaError.messageBuilder("E-VSCJDBC-46").message(
-                                        "Property `IMPORT_DATA_TYPES` value 'FROM_RESULT_SET' is no longer supported.")
-                                        .mitigation("Please remove the `IMPORT_DATA_TYPES` property from the virtual schema so the default value 'EXASOL_CALCULATED' is used.")
-                                        .toString());
-                }
         }
 
         private String createPushdownQuery(final SqlStatement statement, final AdapterProperties properties)
