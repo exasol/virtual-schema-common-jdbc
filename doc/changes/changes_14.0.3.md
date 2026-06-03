@@ -12,6 +12,7 @@ The release also makes interfaces `SqlDialectFactory`, `SqlDialect` and `Connect
 
 ## Bugfixes
 
+* #178: Fixed `SqlGenerationHelper.selectListRequiresCasts()` to stop scanning columns after the first cast requirement was found.
 * #174: Fix JDBCAdapter connection cleanup and lazy connection factory race
 * #182: Fixed dependency on mutating `subtractCapabilities()` method
 * #163: Fixed `JDBCAdapter.pushdown()` clearing the connection cache after successful requests.
