@@ -194,7 +194,7 @@ class BaseColumnMetadataReaderTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { "abc", "1,abc", "abc,10", "1.5,0", "0,1.5", "-1,0", "0,-1", "1,0,0" })
+    @ValueSource(strings = { "abc", "1,abc", "abc,10", "1.5,0", "0.1", "1.1", "0,1.5", "-1,0", "0,-1", "1,0,0" })
     void testGetNumberTypeFromPropertyWithInvalidValue(final String invalidValue) {
         final BaseColumnMetadataReader metadataReader = testee(Map.of("SOME_PROPERTY", invalidValue));
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
@@ -217,6 +217,6 @@ class BaseColumnMetadataReaderTest {
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> metadataReader.getNumberTypeFromProperty("SOME_PROPERTY"));
         assertThat(exception.getMessage(), equalTo(
-                "E-VSCJDBC-2: Adapter property SOME_PROPERTY is missing. The required format is '<precision>,<scale>', where both are integer numbers."));
+                "E-VSCJDBC-56: Adapter property SOME_PROPERTY is missing. The required format is '<precision>,<scale>', where both are integer numbers."));
     }
 }

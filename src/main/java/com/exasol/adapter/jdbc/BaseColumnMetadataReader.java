@@ -487,8 +487,8 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
     protected DataType getNumberTypeFromProperty(final String property) {
         final String precisionAndScale = this.properties.get(property);
         if (precisionAndScale == null) {
-            throw new IllegalArgumentException(ExaError.messageBuilder("E-VSCJDBC-2").message(
-                    "Adapter property {{property|uq}} is missing.", property)
+            throw new IllegalArgumentException(ExaError.messageBuilder("E-VSCJDBC-56")
+                    .message("Adapter property {{property|uq}} is missing.", property)
                     .mitigation("The required format is '<precision>,<scale>', where both are integer numbers.")
                     .toString());
         }
@@ -498,9 +498,9 @@ public class BaseColumnMetadataReader extends AbstractMetadataReader implements 
             final int scale = Integer.parseInt(matcher.group(2));
             return DataType.createDecimal(precision, scale);
         } else {
-            throw new IllegalArgumentException(ExaError.messageBuilder("E-VSCJDBC-2").message(
-                    "Unable to parse adapter property {{property|uq}} value {{precisionAndScale}} into a number precision and scale.", property,
-                    precisionAndScale)
+            throw new IllegalArgumentException(ExaError.messageBuilder("E-VSCJDBC-2")
+                    .message("Unable to parse adapter property {{property|uq}} value {{precisionAndScale}} into a number precision and scale.", property,
+                            precisionAndScale)
                     .mitigation("The required format is '<precision>,<scale>', where both are integer numbers.")
                     .toString());
         }
