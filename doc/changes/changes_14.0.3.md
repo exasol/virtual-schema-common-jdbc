@@ -16,6 +16,7 @@ The release also makes interfaces `SqlDialectFactory`, `SqlDialect` and `Connect
 * #182: Fixed dependency on mutating `subtractCapabilities()` method
 * #163: Fixed `JDBCAdapter.pushdown()` clearing the connection cache after successful requests.
 * #173: Fixed deserialization of column adapter notes when `typeName` is absent.
+* #177: Fixed JDBC metadata mapping for invalid and oversized character types.
 
 ## Dependency Updates
 
