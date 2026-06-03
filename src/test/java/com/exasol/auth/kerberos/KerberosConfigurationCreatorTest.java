@@ -51,13 +51,13 @@ class KerberosConfigurationCreatorTest {
     @Test
     void testWriteKerberosConfigurationFiles() {
         this.creator.writeKerberosConfigurationFiles(USER, KERBEROS_PASSWORD);
-        assertAll( //
-                this::assertJaasConfigurationPathProperty, //
-                this::assertKerberosConfigurationPathProperty, //
-                this::assertUseSubjectCredentialsProperty, //
-                () -> assertJaasConfigurationFileContent(getJaasConfigPathFromProperty()), //
-                () -> assertKerberosFileContent(KERBEROS_CONFIG_CONTENT), //
-                () -> assertKeyTableFileContent(getJaasConfigPathFromProperty()), //
+        assertAll(
+                this::assertJaasConfigurationPathProperty,
+                this::assertKerberosConfigurationPathProperty,
+                this::assertUseSubjectCredentialsProperty,
+                () -> assertJaasConfigurationFileContent(getJaasConfigPathFromProperty()),
+                () -> assertKerberosFileContent(KERBEROS_CONFIG_CONTENT),
+                () -> assertKeyTableFileContent(getJaasConfigPathFromProperty()),
                 this::assertTemporaryDirectoryPermissions);
     }
 
