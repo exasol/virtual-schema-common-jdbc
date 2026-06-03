@@ -40,7 +40,7 @@ public class SupportedPropertiesValidator implements PropertyValidator {
      * @return set of supported properties
      */
     public Set<String> getSupportedProperties() {
-        return this.supportedProperties;
+        return Set.copyOf(this.supportedProperties);
     }
 
     /**

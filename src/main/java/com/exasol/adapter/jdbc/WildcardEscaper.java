@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 public class WildcardEscaper {
 
     private static final Pattern REGEX_WILDCARDS = Pattern.compile("[\\\\$]");
-    private static final Pattern SQL_WINDCARDS = Pattern.compile("[_%]");
+    private static final Pattern SQL_WILDCARDS = Pattern.compile("[_%]");
 
     /**
      * Create a new instance of the {@link WildcardEscaper}.
@@ -23,7 +23,7 @@ public class WildcardEscaper {
      */
     public static WildcardEscaper instance(final String searchStringEscape) {
         final String escaped = new WildcardEscaper(REGEX_WILDCARDS, "\\\\").escape(searchStringEscape);
-        return new WildcardEscaper(SQL_WINDCARDS, escaped);
+        return new WildcardEscaper(SQL_WILDCARDS, escaped);
     }
 
     private final Pattern pattern;

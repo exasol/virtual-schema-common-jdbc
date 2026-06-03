@@ -99,7 +99,7 @@ class SchemaAdapterNotesTest {
         assertThat(schemaAdapterNotes.toString(),
                 equalTo("SchemaAdapterNotes{\ncatalogSeparator='.',"
                         + "\nidentifierQuoteString='\"',\nstoresLowerCaseIdentifiers=true,"
-                        + "\nstoresUpperCaseIdentifiers=true,\nstoresMixedCaseIdentifiers=false,"
+                        + "\nstoresUpperCaseIdentifiers=false,\nstoresMixedCaseIdentifiers=false,"
                         + "\nsupportsMixedCaseIdentifiers=true,\nstoresUpperCaseQuotedIdentifiers=false,"
                         + "\nstoresLowerCaseQuotedIdentifiers=true,\nstoresMixedCaseQuotedIdentifiers=false,"
                         + "\nsupportsMixedCaseQuotedIdentifiers=true,\nareNullsSortedAtEnd=true,"

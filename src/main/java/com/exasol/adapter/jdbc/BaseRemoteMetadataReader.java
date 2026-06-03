@@ -29,7 +29,7 @@ public final class BaseRemoteMetadataReader extends AbstractRemoteMetadataReader
     /**
      * Create a reader that handles column metadata.
      * <p>
-     * Override this method in cases where a remote data source needs specific handling of column metadata
+     * Override this method in subclasses if a remote data source needs specific handling of column metadata.
      *
      * @return column metadata reader
      */
@@ -41,7 +41,7 @@ public final class BaseRemoteMetadataReader extends AbstractRemoteMetadataReader
     /**
      * Create a reader that handles table metadata.
      * <p>
-     * Override this method in cases where a remote data source needs specific handling of table metadata
+     * Override this method in subclasses if a remote data source needs specific handling of table metadata.
      *
      * @return table metadata reader
      */

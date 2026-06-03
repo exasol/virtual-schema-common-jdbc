@@ -101,20 +101,12 @@ public final class SchemaAdapterNotesJsonConverter {
                             schemaName)
                     .mitigation("Please refresh the virtual schema.").toString(), exception);
         }
-        checkKey(root, CATALOG_SEPARATOR, schemaName);
-        checkKey(root, IDENTIFIER_QUOTE_STRING, schemaName);
-        checkKey(root, STORES_LOWER_CASE_IDENTIFIERS, schemaName);
-        checkKey(root, STORES_UPPER_CASE_IDENTIFIERS, schemaName);
-        checkKey(root, STORES_MIXED_CASE_IDENTIFIERS, schemaName);
-        checkKey(root, SUPPORTS_MIXED_CASE_IDENTIFIERS, schemaName);
-        checkKey(root, STORES_LOWER_CASE_QUOTED_IDENTIFIERS, schemaName);
-        checkKey(root, STORES_UPPER_CASE_QUOTED_IDENTIFIERS, schemaName);
-        checkKey(root, STORES_MIXED_CASE_QUOTED_IDENTIFIERS, schemaName);
-        checkKey(root, SUPPORTS_MIXED_CASE_QUOTED_IDENTIFIERS, schemaName);
-        checkKey(root, NULLS_ARE_SORTED_AT_END, schemaName);
-        checkKey(root, NULLS_ARE_SORTED_AT_START, schemaName);
-        checkKey(root, NULLS_ARE_SORTED_HIGH, schemaName);
-        checkKey(root, NULLS_ARE_SORTED_LOW, schemaName);
+        for (final String key : new String[] { CATALOG_SEPARATOR, IDENTIFIER_QUOTE_STRING, STORES_LOWER_CASE_IDENTIFIERS, STORES_UPPER_CASE_IDENTIFIERS,
+                STORES_MIXED_CASE_IDENTIFIERS, SUPPORTS_MIXED_CASE_IDENTIFIERS, STORES_LOWER_CASE_QUOTED_IDENTIFIERS, STORES_UPPER_CASE_QUOTED_IDENTIFIERS,
+                STORES_MIXED_CASE_QUOTED_IDENTIFIERS, SUPPORTS_MIXED_CASE_QUOTED_IDENTIFIERS, NULLS_ARE_SORTED_AT_END, NULLS_ARE_SORTED_AT_START,
+                NULLS_ARE_SORTED_HIGH, NULLS_ARE_SORTED_LOW }) {
+            checkKey(root, key, schemaName);
+        }
         return SchemaAdapterNotes.builder() //
                 .catalogSeparator(root.getString(CATALOG_SEPARATOR)) //
                 .identifierQuoteString(root.getString(IDENTIFIER_QUOTE_STRING)) //

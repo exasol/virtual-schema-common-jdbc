@@ -1,5 +1,7 @@
 package com.exasol.adapter.dialects;
 
+import java.util.Locale;
+
 /**
  * This class represents SQL table and column names converter.
  */
@@ -25,7 +27,7 @@ public class BaseIdentifierConverter extends AbstractIdentifierConverter {
     public String convert(final String identifier) {
         if ((this.quotedIdentifierHandling == this.unquotedIdentifierHandling)
                 && (this.quotedIdentifierHandling != IdentifierCaseHandling.INTERPRET_CASE_SENSITIVE)) {
-            return identifier.toUpperCase();
+            return identifier.toUpperCase(Locale.ROOT);
         } else {
             return identifier;
         }
