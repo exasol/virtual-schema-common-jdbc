@@ -4,7 +4,6 @@ import java.util.EnumSet;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
-import com.exasol.adapter.AdapterProperties;
 import com.exasol.errorreporting.ExaError;
 
 /**
@@ -41,11 +40,10 @@ public class DataTypeDetection {
     }
 
     /**
-     * @param properties Adapter Properties passed to {@code CREATE VIRTUAL SCHEMA}
-     * @return new instance of {@link DataTypeDetection} based on the properties
+     * @return new instance of {@link DataTypeDetection}
      */
-    public static DataTypeDetection from(final AdapterProperties properties) {
-        return new DataTypeDetection(getStrategy(properties));
+    public static DataTypeDetection create() {
+        return new DataTypeDetection(DEFAULT_STRATEGY);
     }
 
     /**
@@ -55,18 +53,6 @@ public class DataTypeDetection {
      */
     public static <T> T strategies(final Collector<CharSequence, ?, T> collector) {
         return EnumSet.allOf(Strategy.class).stream().map(Enum::toString).collect(collector);
-    }
-
-    private static Strategy getStrategy(final AdapterProperties properties) {
-        if (properties.containsKey(STRATEGY_PROPERTY)) {
-            if (Strategy.FROM_RESULT_SET.name().equals(properties.get(STRATEGY_PROPERTY))) {
-                return Strategy.FROM_RESULT_SET;
-            } else {
-                return DEFAULT_STRATEGY;
-            }
-        } else {
-            return DEFAULT_STRATEGY;
-        }
     }
 
     /**

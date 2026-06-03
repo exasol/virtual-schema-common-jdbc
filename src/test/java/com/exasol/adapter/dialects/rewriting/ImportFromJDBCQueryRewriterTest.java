@@ -2,7 +2,6 @@ package com.exasol.adapter.dialects.rewriting;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 import java.sql.SQLException;
@@ -59,19 +58,15 @@ class ImportFromJDBCQueryRewriterTest extends AbstractQueryRewriterTestBase {
     }
 
     @Test
-    void rewriteWithFromResultSetDatatypeDetection() throws SQLException {
+    void rewriteWithFromResultSetDatatypeDetection() throws AdapterException, SQLException {
         final SqlDialect dialect = new DummySqlDialect(null, AdapterProperties.emptyProperties(), null);
         when(exaMetadataMock.getDatabaseVersion()).thenReturn("8.34.0");
         final BaseRemoteMetadataReader metadataReader = new BaseRemoteMetadataReader(mockConnection(),
                 AdapterProperties.emptyProperties(), exaMetadataMock);
         final QueryRewriter queryRewriter = new ImportFromJDBCQueryRewriter(dialect, metadataReader,
                 new DummyConnectionDefinitionBuilder());
-        final Exception exception = assertThrows(AdapterException.class, () -> queryRewriter.rewrite(
-                TestSqlStatementFactory.createSelectOneFromDual(), EMPTY_SELECT_LIST_DATA_TYPES,
-                EXA_METADATA,
-                new AdapterProperties(Map.of(DataTypeDetection.STRATEGY_PROPERTY, "FROM_RESULT_SET"))));
-
-        assertThat(exception.getMessage(), equalTo(
-                "E-VSCJDBC-46: Property `IMPORT_DATA_TYPES` value 'FROM_RESULT_SET' is no longer supported. Please remove the `IMPORT_DATA_TYPES` property from the virtual schema so the default value 'EXASOL_CALCULATED' is used."));
+        assertThat(queryRewriter.rewrite(TestSqlStatementFactory.createSelectOneFromDual(), EMPTY_SELECT_LIST_DATA_TYPES,
+                EXA_METADATA, new AdapterProperties(Map.of(DataTypeDetection.STRATEGY_PROPERTY, "FROM_RESULT_SET"))),
+                equalTo("IMPORT FROM JDBC MY DUMMY DEFINITION BUILDER STATEMENT 'SELECT 1 FROM \"DUAL\"'"));
     }
 }
