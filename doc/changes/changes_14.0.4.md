@@ -9,3 +9,9 @@ This release fixes a regression where `ALTER VIRTUAL SCHEMA ... SET` could skip 
 ## Bugfixes
 
 * #192: Fixed `JDBCAdapter.setProperties()` to validate merged adapter properties for all property changes, even when the change does not refresh schema metadata.
+
+## Dependency Updates
+
+### Compile Dependency Updates
+
+* Updated `com.exasol:virtual-schema-common-java:18.0.2` to `18.0.3`
