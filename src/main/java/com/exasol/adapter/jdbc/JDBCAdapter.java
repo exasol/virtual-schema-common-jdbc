@@ -127,14 +127,14 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
         final Map<String, String> mergedRawProperties = mergeProperties(schemaMetadataInfo.getProperties(),
                 requestRawProperties);
         final AdapterProperties mergedProperties = new AdapterProperties(mergedRawProperties);
-        if (requiresRefreshOfVirtualSchema(requestRawProperties)) {
-            try (final SqlDialect dialect = createDialectAndValidateProperties(metadata, mergedProperties)) {
+        try (final SqlDialect dialect = createDialectAndValidateProperties(metadata, mergedProperties)) {
+            if (requiresRefreshOfVirtualSchema(requestRawProperties)) {
                 final List<String> tableFilter = getTableFilter(mergedRawProperties);
                 final SchemaMetadata remoteMeta = dialect.readSchemaMetadata(tableFilter);
                 return SetPropertiesResponse.builder().schemaMetadata(remoteMeta).build();
+            } else {
+                return SetPropertiesResponse.builder().schemaMetadata(null).build();
             }
-        } else {
-            return SetPropertiesResponse.builder().schemaMetadata(null).build();
         }
     }
 

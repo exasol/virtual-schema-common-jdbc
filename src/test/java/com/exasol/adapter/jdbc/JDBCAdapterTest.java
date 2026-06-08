@@ -5,6 +5,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
 
 import java.sql.SQLException;
@@ -17,14 +18,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.exasol.*;
 import com.exasol.adapter.*;
 import com.exasol.adapter.capabilities.*;
-import com.exasol.adapter.dialects.SqlDialect;
-import com.exasol.adapter.dialects.SqlDialectFactory;
+import com.exasol.adapter.dialects.*;
 import com.exasol.adapter.metadata.*;
 import com.exasol.adapter.properties.PropertyValidationException;
 import com.exasol.adapter.properties.TableCountLimit;
@@ -226,6 +227,21 @@ class JDBCAdapterTest {
         assertAll(() -> assertThat(tables, hasSize(2)),
                 () -> assertThat(tables.get(0).getName(), equalTo("T1")),
                 () -> assertThat(tables.get(1).getName(), equalTo("T2")));
+    }
+
+    @Test
+    void setPropertiesValidatesMergedPropertiesEvenIfChangeDoesNotRequireRefresh() throws AdapterException {
+        final JDBCAdapter jdbcAdapter = createAdapterWithMockDialect();
+        final SetPropertiesRequest request = new SetPropertiesRequest(createSchemaMetadataInfo(), Map.of("property", "invalid"));
+        doThrow(new PropertyValidationException("mock validation error")).when(dialectMock).validateProperties();
+
+        final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
+                () -> jdbcAdapter.setProperties(exaMetadataMock, request));
+
+        final ArgumentCaptor<JDBCAdapterContext> contextCaptor = ArgumentCaptor.forClass(JDBCAdapterContext.class);
+        verify(dialectFactoryMock).createSqlDialect(contextCaptor.capture());
+        assertAll(() -> assertThat(exception.getMessage(), equalTo("mock validation error")),
+                () -> verify(dialectMock, never()).readSchemaMetadata(anyList()));
     }
 
     @Test
