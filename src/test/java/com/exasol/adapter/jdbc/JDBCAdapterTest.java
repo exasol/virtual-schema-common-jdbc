@@ -27,7 +27,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.exasol.*;
 import com.exasol.adapter.*;
 import com.exasol.adapter.capabilities.*;
-import com.exasol.adapter.dialects.*;
+import com.exasol.adapter.dialects.SqlDialect;
+import com.exasol.adapter.dialects.SqlDialectFactory;
 import com.exasol.adapter.metadata.*;
 import com.exasol.adapter.properties.PropertyValidationException;
 import com.exasol.adapter.properties.TableCountLimit;
@@ -240,8 +241,6 @@ class JDBCAdapterTest {
         final PropertyValidationException exception = assertThrows(PropertyValidationException.class,
                 () -> jdbcAdapter.setProperties(exaMetadataMock, request));
 
-        final ArgumentCaptor<JDBCAdapterContext> contextCaptor = ArgumentCaptor.forClass(JDBCAdapterContext.class);
-        verify(dialectFactoryMock).createSqlDialect(contextCaptor.capture());
         assertAll(() -> assertThat(exception.getMessage(), equalTo("mock validation error")),
                 () -> verify(dialectMock, never()).readSchemaMetadata(anyList()));
     }
@@ -269,8 +268,6 @@ class JDBCAdapterTest {
     @Test
     void createVirtualSchemaWrapsSqlExceptions() throws AdapterException, SQLException {
         final JDBCAdapter jdbcAdapter = createAdapterWithMockDialect();
-        setDerbyConnectionNameProperty();
-        this.rawProperties.put(SCHEMA_NAME_PROPERTY, "SYSIBM");
         final CreateVirtualSchemaRequest request = new CreateVirtualSchemaRequest(createSchemaMetadataInfo());
         doNothing().when(dialectMock).validateProperties();
         doThrow(new SQLException("mock sql error")).when(dialectMock).readSchemaMetadata();
@@ -284,8 +281,6 @@ class JDBCAdapterTest {
     @Test
     void createVirtualSchemaReadsSelectedTables() throws AdapterException {
         final JDBCAdapter jdbcAdapter = createAdapterWithMockDialect();
-        setDerbyConnectionNameProperty();
-        this.rawProperties.put(SCHEMA_NAME_PROPERTY, "SYSIBM");
         this.rawProperties.put(TABLE_FILTER_PROPERTY, "T1, T2");
         final CreateVirtualSchemaRequest request = new CreateVirtualSchemaRequest(createSchemaMetadataInfo());
         final SchemaMetadata schemaMetadata = new SchemaMetadata("", List.of(new TableMetadata("T1", "", null, "")));
@@ -344,7 +339,6 @@ class JDBCAdapterTest {
     @Test
     void setPropertiesWithoutRefreshDoesNotReadMetadata() throws AdapterException {
         final JDBCAdapter jdbcAdapter = createAdapterWithMockDialect();
-        setDerbyConnectionNameProperty();
         final SetPropertiesRequest request = new SetPropertiesRequest(createSchemaMetadataInfo(), Map.of("property", "value"));
         doNothing().when(dialectMock).validateProperties();
 
@@ -444,8 +438,6 @@ class JDBCAdapterTest {
     @Test
     void pushdownWrapsSqlExceptions() throws AdapterException, SQLException {
         final JDBCAdapter jdbcAdapter = createAdapterWithMockDialect();
-        setDerbyConnectionNameProperty();
-        this.rawProperties.put(SCHEMA_NAME_PROPERTY, "SYSIBM");
         final PushDownRequest request = new PushDownRequest(createSchemaMetadataInfo(),
                 TestSqlStatementFactory.createSelectOneFromSysDummy(), null,
                 EMPTY_SELECT_LIST_DATA_TYPES);
