@@ -112,7 +112,7 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
         }
     }
 
-    private SchemaMetadata getRemoteMetadata(final SqlDialect sqlDialect, final List<String> tables)
+    private static SchemaMetadata getRemoteMetadata(final SqlDialect sqlDialect, final List<String> tables)
             throws SQLException {
         if (tables.isEmpty()) {
             return sqlDialect.readSchemaMetadata();
@@ -141,7 +141,7 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
         }
     }
 
-    private boolean requiresRefreshOfVirtualSchema(final Map<String, String> properties) {
+    private static boolean requiresRefreshOfVirtualSchema(final Map<String, String> properties) {
         return properties.containsKey(TableCountLimit.MAXTABLES_PROPERTY)
                 || AdapterProperties.isRefreshingVirtualSchemaRequired(properties);
     }
@@ -158,7 +158,8 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
                 .build());
     }
 
-    private Map<String, String> mergeProperties(final Map<String, String> previousRawProperties,
+    // Visible for testing
+    static Map<String, String> mergeProperties(final Map<String, String> previousRawProperties,
             final Map<String, String> requestRawProperties) {
         final Map<String, String> mergedRawProperties = new HashMap<>(previousRawProperties);
         for (final Map.Entry<String, String> requestRawProperty : requestRawProperties.entrySet()) {
@@ -171,7 +172,7 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
         return mergedRawProperties;
     }
 
-    private List<String> getTableFilter(final Map<String, String> properties) {
+    private static List<String> getTableFilter(final Map<String, String> properties) {
         final String tableNames = properties.get(TABLES_PROPERTY);
         if ((tableNames != null) && !tableNames.isEmpty()) {
             return Arrays.stream(tableNames.split(","))
@@ -197,7 +198,7 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
         }
     }
 
-    private Capabilities getExcludedCapabilities(final AdapterProperties properties) {
+    private static Capabilities getExcludedCapabilities(final AdapterProperties properties) {
         if (properties.containsKey(AdapterProperties.EXCLUDED_CAPABILITIES_PROPERTY)) {
             final String excludedCapabilitiesStr = properties.getExcludedCapabilities();
             return parseExcludedCapabilities(excludedCapabilitiesStr);
@@ -207,7 +208,7 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
         }
     }
 
-    private Capabilities parseExcludedCapabilities(final String excludedCapabilitiesString) {
+    private static Capabilities parseExcludedCapabilities(final String excludedCapabilitiesString) {
         LOGGER.config(() -> "Excluded Capabilities: "
                 + (excludedCapabilitiesString.isEmpty() ? "none" : excludedCapabilitiesString));
         return CapabilitiesParser.parseExcludedCapabilities(excludedCapabilitiesString);

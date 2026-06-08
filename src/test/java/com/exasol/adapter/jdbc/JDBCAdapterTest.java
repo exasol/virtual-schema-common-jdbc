@@ -3,9 +3,11 @@ package com.exasol.adapter.jdbc;
 import static com.exasol.adapter.AdapterProperties.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.contains;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 import java.sql.SQLException;
@@ -265,6 +267,41 @@ class JDBCAdapterTest {
     }
 
     @Test
+    void createVirtualSchemaWrapsSqlExceptions() throws AdapterException, SQLException {
+        final JDBCAdapter jdbcAdapter = createAdapterWithMockDialect();
+        setDerbyConnectionNameProperty();
+        this.rawProperties.put(SCHEMA_NAME_PROPERTY, "SYSIBM");
+        final CreateVirtualSchemaRequest request = new CreateVirtualSchemaRequest(createSchemaMetadataInfo());
+        doNothing().when(dialectMock).validateProperties();
+        doThrow(new SQLException("mock sql error")).when(dialectMock).readSchemaMetadata();
+
+        final AdapterException exception = assertThrows(AdapterException.class,
+                () -> jdbcAdapter.createVirtualSchema(exaMetadataMock, request));
+
+        assertThat(exception.getMessage(), equalTo("E-VSCJDBC-25: Unable create Virtual Schema \"THE_SCHEMA\". Cause: mock sql error"));
+    }
+
+    @Test
+    void createVirtualSchemaReadsSelectedTables() throws AdapterException {
+        final JDBCAdapter jdbcAdapter = createAdapterWithMockDialect();
+        setDerbyConnectionNameProperty();
+        this.rawProperties.put(SCHEMA_NAME_PROPERTY, "SYSIBM");
+        this.rawProperties.put(TABLE_FILTER_PROPERTY, "T1, T2");
+        final CreateVirtualSchemaRequest request = new CreateVirtualSchemaRequest(createSchemaMetadataInfo());
+        final SchemaMetadata schemaMetadata = new SchemaMetadata("", List.of(new TableMetadata("T1", "", null, "")));
+        doNothing().when(dialectMock).validateProperties();
+        when(dialectMock.readSchemaMetadata(anyList())).thenReturn(schemaMetadata);
+
+        jdbcAdapter.createVirtualSchema(exaMetadataMock, request);
+
+        @SuppressWarnings("unchecked")
+        final ArgumentCaptor<List<String>> tablesCaptor = ArgumentCaptor.forClass(List.class);
+
+        verify(dialectMock).readSchemaMetadata(tablesCaptor.capture());
+        assertThat(tablesCaptor.getValue(), equalTo(List.of("T1", "T2")));
+    }
+
+    @Test
     void testRefreshSelectedTables() throws AdapterException, ExaConnectionAccessException {
         setDerbyConnectionNameProperty();
         final List<String> tablesList = new ArrayList<>();
@@ -302,6 +339,33 @@ class JDBCAdapterTest {
                 () -> assertThat(exception.getMessage(),
                         equalTo("E-VSCJDBC-26: Unable refresh metadata of Virtual Schema \"THE_SCHEMA\". Cause: mock validation error")),
                 () -> assertThat(exception.getCause(), instanceOf(PropertyValidationException.class)));
+    }
+
+    @Test
+    void setPropertiesWithoutRefreshDoesNotReadMetadata() throws AdapterException {
+        final JDBCAdapter jdbcAdapter = createAdapterWithMockDialect();
+        setDerbyConnectionNameProperty();
+        final SetPropertiesRequest request = new SetPropertiesRequest(createSchemaMetadataInfo(), Map.of("property", "value"));
+        doNothing().when(dialectMock).validateProperties();
+
+        final SetPropertiesResponse response = jdbcAdapter.setProperties(exaMetadataMock, request);
+
+        assertAll(
+                () -> assertThat(response.getSchemaMetadata(), nullValue()),
+                () -> verify(dialectMock, never()).readSchemaMetadata(anyList()));
+    }
+
+    @Test
+    void mergePropertiesRemovesProperty() {
+        final Map<String, String> previousRawProperties = new HashMap<>();
+        previousRawProperties.put("keep", "1");
+        previousRawProperties.put("remove", "2");
+        final Map<String, String> requestRawProperties = new HashMap<>();
+        requestRawProperties.put("remove", null);
+
+        final Map<String, String> mergedRawProperties = JDBCAdapter.mergeProperties(previousRawProperties, requestRawProperties);
+
+        assertThat(mergedRawProperties, allOf(hasEntry("keep", "1"), not(hasKey("remove"))));
     }
 
     @ParameterizedTest
@@ -375,6 +439,26 @@ class JDBCAdapterTest {
 
         assertAll(() -> assertThat(response.getPushDownSql(), equalTo("IMPORT FROM JDBC")),
                 () -> verify(connectionFactory, never()).close());
+    }
+
+    @Test
+    void pushdownWrapsSqlExceptions() throws AdapterException, SQLException {
+        final JDBCAdapter jdbcAdapter = createAdapterWithMockDialect();
+        setDerbyConnectionNameProperty();
+        this.rawProperties.put(SCHEMA_NAME_PROPERTY, "SYSIBM");
+        final PushDownRequest request = new PushDownRequest(createSchemaMetadataInfo(),
+                TestSqlStatementFactory.createSelectOneFromSysDummy(), null,
+                EMPTY_SELECT_LIST_DATA_TYPES);
+        when(dialectMock.rewriteQuery(any(), anyList(), eq(exaMetadataMock))).thenThrow(
+                new SQLException("mock sql error"));
+
+        final AdapterException exception = assertThrows(AdapterException.class,
+                () -> jdbcAdapter.pushdown(exaMetadataMock, request));
+
+        assertAll(
+                () -> assertThat(exception.getMessage(),
+                        equalTo("E-VSCJDBC-27: Unable to execute push-down request. Cause: mock sql error")),
+                () -> assertThat(exception.getCause(), instanceOf(SQLException.class)));
     }
 
     private JDBCAdapter createAdapterWithMockDialect() {
