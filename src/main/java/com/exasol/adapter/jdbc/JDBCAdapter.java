@@ -13,7 +13,6 @@ import com.exasol.adapter.capabilities.Capabilities;
 import com.exasol.adapter.dialects.*;
 import com.exasol.adapter.metadata.SchemaMetadata;
 import com.exasol.adapter.metadata.SchemaMetadataInfo;
-import com.exasol.adapter.properties.PropertyValidationException;
 import com.exasol.adapter.properties.TableCountLimit;
 import com.exasol.adapter.request.*;
 import com.exasol.adapter.response.*;
@@ -49,7 +48,8 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
             final CreateVirtualSchemaRequest request) throws AdapterException {
         logCreateVirtualSchemaRequestReceived(request);
         final AdapterProperties properties = getPropertiesFromRequest(request);
-        try (final SqlDialect dialect = createDialectAndValidateProperties(exasolMetadata, properties)) {
+        try (final SqlDialect dialect = createDialect(exasolMetadata, properties)) {
+            dialect.validateProperties();
             final SchemaMetadata remoteMeta = getRemoteMetadata(dialect, properties.getFilteredTables());
             return CreateVirtualSchemaResponse.builder().schemaMetadata(remoteMeta).build();
         } catch (final SQLException exception) {
@@ -98,12 +98,13 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
     @Override
     public RefreshResponse refresh(final ExaMetadata metadata, final RefreshRequest request) throws AdapterException {
         final AdapterProperties properties = getPropertiesFromRequest(request);
-        try (final SqlDialect dialect = createDialectAndValidateProperties(metadata, properties)) {
+        try (final SqlDialect dialect = createDialect(metadata, properties)) {
+            dialect.validateProperties();
             final SchemaMetadata remoteMetadata = request.refreshesOnlySelectedTables() //
                     ? dialect.readSchemaMetadata(request.getTables())
                     : getRemoteMetadata(dialect, properties.getFilteredTables());
             return RefreshResponse.builder().schemaMetadata(remoteMetadata).build();
-        } catch (final SQLException | PropertyValidationException exception) {
+        } catch (final SQLException exception) {
             throw new AdapterException(ExaError.messageBuilder("E-VSCJDBC-26").message(
                     "Unable refresh metadata of Virtual Schema \"{{virtualSchemaName|uq}}\". Cause: {{cause|uq}}",
                     request.getSchemaMetadataInfo().getSchemaName(), exception.getMessage()).toString(), exception);
@@ -127,7 +128,8 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
         final Map<String, String> mergedRawProperties = mergeProperties(schemaMetadataInfo.getProperties(),
                 requestRawProperties);
         final AdapterProperties mergedProperties = new AdapterProperties(mergedRawProperties);
-        try (final SqlDialect dialect = createDialectAndValidateProperties(metadata, mergedProperties)) {
+        try (final SqlDialect dialect = createDialect(metadata, mergedProperties)) {
+            dialect.validateProperties();
             if (requiresRefreshOfVirtualSchema(requestRawProperties)) {
                 final List<String> tableFilter = getTableFilter(mergedRawProperties);
                 final SchemaMetadata remoteMeta = dialect.readSchemaMetadata(tableFilter);
@@ -141,13 +143,6 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
     private boolean requiresRefreshOfVirtualSchema(final Map<String, String> properties) {
         return properties.containsKey(TableCountLimit.MAXTABLES_PROPERTY)
                 || AdapterProperties.isRefreshingVirtualSchemaRequired(properties);
-    }
-
-    private SqlDialect createDialectAndValidateProperties(final ExaMetadata metadata,
-            final AdapterProperties properties) throws PropertyValidationException {
-        final SqlDialect dialect = createDialect(metadata, properties);
-        dialect.validateProperties();
-        return dialect;
     }
 
     private SqlDialect createDialect(final ExaMetadata metadata, final AdapterProperties properties) {

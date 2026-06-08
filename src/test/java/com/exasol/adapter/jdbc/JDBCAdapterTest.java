@@ -279,6 +279,17 @@ class JDBCAdapterTest {
                         equalTo("SYSDUMMY1")));
     }
 
+    @Test
+    void refreshValidatesProperties() throws AdapterException {
+        final JDBCAdapter jdbcAdapter = createAdapterWithMockDialect();
+        final RefreshRequest request = new RefreshRequest(createSchemaMetadataInfo(), List.of("SYSDUMMY1"));
+        when(dialectMock.readSchemaMetadata(anyList())).thenReturn(new SchemaMetadata("", List.of()));
+
+        jdbcAdapter.refresh(exaMetadataMock, request);
+
+        verify(dialectMock).validateProperties();
+    }
+
     @ParameterizedTest
     @ValueSource(strings = { "hello", "0", "-1", "", "1,700" })
     void testValidateMaxTablesAtCreate(final String paramValue) {
