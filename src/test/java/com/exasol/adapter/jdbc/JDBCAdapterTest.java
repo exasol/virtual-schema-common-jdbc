@@ -290,6 +290,20 @@ class JDBCAdapterTest {
         verify(dialectMock).validateProperties();
     }
 
+    @Test
+    void refreshWrapsPropertyValidationExceptions() throws AdapterException {
+        final JDBCAdapter jdbcAdapter = createAdapterWithMockDialect();
+        final RefreshRequest request = new RefreshRequest(createSchemaMetadataInfo(), List.of("SYSDUMMY1"));
+        doThrow(new PropertyValidationException("mock validation error")).when(dialectMock).validateProperties();
+
+        final AdapterException exception = assertThrows(AdapterException.class, () -> jdbcAdapter.refresh(exaMetadataMock, request));
+
+        assertAll(
+                () -> assertThat(exception.getMessage(),
+                        equalTo("E-VSCJDBC-26: Unable refresh metadata of Virtual Schema \"THE_SCHEMA\". Cause: mock validation error")),
+                () -> assertThat(exception.getCause(), instanceOf(PropertyValidationException.class)));
+    }
+
     @ParameterizedTest
     @ValueSource(strings = { "hello", "0", "-1", "", "1,700" })
     void testValidateMaxTablesAtCreate(final String paramValue) {

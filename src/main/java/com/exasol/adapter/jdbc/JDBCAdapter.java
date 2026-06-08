@@ -13,6 +13,7 @@ import com.exasol.adapter.capabilities.Capabilities;
 import com.exasol.adapter.dialects.*;
 import com.exasol.adapter.metadata.SchemaMetadata;
 import com.exasol.adapter.metadata.SchemaMetadataInfo;
+import com.exasol.adapter.properties.PropertyValidationException;
 import com.exasol.adapter.properties.TableCountLimit;
 import com.exasol.adapter.request.*;
 import com.exasol.adapter.response.*;
@@ -104,7 +105,7 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
                     ? dialect.readSchemaMetadata(request.getTables())
                     : getRemoteMetadata(dialect, properties.getFilteredTables());
             return RefreshResponse.builder().schemaMetadata(remoteMetadata).build();
-        } catch (final SQLException exception) {
+        } catch (final SQLException | PropertyValidationException exception) {
             throw new AdapterException(ExaError.messageBuilder("E-VSCJDBC-26").message(
                     "Unable refresh metadata of Virtual Schema \"{{virtualSchemaName|uq}}\". Cause: {{cause|uq}}",
                     request.getSchemaMetadataInfo().getSchemaName(), exception.getMessage()).toString(), exception);
