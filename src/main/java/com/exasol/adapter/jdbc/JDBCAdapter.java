@@ -49,7 +49,8 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
             final CreateVirtualSchemaRequest request) throws AdapterException {
         logCreateVirtualSchemaRequestReceived(request);
         final AdapterProperties properties = getPropertiesFromRequest(request);
-        try (final SqlDialect dialect = createDialectAndValidateProperties(exasolMetadata, properties)) {
+        try (final SqlDialect dialect = createDialect(exasolMetadata, properties)) {
+            dialect.validateProperties();
             final SchemaMetadata remoteMeta = getRemoteMetadata(dialect, properties.getFilteredTables());
             return CreateVirtualSchemaResponse.builder().schemaMetadata(remoteMeta).build();
         } catch (final SQLException exception) {
@@ -98,7 +99,8 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
     @Override
     public RefreshResponse refresh(final ExaMetadata metadata, final RefreshRequest request) throws AdapterException {
         final AdapterProperties properties = getPropertiesFromRequest(request);
-        try (final SqlDialect dialect = createDialectAndValidateProperties(metadata, properties)) {
+        try (final SqlDialect dialect = createDialect(metadata, properties)) {
+            dialect.validateProperties();
             final SchemaMetadata remoteMetadata = request.refreshesOnlySelectedTables() //
                     ? dialect.readSchemaMetadata(request.getTables())
                     : getRemoteMetadata(dialect, properties.getFilteredTables());
@@ -110,7 +112,7 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
         }
     }
 
-    private SchemaMetadata getRemoteMetadata(final SqlDialect sqlDialect, final List<String> tables)
+    private static SchemaMetadata getRemoteMetadata(final SqlDialect sqlDialect, final List<String> tables)
             throws SQLException {
         if (tables.isEmpty()) {
             return sqlDialect.readSchemaMetadata();
@@ -127,27 +129,21 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
         final Map<String, String> mergedRawProperties = mergeProperties(schemaMetadataInfo.getProperties(),
                 requestRawProperties);
         final AdapterProperties mergedProperties = new AdapterProperties(mergedRawProperties);
-        if (requiresRefreshOfVirtualSchema(requestRawProperties)) {
-            try (final SqlDialect dialect = createDialectAndValidateProperties(metadata, mergedProperties)) {
+        try (final SqlDialect dialect = createDialect(metadata, mergedProperties)) {
+            dialect.validateProperties();
+            if (requiresRefreshOfVirtualSchema(requestRawProperties)) {
                 final List<String> tableFilter = getTableFilter(mergedRawProperties);
                 final SchemaMetadata remoteMeta = dialect.readSchemaMetadata(tableFilter);
                 return SetPropertiesResponse.builder().schemaMetadata(remoteMeta).build();
+            } else {
+                return SetPropertiesResponse.builder().schemaMetadata(null).build();
             }
-        } else {
-            return SetPropertiesResponse.builder().schemaMetadata(null).build();
         }
     }
 
-    private boolean requiresRefreshOfVirtualSchema(final Map<String, String> properties) {
+    private static boolean requiresRefreshOfVirtualSchema(final Map<String, String> properties) {
         return properties.containsKey(TableCountLimit.MAXTABLES_PROPERTY)
                 || AdapterProperties.isRefreshingVirtualSchemaRequired(properties);
-    }
-
-    private SqlDialect createDialectAndValidateProperties(final ExaMetadata metadata,
-            final AdapterProperties properties) throws PropertyValidationException {
-        final SqlDialect dialect = createDialect(metadata, properties);
-        dialect.validateProperties();
-        return dialect;
     }
 
     private SqlDialect createDialect(final ExaMetadata metadata, final AdapterProperties properties) {
@@ -162,7 +158,8 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
                 .build());
     }
 
-    private Map<String, String> mergeProperties(final Map<String, String> previousRawProperties,
+    // Visible for testing
+    static Map<String, String> mergeProperties(final Map<String, String> previousRawProperties,
             final Map<String, String> requestRawProperties) {
         final Map<String, String> mergedRawProperties = new HashMap<>(previousRawProperties);
         for (final Map.Entry<String, String> requestRawProperty : requestRawProperties.entrySet()) {
@@ -175,7 +172,7 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
         return mergedRawProperties;
     }
 
-    private List<String> getTableFilter(final Map<String, String> properties) {
+    private static List<String> getTableFilter(final Map<String, String> properties) {
         final String tableNames = properties.get(TABLES_PROPERTY);
         if ((tableNames != null) && !tableNames.isEmpty()) {
             return Arrays.stream(tableNames.split(","))
@@ -201,7 +198,7 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
         }
     }
 
-    private Capabilities getExcludedCapabilities(final AdapterProperties properties) {
+    private static Capabilities getExcludedCapabilities(final AdapterProperties properties) {
         if (properties.containsKey(AdapterProperties.EXCLUDED_CAPABILITIES_PROPERTY)) {
             final String excludedCapabilitiesStr = properties.getExcludedCapabilities();
             return parseExcludedCapabilities(excludedCapabilitiesStr);
@@ -211,7 +208,7 @@ public class JDBCAdapter implements VirtualSchemaAdapter {
         }
     }
 
-    private Capabilities parseExcludedCapabilities(final String excludedCapabilitiesString) {
+    private static Capabilities parseExcludedCapabilities(final String excludedCapabilitiesString) {
         LOGGER.config(() -> "Excluded Capabilities: "
                 + (excludedCapabilitiesString.isEmpty() ? "none" : excludedCapabilitiesString));
         return CapabilitiesParser.parseExcludedCapabilities(excludedCapabilitiesString);
