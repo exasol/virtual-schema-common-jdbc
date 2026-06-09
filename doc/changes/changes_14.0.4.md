@@ -1,4 +1,4 @@
-# Virtual Schema Common JDBC 14.0.4, released 2026-06-08
+# Virtual Schema Common JDBC 14.0.4, released 2026-06-09
 
 Code name: Property Validation Regression Fix
 
