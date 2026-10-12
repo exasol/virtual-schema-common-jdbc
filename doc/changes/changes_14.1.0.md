@@ -4,9 +4,17 @@ Code name: Add Capabilities
 
 ## Summary
 
-Added the `FN_AGG_CORR`, `FN_AGG_GROUPING`, `FN_AGG_GROUPING_ID`, `FN_LAST_DAY`, and `FN_LEFT` capabilities.
+Added the `FN_AGG_CORR`, `FN_AGG_GROUPING`, `FN_AGG_GROUPING_ID`, `FN_LAST_DAY`, and `FN_LEFT` capabilities by upgrading to `virtual-schema-common-java` 18.1.0.
+
+## Features
+
+* #198: Add VS capabilities
 
 ## Dependency Updates
+
+### Compile Dependency Updates
+
+* Updated `com.exasol:virtual-schema-common-java:18.0.4` to `18.1.0`
 
 ### Test Dependency Updates
 
