@@ -55,6 +55,7 @@ class RemoteConnectionFactoryTest {
 
     private Connection createConnection() throws SQLException {
         final AdapterProperties properties = new AdapterProperties(this.rawProperties);
+        @SuppressWarnings("resource") // Mock connection does not need to be closed
         final ConnectionFactory factory = new RemoteConnectionFactory(this.exaMetadataMock, properties);
         return factory.getConnection();
     }
