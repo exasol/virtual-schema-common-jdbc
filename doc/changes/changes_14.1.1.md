@@ -33,7 +33,7 @@ com.vaadin.external.google:android-json / 0.0.20131108.vaadin1 / none
 
 ### Test Dependency Updates
 
-* Updated `org.apache.derby:derby:10.15.2.0` to `10.17.1.0`
+* Removed `org.skyscreamer:jsonassert:1.5.3`
 
 ### Plugin Dependency Updates
 

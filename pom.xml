@@ -58,8 +58,8 @@
         <dependency>
             <groupId>org.apache.derby</groupId>
             <artifactId>derby</artifactId>
-            <!-- We can't update this since newer versions require Java 17 or newer. -->
-            <version>10.17.1.0</version>
+            <!-- Newer versions require a newer Java version than this project's Java 11 test toolchain. -->
+            <version>10.15.2.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
