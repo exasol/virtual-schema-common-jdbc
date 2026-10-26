@@ -33,9 +33,7 @@ com.vaadin.external.google:android-json / 0.0.20131108.vaadin1 / none
 
 ### Test Dependency Updates
 
-* Updated `nl.jqno.equalsverifier:equalsverifier:3.19.4` to `4.5.2`
 * Updated `org.apache.derby:derby:10.15.2.0` to `10.17.1.0`
-* Updated `org.junit.jupiter:junit-jupiter-params:5.14.4` to `6.1.3`
 
 ### Plugin Dependency Updates
 
