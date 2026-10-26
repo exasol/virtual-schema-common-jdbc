@@ -1,5 +1,6 @@
 package com.exasol.adapter.adapternotes;
 
+import static com.exasol.adapter.JsonAssertions.assertJsonContains;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.nullValue;
@@ -8,10 +9,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.sql.Types;
 
-import org.json.JSONException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
 
 import com.exasol.adapter.AdapterException;
 
@@ -24,28 +23,28 @@ class ColumnAdapterNotesJsonConverterTest {
     }
 
     @Test
-    void testConvertToJsonWithTypeName() throws JSONException {
+    void testConvertToJsonWithTypeName() {
         final int expectedType = Types.DATE;
         final String expectedTypeName = "THETYPE";
         final ColumnAdapterNotes adapterNotes = ColumnAdapterNotes.builder() //
                 .jdbcDataType(expectedType) //
                 .typeName(expectedTypeName) //
                 .build();
-        JSONAssert.assertEquals("{" //
+        assertJsonContains("{" //
                 + "\"" + ColumnAdapterNotesJsonConverter.JDBC_DATA_TYPE + "\":" + expectedType + "," //
                 + "\"" + ColumnAdapterNotesJsonConverter.TYPE_NAME + "\":\"" + expectedTypeName + "\"" //
-                + "}", this.converter.convertToJson(adapterNotes), false);
+                + "}", this.converter.convertToJson(adapterNotes));
     }
 
     @Test
-    void testConvertToJsonWithoutTypeName() throws JSONException {
+    void testConvertToJsonWithoutTypeName() {
         final int expectedType = Types.DATE;
         final ColumnAdapterNotes adapterNotes = ColumnAdapterNotes.builder()
                 .jdbcDataType(expectedType)
                 .build();
-        JSONAssert.assertEquals("{"
+        assertJsonContains("{"
                 + "\"" + ColumnAdapterNotesJsonConverter.JDBC_DATA_TYPE + "\":" + expectedType
-                + "}", this.converter.convertToJson(adapterNotes), false);
+                + "}", this.converter.convertToJson(adapterNotes));
     }
 
     @Test

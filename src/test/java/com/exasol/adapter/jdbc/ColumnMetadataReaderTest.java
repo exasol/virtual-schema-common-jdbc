@@ -1,5 +1,6 @@
 package com.exasol.adapter.jdbc;
 
+import static com.exasol.adapter.JsonAssertions.assertJsonStrictEquals;
 import static com.exasol.adapter.jdbc.BaseColumnMetadataReader.*;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -12,8 +13,6 @@ import static org.mockito.Mockito.when;
 import java.sql.*;
 import java.util.List;
 
-import com.exasol.ExaMetadata;
-import org.json.JSONException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,8 +21,8 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.skyscreamer.jsonassert.JSONAssert;
 
+import com.exasol.ExaMetadata;
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.dialects.BaseIdentifierConverter;
 import com.exasol.adapter.metadata.ColumnMetadata;
@@ -418,9 +417,9 @@ class ColumnMetadataReaderTest {
     }
 
     @Test
-    void testMapColumnAdapterNotes() throws SQLException, JSONException {
+    void testMapColumnAdapterNotes() throws SQLException {
         when(this.columnsMock.getInt(DATA_TYPE_COLUMN)).thenReturn(Types.DOUBLE);
-        JSONAssert.assertEquals("{\"jdbcDataType\":8,\"typeName\":\"DOUBLE\"}",
-                mapSingleMockedColumn("DOUBLE").getAdapterNotes(), true);
+        assertJsonStrictEquals("{\"jdbcDataType\":8,\"typeName\":\"DOUBLE\"}",
+                mapSingleMockedColumn("DOUBLE").getAdapterNotes());
     }
 }
