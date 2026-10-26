@@ -1,4 +1,4 @@
-# Virtual Schema Common JDBC 14.1.1, released 2026-??-??
+# Virtual Schema Common JDBC 14.1.1, released 2026-10-26
 
 Code name: Fixed vulnerability CVE-2026-110974 in com.vaadin.external.google:android-json:jar:0.0.20131108.vaadin1:test
 

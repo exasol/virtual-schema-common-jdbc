@@ -1,14 +1,13 @@
 package com.exasol.adapter.adapternotes;
 
+import static com.exasol.adapter.JsonAssertions.assertJsonContains;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.json.JSONException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
 
 import com.exasol.adapter.AdapterException;
 
@@ -36,9 +35,8 @@ class SchemaAdapterNotesJsonConverterTest {
             + "\"areNullsSortedLow\":false}";
 
     @Test
-    void testConvertToJsonWithDefaultValues() throws JSONException {
-        JSONAssert.assertEquals(SERIALIZED_STRING, this.converter.convertToJson(SchemaAdapterNotes.builder().build()),
-                false);
+    void testConvertToJsonWithDefaultValues() {
+        assertJsonContains(SERIALIZED_STRING, this.converter.convertToJson(SchemaAdapterNotes.builder().build()));
     }
 
     @Test
