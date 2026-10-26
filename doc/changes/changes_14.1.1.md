@@ -20,6 +20,7 @@ No fixed version will be released. Replace the artifact with an org.json impleme
 Artifacts
 Maven coordinates / Vulnerable versions / Fixed version
 com.vaadin.external.google:android-json / 0.0.20131108.vaadin1 / none
+
 #### References
 * https://guide.sonatype.com/vulnerability/CVE-2026-110974?component-type=maven&component-name=com.vaadin.external.google%2Fandroid-json&utm_source=ossindex-client&utm_medium=integration&utm_content=1.8.1
 * http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2026-110974
